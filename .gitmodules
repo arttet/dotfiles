@@ -1,0 +1,19 @@
+[submodule ".config/yazi/flavors/yazi-rs-flavors"]
+	path = .config/yazi/flavors/yazi-rs-flavors
+	url = https://github.com/yazi-rs/flavors.git
+
+[submodule ".config/yazi/plugins/glow.yazi"]
+	path = .config/yazi/plugins/glow.yazi
+	url = https://github.com/Reledia/glow.yazi.git
+
+[submodule ".config/yazi/plugins/torrent-preview.yazi"]
+	path = .config/yazi/plugins/torrent-preview.yazi
+  url = https://github.com/kirasok/torrent-preview.yazi
+
+[submodule ".tmux/plugins/tpm"]
+	path = .tmux/plugins/tpm
+  url = https://github.com/tmux-plugins/tpm.git
+
+[submodule "doc/themes/adidoks"]
+	path = doc/themes/adidoks
+	url = https://github.com/aaranxu/adidoks.git
