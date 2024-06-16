@@ -8,11 +8,11 @@
 
 [submodule ".config/yazi/plugins/torrent-preview.yazi"]
 	path = .config/yazi/plugins/torrent-preview.yazi
-  url = https://github.com/kirasok/torrent-preview.yazi
+	url = https://github.com/kirasok/torrent-preview.yazi
 
 [submodule ".tmux/plugins/tpm"]
 	path = .tmux/plugins/tpm
-  url = https://github.com/tmux-plugins/tpm.git
+	url = https://github.com/tmux-plugins/tpm.git
 
 [submodule "doc/themes/adidoks"]
 	path = doc/themes/adidoks
