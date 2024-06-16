@@ -1,0 +1,14 @@
+# Git
+
+\.git
+\.gitignore
+\.gitmodules
+
+^/LICENSE.*
+^/README.*
+
+# Internal data
+\.github
+
+/doc
+Makefile
