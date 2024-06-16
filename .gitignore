@@ -1,5 +1,5 @@
-# Bash
-.extra
+# Bash & zsh
+.shell/extra
 
 # tmux plugins
 .tmux/plugins/tmux
