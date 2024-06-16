@@ -7,3 +7,7 @@ elif [ -x "$(command -v vim)" ]; then
     export EDITOR=vim
     export VISUAL=vim
 fi
+
+export LANG=en_US.UTF-8
+
+export FZF_DEFAULT_COMMAND='rg --files --no-ignore --hidden --follow --glob "!.git/*"'
