@@ -1,0 +1,11 @@
+# ~/.shell/path
+
+# Rust (see https://www.rust-lang.org)
+if [[ -d "$HOME/.cargo" ]]; then
+    source "$HOME/.cargo/env"
+fi
+
+# pip (see https://packaging.python.org/en/latest/tutorials/installing-packages)
+if [[ -d "$HOME/.local/bin" ]]; then
+    export PATH="$PATH:$HOME/.local/bin"
+fi

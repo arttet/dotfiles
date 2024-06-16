@@ -1,0 +1,48 @@
+# ~/.shell/aliases
+
+# exa (see https://the.exa.website)
+if [ -x "$(command -v exa)" ]; then
+    alias ls="exa --tree --level=1 --icons --no-time --no-user --no-permissions"
+    alias ll="exa --long --group --icons --time-style=long-iso"
+    alias la="exa --long --all --group --icons --time-style=long-iso"
+fi
+
+# bat (see https://github.com/sharkdp/bat)
+if [ -x "$(command -v bat)" ]; then
+    alias cat="bat --theme=GitHub"
+fi
+
+# bat on Ubuntu (see https://github.com/sharkdp/bat?tab=readme-ov-file#on-ubuntu-using-apt)
+if [ -x "$(command -v batcat)" ]; then
+    alias cat="bat --theme=GitHub"
+fi
+
+# duf (see https://github.com/muesli/duf)
+if [ -x "$(command -v duf)" ]; then
+    alias df="duf"
+fi
+
+# bcdu (see https://dev.yorhel.nl/ncdu)
+if [ -x "$(command -v ncdu)" ]; then
+    alias du="ncdu"
+fi
+
+# tldr (see https://github.com/tldr-pages/tldr)
+if [ -x "$(command -v tldr)" ]; then
+    alias man="tldr"
+fi
+
+# fd (see https://github.com/sharkdp/fd)
+if [ -x "$(command -v fd)" ]; then
+    alias fd="fd -HI"
+fi
+
+# Neovim (see https://neovim.io)
+if [ -x "$(command -v nvim)" ]; then
+    alias n="nvim"
+fi
+
+# oh-my-posh (see https://ohmyposh.dev)
+if [ -x "$(command -v oh-my-posh)" ]; then
+    alias omp="oh-my-posh"
+fi

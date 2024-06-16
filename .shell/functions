@@ -1,0 +1,23 @@
+# ~/.shell/functions
+
+# Yazi (see https://yazi-rs.github.io/)
+function yy() {
+    local tmp="$(mktemp -t "yazi-cwd.XXXXXX")"
+    yazi "$@" --cwd-file="$tmp"
+    if cwd="$(cat -- "$tmp")" && [ -n "$cwd" ] && [ "$cwd" != "$PWD" ]; then
+        cd -- "$cwd"
+    fi
+    rm -f -- "$tmp"
+}
+
+if [ -x "$(command -v gsettings)" ]; then
+    function color_scheme() {
+        local color_scheme=$(gsettings get org.gnome.desktop.interface color-scheme)
+
+        if [[ "${color_scheme}" == *"dark"* ]]; then
+            echo "dark"
+        else
+            echo "light"
+        fi
+    }
+fi
