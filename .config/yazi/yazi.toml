@@ -1,0 +1,11 @@
+[plugin]
+
+prepend_previewers = [
+  # Markdown
+  { name = "*.md", run = "glow" },
+  # Torrent
+  { name = "*.torrent", run = "torrent-preview" },
+]
+
+[log]
+enabled = true
