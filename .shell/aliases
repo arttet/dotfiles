@@ -9,12 +9,12 @@ fi
 
 # bat (see https://github.com/sharkdp/bat)
 if [ -x "$(command -v bat)" ]; then
-    alias cat="bat --theme=GitHub"
+    alias cat="bat"
 fi
 
 # bat on Ubuntu (see https://github.com/sharkdp/bat?tab=readme-ov-file#on-ubuntu-using-apt)
 if [ -x "$(command -v batcat)" ]; then
-    alias cat="bat --theme=GitHub"
+    alias cat="bat"
 fi
 
 # duf (see https://github.com/muesli/duf)
@@ -35,11 +35,6 @@ fi
 # fd (see https://github.com/sharkdp/fd)
 if [ -x "$(command -v fd)" ]; then
     alias fd="fd -HI"
-fi
-
-# Neovim (see https://neovim.io)
-if [ -x "$(command -v nvim)" ]; then
-    alias n="nvim"
 fi
 
 # oh-my-posh (see https://ohmyposh.dev)
