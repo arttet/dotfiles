@@ -33,3 +33,7 @@
 [submodule ".config/oh-my-zsh/custom/plugins/zsh-syntax-highlighting"]
 	path = .config/oh-my-zsh/custom/plugins/zsh-syntax-highlighting
 	url = https://github.com/zsh-users/zsh-syntax-highlighting.git
+
+[submodule ".config/alacritty/themes"]
+	path = .config/alacritty/themes
+	url = https://github.com/alacritty/alacritty-theme

@@ -1,0 +1,23 @@
+import = [
+  "~/.config/alacritty/themes/themes/github_light.toml"
+]
+
+[env]
+TERM = "xterm-256color"
+
+[window]
+padding = { x = 5, y = 5 }
+opacity = 0.95
+blur = true
+startup_mode = "Maximized"
+
+[scrolling]
+history = 20000
+multiplier = 1
+
+[font]
+normal = { family = "JetBrainsMono Nerd Font", style = "Regular" }
+bold = { family = "JetBrainsMono Nerd Font", style = "Bold" }
+italic = { family = "JetBrainsMono Nerd Font", style = "Italic" }
+bold_italic = { family = "JetBrainsMono Nerd Font", style = "Bold Italic" }
+size = 12.0
