@@ -56,7 +56,7 @@ source $ZSH/oh-my-zsh.sh
 # User configuration
 
 # User specific (bash & zsh) aliases, functions and etc.
-for file in ~/.shell/{path,exports,functions,aliases,extra}; do
+for file in ~/.shell/{path,functions,exports,aliases,extra}; do
     [ -r "$file" ] && [ -f "$file" ] && source "$file";
 done;
 
@@ -65,5 +65,5 @@ unset file;
 # zsh prompt: oh-my-posh (see https://ohmyposh.dev)
 if [ -x "$(command -v oh-my-posh)" ]; then
     eval "$(oh-my-posh init zsh)"
-    eval "$(oh-my-posh init zsh --config ${HOME}/.config/oh-my-posh/themes/blue-owl.omp.json)"
+    eval "$(oh-my-posh init zsh --config ${OMP_THEME})"
 fi

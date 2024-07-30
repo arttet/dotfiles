@@ -6,7 +6,7 @@ if [ -f /etc/bashrc ]; then
 fi
 
 # User specific (bash & zsh) aliases, functions and etc.
-for file in ~/.shell/{path,exports,functions,aliases,extra}; do
+for file in ~/.shell/{path,functions,exports,aliases,extra}; do
     [ -r "$file" ] && [ -f "$file" ] && source "$file";
 done;
 
@@ -24,5 +24,5 @@ unset file;
 # Bash prompt: oh-my-posh (see https://ohmyposh.dev)
 if [ -x "$(command -v oh-my-posh)" ]; then
     eval "$(oh-my-posh init bash)"
-    eval "$(oh-my-posh init bash --config ${HOME}/.config/oh-my-posh/themes/jandedobbeleer.omp.json)"
+    eval "$(oh-my-posh init bash --config ${OMP_THEME})"
 fi
