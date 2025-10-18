@@ -1,6 +1,21 @@
+-- Configures the lazy.nvim plugin manager.
+-- Sets default lazy loading, enables luarocks, and configures UI and performance settings.
+
 return {
-  defaults = { lazy = true },
-  install = { colorscheme = { "nvchad" } },
+  defaults = {
+    lazy = true,
+  },
+
+  rocks = {
+    enabled = true,
+    nvim_rocks_version = "auto",
+  },
+
+  install = {
+    colorscheme = {
+      "nvchad",
+    },
+  },
 
   ui = {
     icons = {
