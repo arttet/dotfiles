@@ -1,16 +1,66 @@
--- This file  needs to have same structure as nvconfig.lua 
--- https://github.com/NvChad/NvChad/blob/v2.5/lua/nvconfig.lua
+-- This file needs to have same structure as nvconfig.lua
+-- https://github.com/NvChad/ui/blob/v3.0/lua/nvconfig.lua
 
----@type ChadrcConfig
+---@class ChadrcConfig
 local M = {}
 
-M.ui = {
-	theme = "onedark",
+M.base46 = {
+  theme = "catppuccin",
+  theme_toggle = { "catppuccin", "gruvbox_light" },
+}
 
-	-- hl_override = {
-	-- 	Comment = { italic = true },
-	-- 	["@comment"] = { italic = true },
-	-- },
+M.nvdash = {
+  load_on_startup = true,
+  header = {
+    " ███╗   ██╗ ███████╗ ██████╗  ██╗   ██╗ ██╗ ███╗   ███╗",
+    " ████╗  ██║ ██╔════╝██╔═══██╗ ██║   ██║ ██║ ████╗ ████║",
+    " ██╔██╗ ██║ █████╗  ██║   ██║ ██║   ██║ ██║ ██╔████╔██║",
+    " ██║╚██╗██║ ██╔══╝  ██║   ██║ ╚██╗ ██╔╝ ██║ ██║╚██╔╝██║",
+    " ██║ ╚████║ ███████╗╚██████╔╝  ╚████╔╝  ██║ ██║ ╚═╝ ██║",
+    " ╚═╝  ╚═══╝ ╚══════╝ ╚═════╝    ╚═══╝   ╚═╝ ╚═╝     ╚═╝",
+    "                                                       ",
+    "                 Powered By  eovim                  ",
+    "                                                       ",
+  },
+}
+
+M.term = {
+  float = {
+    width = 0.8,
+    height = 0.8 * 14 / 16,
+    row = 0.1,
+    col = 0.1,
+  },
+}
+
+M.ui = {
+  statusline = {
+    enabled = true,
+    theme = "default",
+    separator_style = "arrow",
+    order = {
+      "mode",
+      "file",
+      "git",
+      "wakatime",
+      "%=",
+      "lsp_msg",
+      "%=",
+      "diagnostics",
+      "lsp",
+      "cwd",
+      "cursor",
+    },
+    modules = {
+      wakatime = function()
+        return vim.g.wakatime_status or ""
+      end,
+    },
+  },
+
+  tabufline = {
+    lazyload = false,
+  },
 }
 
 return M

@@ -1,0 +1,127 @@
+{
+  "adapters": {
+    "python": {
+      "type": "executable",
+      "command": "python3",
+      "args": [
+        "-m",
+        "debugpy.adapter"
+      ],
+      "windows": {
+        "command": "python"
+      }
+    },
+    "go": {
+      "type": "server",
+      "port": "${port}",
+      "executable": {
+        "command": "dlv",
+        "args": [
+          "dap",
+          "--listen",
+          "127.0.0.1:${port}",
+          "--log",
+          "--log-output=dap"
+        ]
+      },
+      "windows": {
+        "executable": {
+          "command": "dlv",
+          "args": [
+            "dap",
+            "--listen",
+            "127.0.0.1:${port}",
+            "--log",
+            "--log-output=dap"
+          ],
+          "detached": true
+        }
+      }
+    },
+    "codelldb": {
+      "type": "server",
+      "port": "${port}",
+      "executable": {
+        "command": "codelldb",
+        "args": [
+          "--port",
+          "${port}"
+        ]
+      },
+      "windows": {
+        "executable": {
+          "command": "codelldb.exe"
+        }
+      },
+      "linux": {
+        "executable": {
+          "command": "codelldb"
+        }
+      },
+      "osx": {
+        "executable": {
+          "command": "codelldb"
+        }
+      }
+    },
+    "local-lua": {
+      "type": "executable",
+      "command": "node",
+      "args": [
+        "local-lua-dbg"
+      ],
+      "windows": {
+        "args": [
+          "local-lua-dbg"
+        ]
+      },
+      "linux": {
+        "args": [
+          "local-lua-dbg"
+        ]
+      },
+      "osx": {
+        "args": [
+          "local-lua-dbg"
+        ]
+      }
+    },
+    "zig-lldb": {
+      "type": "server",
+      "port": "${port}",
+      "executable": {
+        "command": "codelldb",
+        "args": [
+          "--port",
+          "${port}"
+        ]
+      },
+      "windows": {
+        "executable": {
+          "command": "codelldb.exe"
+        }
+      },
+      "linux": {
+        "executable": {
+          "command": "codelldb"
+        }
+      },
+      "osx": {
+        "executable": {
+          "command": "codelldb"
+        }
+      }
+    },
+    "gdb": {
+      "type": "executable",
+      "command": "gdb",
+      "args": [
+        "-i",
+        "dap"
+      ],
+      "windows": {
+        "command": "gdb.exe"
+      }
+    }
+  }
+}
