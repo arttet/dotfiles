@@ -1,11 +1,16 @@
-# Bash & zsh
-.shell/extra
+# AI
+.ai
 
-# tmux plugins
-.tmux/plugins/tmux
-.tmux/plugins/tmux-continuum
-.tmux/plugins/tmux-resurrect
-.tmux/plugins/tmux-sensible
-.tmux/plugins/tmux-sessionist
-.tmux/plugins/tmux-yank
-.tmux/plugins/vim-tmux-navigator
+# alacritty
+.config/alacritty/themes
+
+# dotter
+.dotter/cache.toml
+.dotter/local.toml
+
+# tmux
+.config/tmux/plugins
+
+# yazi
+.config/yazi/flavors
+.config/yazi/plugins

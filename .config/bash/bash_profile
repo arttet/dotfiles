@@ -1,0 +1,29 @@
+# Path: ~/.config/bash/bash_profile
+# ==============================================
+# Bash Login Configuration Entry Point
+# ==============================================
+#
+# Sets up environment variables and login-specific settings.
+# Loads profile.d scripts (XDG Base Directory compliant).
+# Delegates to ~/.bashrc for interactive shell configuration.
+
+# Windows (MSYS/Git Bash/Cygwin) - normalize HOME path
+case "$OSTYPE" in
+  msys*|cygwin*)
+    export HOME="$(cygpath -u "$USERPROFILE")"
+  ;;
+esac
+
+# XDG Base Directory Specification
+export XDG_CONFIG_HOME="${XDG_CONFIG_HOME:-$HOME/.config}"
+export XDG_DATA_HOME="${XDG_DATA_HOME:-$HOME/.local/share}"
+export XDG_STATE_HOME="${XDG_STATE_HOME:-$HOME/.local/state}"
+export XDG_CACHE_HOME="${XDG_CACHE_HOME:-$HOME/.cache}"
+
+# Load login shell profile scripts
+SHELL_DIR="${XDG_CONFIG_HOME}/shell/profile.d"
+if [[ -d "$SHELL_DIR" ]]; then
+  for file in "$SHELL_DIR"/*.sh; do
+    [[ -r "$file" ]] && source "$file"
+  done
+fi
