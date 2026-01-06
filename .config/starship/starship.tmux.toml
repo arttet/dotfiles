@@ -1,0 +1,38 @@
+format = """
+$battery\
+$username\
+$hostname\
+$directory\
+$git_branch\
+$git_state\
+$git_status\
+$cmd_duration\
+$line_break\
+$character"""
+
+[directory]
+read_only = " "
+
+[battery]
+full_symbol = "•"
+charging_symbol = "⇡"
+discharging_symbol = "⇣"
+
+[git_branch]
+symbol = ""
+style = "bg:teal"
+format = '[[ $symbol $branch ](fg:base bg:green)]($style)'
+
+[git_status]
+style = "bg:teal"
+format = '[[($all_status$ahead_behind )](fg:base bg:green)]($style)'
+
+[git_state]
+format = '\([$state( $progress_current/$progress_total)]($style)\) '
+style = "bright-black"
+
+[cmd_duration]
+min_time = 0
+show_milliseconds = true
+format = "[$duration]($style) "
+style = "yellow"
