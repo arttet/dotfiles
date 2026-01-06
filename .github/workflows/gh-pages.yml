@@ -1,4 +1,4 @@
-name: Deploy Zola site to GitHub Pages
+name: Deploy VitePress site to GitHub Pages
 
 on:
   push:
@@ -12,44 +12,44 @@ permissions:
   id-token: write
 
 concurrency:
-  group: "pages"
+  group: pages
   cancel-in-progress: false
-
-defaults:
-  run:
-    shell: bash
 
 jobs:
   build:
     runs-on: ubuntu-latest
 
-    env:
-      ZOLA_VERSION: 0.18.0
-
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-        with:
-          submodules: true
+      - name: Checkout repository
+        uses: actions/checkout@v6
 
       - name: Setup Pages
         uses: actions/configure-pages@v5
 
-      - name: Setup Zola
-        run: curl -s -L https://github.com/getzola/zola/releases/download/v${{ env.ZOLA_VERSION }}/zola-v${{ env.ZOLA_VERSION }}-x86_64-unknown-linux-gnu.tar.gz | sudo tar xvzf - -C /usr/local/bin
-
-      - name: Build GitHub Pages
-        run: zola --root doc build
-
-      - name: Upload artifacts
-        uses: actions/upload-pages-artifact@v3
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v2
         with:
-          path: ./doc/public
+          bun-version: latest
+
+      - name: Install dependencies
+        working-directory: docs
+        run: bun install --frozen-lockfile
+
+      - name: Build VitePress
+        working-directory: docs
+        env:
+          BASE_PATH: ${{ steps.pages.outputs.base_path }}
+        run: bun run docs:build
+
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v4
+        with:
+          path: docs/.vitepress/dist
 
   deploy:
-    runs-on: ubuntu-latest
     if: github.ref == 'refs/heads/main'
     needs: build
+    runs-on: ubuntu-latest
 
     environment:
       name: github-pages
