@@ -2,6 +2,7 @@ import { defineConfig } from 'vitepress'
 
 // https://vitepress.dev/reference/site-config
 export default defineConfig({
+  base: '/dotfiles/',
   srcDir: "content",
 
   title: "My dotfiles",
@@ -26,5 +27,19 @@ export default defineConfig({
     socialLinks: [
       { icon: 'github', link: 'https://github.com/arttet/dotfiles' }
     ]
-  }
+  },
+
+  vite: {
+    build: {
+      minify: 'esbuild',
+      target: 'es2022',
+      cssCodeSplit: true,
+    },
+
+    ssr: {
+      noExternal: ['vitepress'],
+    },
+  },
+
+  cleanUrls: true,
 })
