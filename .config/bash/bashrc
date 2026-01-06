@@ -1,0 +1,26 @@
+# Path: ~/.config/bash/bashrc
+# ==============================================
+# Bash Interactive Configuration Entry Point
+# ==============================================
+#
+# Loads interactive shell settings (XDG Base Directory compliant).
+# Sources POSIX shell common configuration and Bash-specific settings.
+
+# Exit early if not running interactively
+[[ $- != *i* ]] && return
+
+# POSIX Shell-specific interactive configuration
+SHELL_DIR="${XDG_CONFIG_HOME:-$HOME/.config}/shell/shell.d"
+if [[ -d "$SHELL_DIR" ]]; then
+  for file in "$SHELL_DIR"/*.sh; do
+    [[ -r "$file" ]] && source "$file"
+  done
+fi
+
+# Bash-specific interactive configuration
+BASH_DIR="${XDG_CONFIG_HOME:-$HOME/.config}/bash/bash.d"
+if [[ -d "$BASH_DIR" ]]; then
+  for file in "$BASH_DIR"/*.bash; do
+    [[ -r "$file" ]] && source "$file"
+  done
+fi

@@ -1,28 +1,14 @@
-# ~/.bashrc
+# Path: ~/.bashrc
+# ==============================================
+# Bash Interactive Configuration Entry Point
+# ==============================================
 
-# Source global definitions
-if [ -f /etc/bashrc ]; then
-    source /etc/bashrc
-fi
+# Exit early if not running interactively
+[[ $- != *i* ]] && return
 
-# User specific (bash & zsh) aliases, functions and etc.
-for file in ~/.shell/{path,functions,exports,aliases,extra}; do
-    [ -r "$file" ] && [ -f "$file" ] && source "$file";
-done;
+# Loads interactive shell settings
+BASH_DIR="${XDG_CONFIG_HOME:-$HOME/.config}/bash"
+[[ -r "${BASH_DIR}/bashrc" ]] && source "${BASH_DIR}/bashrc"
 
-unset file;
-
-# User specific (only bash) aliases, functions and etc.
-if [ -d ~/.bashrc.d ]; then
-    for file in ~/.bashrc.d/*; do
-        [ -r "$file" ] && [ -f "$file" ] && source "$file";
-    done
-fi
-
-unset file;
-
-# Bash prompt: oh-my-posh (see https://ohmyposh.dev)
-if [ -x "$(command -v oh-my-posh)" ]; then
-    eval "$(oh-my-posh init bash)"
-    eval "$(oh-my-posh init bash --config ${OMP_THEME})"
-fi
+# Load machine-local overrides if they exist
+[[ -r "$HOME/.bashrc.local" ]] && source "$HOME/.bashrc.local"

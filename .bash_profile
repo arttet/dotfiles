@@ -1,11 +1,14 @@
-# ~/.bash_profile -*- mode: sh -*-
+# Path: ~/.bash_profile
+# ==============================================
+# Bash Login Configuration Entry Point
+# ==============================================
 
-# Load login settings and environment variables
-if [[ -f ~/.profile ]]; then
-  source ~/.profile
-fi
+# Loads profile shell settings
+BASH_DIR="${XDG_CONFIG_HOME:-$HOME/.config}/bash"
+[[ -r "${BASH_DIR}/bash_profile" ]] && source "${BASH_DIR}/bash_profile"
 
-# Load interactive settings
-if [[ -f ~/.bashrc ]]; then
-  source ~/.bashrc
-fi
+# Load machine-local overrides if they exist
+[[ -r "$HOME/.bash_profile.local" ]] && source "$HOME/.bash_profile.local"
+
+# Load interactive shell settings
+[[ -r "$HOME/.bashrc" ]] && source "$HOME/.bashrc"
