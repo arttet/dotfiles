@@ -1,11 +1,52 @@
-[plugin]
+# https://github.com/sxyazi/yazi/blob/shipped/yazi-config/preset/yazi-default.toml
 
-prepend_previewers = [
-  # Markdown
-  { name = "*.md", run = "glow" },
-  # Torrent
-  { name = "*.torrent", run = "torrent-preview" },
-]
+[mgr]
+show_hidden = true
 
-[log]
-enabled = true
+[preview]
+image_quality = 85
+image_filter = "lanczos3"
+max_width = 2048
+max_height = 2048
+
+[[plugin.prepend_fetchers]]
+id = "git"
+url = "*"
+run = "git"
+
+[[plugin.prepend_fetchers]]
+id = "git"
+url = "*/"
+run = "git"
+
+[[plugin.prepend_previewers]]
+url = "*/"
+run = 'piper -- eza -TL=3 --color=always --icons=always --group-directories-first --no-quotes "$1"'
+
+[[plugin.prepend_previewers]]
+url = "*.md"
+run = 'piper -- CLICOLOR_FORCE=1 glow -w=$w "$1"'
+
+[[plugin.prepend_previewers]]
+url = "*.csv"
+run = 'piper -- bat -p --color=always "$1"'
+
+[[plugin.prepend_previewers]]
+url = "*.log"
+run = 'piper -- ov "$1"'
+
+[[plugin.prepend_previewers]]
+mime = "application/bittorrent"
+run = "torrent-preview"
+
+[[plugin.prepend_previewers]]
+url = "*.tar*"
+run = 'piper --format=url -- tar tf "$1"'
+
+[[plugin.prepend_previewers]]
+mime = "application/sqlite3"
+run = 'piper -- sqlite3 "$1" ".schema --indent"'
+
+[[plugin.append_previewers]]
+url = "*"
+run = 'piper -- hexyl --border=none --terminal-width=$w "$1"'
