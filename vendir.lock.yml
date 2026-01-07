@@ -1,0 +1,81 @@
+apiVersion: vendir.k14s.io/v1alpha1
+directories:
+- contents:
+  - git:
+      commitTitle: Add nvim's default dev_theme
+      sha: f82c742634b5e840731dd7c609e95231917681a5
+      tags:
+      - yaml-60-gf82c742
+    path: .
+  path: .config\alacritty\themes\themes
+- contents:
+  - git:
+      commitTitle: 'Merge pull request #243 from andyrichardson/patch-1...'
+      sha: 99469c4a9b1ccf77fade25842dc7bafbc8ce9946
+      tags:
+      - v3.0.0-77-g99469c4
+    path: .
+  path: .config\tmux\plugins\tpm
+- contents:
+  - git:
+      commitTitle: Fixing preview image (#63)
+      sha: 4a1802a5add0f867b08d5890780c10dd1f051c36
+    path: .
+  path: .config\yazi\flavors\catppuccin-latte.yazi
+- contents:
+  - git:
+      commitTitle: Fixing preview image (#63)
+      sha: 4a1802a5add0f867b08d5890780c10dd1f051c36
+    path: .
+  path: .config\yazi\flavors\catppuccin-mocha.yazi
+- contents:
+  - git:
+      commitTitle: 'fix: account for URL covariance in `Url:join()`...'
+      sha: 4e5590280db0de5f130bf377e9c32a202110f575
+    path: .
+  path: .config\yazi\plugins\chmod.yazi
+- contents:
+  - git:
+      commitTitle: 'fix: account for URL covariance in `Url:join()`...'
+      sha: 4e5590280db0de5f130bf377e9c32a202110f575
+    path: .
+  path: .config\yazi\plugins\full-border.yazi
+- contents:
+  - git:
+      commitTitle: 'fix: account for URL covariance in `Url:join()`...'
+      sha: 4e5590280db0de5f130bf377e9c32a202110f575
+    path: .
+  path: .config\yazi\plugins\git.yazi
+- contents:
+  - git:
+      commitTitle: 'fix: account for URL covariance in `Url:join()`...'
+      sha: 4e5590280db0de5f130bf377e9c32a202110f575
+    path: .
+  path: .config\yazi\plugins\piper.yazi
+- contents:
+  - git:
+      commitTitle: 'feat: support for right prompt (#35)...'
+      sha: eca186171c5f2011ce62712f95f699308251c749
+    path: .
+  path: .config\yazi\plugins\starship.yazi
+- contents:
+  - git:
+      commitTitle: 'fix: account for URL covariance in `Url:join()`...'
+      sha: 4e5590280db0de5f130bf377e9c32a202110f575
+    path: .
+  path: .config\yazi\plugins\toggle-pane.yazi
+- contents:
+  - git:
+      commitTitle: 'fix(deprecated): use Command:arg() instead of Command:args()'
+      sha: f46528243c458de3ffce38c44607d5a0cde67559
+    path: .
+  path: .config\yazi\plugins\torrent-preview.yazi
+- contents:
+  - git:
+      commitTitle: 'chore: update compatibility matrix'
+      sha: 626692659673b3c76e5057b08b96601ee96dcb9b
+      tags:
+      - v2.5.2-2-g6266926
+    path: .
+  path: .config\yazi\plugins\yaziline.yazi
+kind: LockConfig
