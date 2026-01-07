@@ -2,13 +2,17 @@ DOC_DIR = doc
 
 #######################################################################################################################
 
-## ▸▸▸ Usage commands ◂◂◂
+## ▸▸▸ Dotfiles management ◂◂◂
 
 .PHONY: help
 help:			## Show this help
 	@grep -Fh "## " ${MAKEFILE_LIST} | grep -v grep | sed -e 's/\\$$//' | sed -e 's/## //'
 
-.PHONY: install
+.PHONY: sync
+sync:			## Synchronize external plugins
+	vendir sync
+
+PHONY: install
 install:		## Stow the package
 	stow -v --target=${HOME} .
 
@@ -16,16 +20,16 @@ install:		## Stow the package
 clean:			## Unstow the package
 	stow -v --delete --target=${HOME} .
 
-#######################################################################################################################
+.PHONY: check
+check:			## Preview changes
+	dotter deploy --verbose --dry-run
 
-## ▸▸▸ Documentation commands ◂◂◂
+.PHONY: deploy
+deploy:			## Apply dotfiles verbosely
+	dotter deploy --verbose --force
 
-.PHONY: build
-build:			## Build the site
-	zola --root ${DOC_DIR} build
-
-.PHONY: serve
-serve:			## Serve the site
-	zola --root ${DOC_DIR} serve --open
+.PHONY: undeploy
+undeploy:		## Remove dotfiles verbosely (no confirmation)
+	dotter undeploy --verbose --noconfirm --force
 
 #######################################################################################################################

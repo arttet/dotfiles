@@ -1,14 +1,16 @@
-# Git
+# Stow Local Ignore Lists
+
+## Git
 
 \.git
 \.gitignore
-\.gitmodules
 
+## Internal data
+
+\.dotter
+\.github
+/doc
+
+Makefile
 ^/LICENSE.*
 ^/README.*
-
-# Internal data
-\.github
-
-/doc
-Makefile
