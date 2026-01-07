@@ -1,0 +1,32 @@
+[helpers]
+
+[default]
+depends = ["bash", "zsh"]
+
+[default.files]
+".config" = "~/.config"
+".config/alacritty/alacritty.toml" = { target = "~\\AppData\\Roaming\\alacritty\\alacritty.toml", type = "symbolic", if = "dotter.windows" }
+
+[default.variables]
+
+[bash]
+depends = []
+
+[bash.files]
+".bash_profile" = "~/.bash_profile"
+".bashrc" = "~/.bashrc"
+
+[bash.variables]
+
+[zsh]
+depends = []
+
+[zsh.files]
+".zshenv" = "~/.zshenv"
+
+
+[zsh.variables]
+
+
+[settings]
+default_target_type = "symbolic"
