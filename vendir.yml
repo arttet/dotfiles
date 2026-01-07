@@ -1,0 +1,129 @@
+apiVersion: vendir.k14s.io/v1alpha1
+kind: Config
+directories:
+  - path: .config/alacritty/themes/themes
+    contents:
+      - path: .
+        git:
+          url: https://github.com/alacritty/alacritty-theme
+          ref: master
+        includePaths:
+          - themes/catppuccin_frappe.toml
+          - themes/catppuccin_latte.toml
+          - themes/catppuccin_macchiato.toml
+          - themes/catppuccin_mocha.toml
+        newRootPath: themes
+
+  - path: .config/tmux/plugins/tpm
+    contents:
+      - path: .
+        git:
+          url: https://github.com/tmux-plugins/tpm
+          ref: master
+
+  - path: .config/yazi/flavors/catppuccin-latte.yazi
+    contents:
+      - path: .
+        git:
+          url: https://github.com/yazi-rs/flavors.git
+          ref: main
+        includePaths:
+          - 'catppuccin-latte.yazi/flavor.toml'
+          - 'catppuccin-latte.yazi/README.md'
+        newRootPath: catppuccin-latte.yazi
+
+  - path: .config/yazi/flavors/catppuccin-mocha.yazi
+    contents:
+      - path: .
+        git:
+          url: https://github.com/yazi-rs/flavors.git
+          ref: main
+        includePaths:
+          - 'catppuccin-mocha.yazi/flavor.toml'
+          - 'catppuccin-mocha.yazi/README.md'
+        newRootPath: catppuccin-mocha.yazi
+
+  - path: .config/yazi/plugins/chmod.yazi
+    contents:
+      - path: .
+        git:
+          url: https://github.com/yazi-rs/plugins.git
+          ref: main
+        includePaths:
+          - 'chmod.yazi/main.lua'
+          - 'chmod.yazi/README.md'
+        newRootPath: chmod.yazi
+
+  - path: .config/yazi/plugins/full-border.yazi
+    contents:
+      - path: .
+        git:
+          url: https://github.com/yazi-rs/plugins.git
+          ref: main
+        includePaths:
+          - 'full-border.yazi/main.lua'
+          - 'full-border.yazi/README.md'
+        newRootPath: full-border.yazi
+
+  - path: .config/yazi/plugins/git.yazi
+    contents:
+      - path: .
+        git:
+          url: https://github.com/yazi-rs/plugins.git
+          ref: main
+        includePaths:
+          - 'git.yazi/main.lua'
+          - 'git.yazi/README.md'
+        newRootPath: git.yazi
+
+  - path: .config/yazi/plugins/piper.yazi
+    contents:
+      - path: .
+        git:
+          url: https://github.com/yazi-rs/plugins.git
+          ref: main
+        includePaths:
+          - 'piper.yazi/main.lua'
+          - 'piper.yazi/README.md'
+        newRootPath: piper.yazi
+
+  - path: .config/yazi/plugins/starship.yazi
+    contents:
+      - path: .
+        git:
+          url: https://github.com/Rolv-Apneseth/starship.yazi.git
+          ref: main
+        includePaths:
+          - 'main.lua'
+          - 'README.md'
+
+  - path: .config/yazi/plugins/toggle-pane.yazi
+    contents:
+      - path: .
+        git:
+          url: https://github.com/yazi-rs/plugins.git
+          ref: main
+        includePaths:
+          - 'toggle-pane.yazi/main.lua'
+          - 'toggle-pane.yazi/README.md'
+        newRootPath: toggle-pane.yazi
+
+  - path: .config/yazi/plugins/torrent-preview.yazi
+    contents:
+      - path: .
+        git:
+          url: https://github.com/kirasok/torrent-preview.yazi.git
+          ref: main
+        includePaths:
+          - 'main.lua'
+          - 'README.md'
+
+  - path: .config/yazi/plugins/yaziline.yazi
+    contents:
+      - path: .
+        git:
+          url: https://github.com/llanosrocas/yaziline.yazi.git
+          ref: main
+        includePaths:
+          - 'main.lua'
+          - 'README.md'
