@@ -12,3 +12,8 @@ desc = "Toggle preview pane"
 on = "<F4>"
 run = "plugin toggle-pane max-preview"
 desc = "Maximize / restore preview pane"
+
+[[mgr.prepend_keymap]]
+on = ["C"]
+run = "plugin ouch"
+desc = "Compress with ouch"

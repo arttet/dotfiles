@@ -9,6 +9,17 @@ image_filter = "lanczos3"
 max_width = 2048
 max_height = 2048
 
+[opener]
+edit = [
+    { run = "nvim %s", desc = "nvim", block = true },
+
+    { run = "zed %s", desc = "zed", orphan = true },
+    { run = "zed -w %s", desc = "zed (block)", block = true },
+
+    { run = "code %s", desc = "code", orphan = true },
+    { run = "code -w %s", desc = "code (block)",  block = true },
+]
+
 [[plugin.prepend_fetchers]]
 id = "git"
 url = "*"
