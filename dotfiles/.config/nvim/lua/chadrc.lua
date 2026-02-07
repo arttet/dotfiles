@@ -5,8 +5,8 @@
 local M = {}
 
 M.base46 = {
-  theme = "catppuccin",
-  theme_toggle = { "catppuccin", "gruvbox_light" },
+  theme = "gruvbox",
+  theme_toggle = { "gruvbox", "gruvbox_light" },
 }
 
 M.nvdash = {

@@ -62,7 +62,7 @@ italic = { family = "CaskaydiaCove Nerd Font", style = "Italic" }
 bold_italic = { family = "CaskaydiaCove Nerd Font", style = "Bold Italic" }
 
 # Font size in points
-size = 13.0
+size = 14
 
 
 # ==================================================
@@ -98,16 +98,16 @@ bindings = [
   { key = "F11", mods = "None", action = "ToggleFullscreen" },
 
   # Open a new Alacritty window
-  { key = "T", mods = "Control|Shift", action = "CreateNewWindow" },
+  { key = "T", mods = "Control", action = "CreateNewWindow" },
 
   # Close window
-  { key = "Q", mods = "Control|Shift", action = "Quit" },
+  { key = "Q", mods = "Control", action = "Quit" },
 
   # Copy to clipboard
-  { key = "C", mods = "Control|Shift", action = "Copy" },
+  { key = "C", mods = "Control", action = "Copy" },
 
   # Paste from clipboard
-  { key = "V", mods = "Control|Shift", action = "Paste" },
+  { key = "V", mods = "Control", action = "Paste" },
 ]
 
 

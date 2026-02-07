@@ -4,8 +4,8 @@
 depends = ["bash", "zsh"]
 
 [default.files]
-".config" = "~/.config"
-".config/alacritty/alacritty.toml" = { target = "~\\AppData\\Roaming\\alacritty\\alacritty.toml", type = "symbolic", if = "dotter.windows" }
+"dotfiles/.config" = "~/.config"
+"dotfiles/.config/alacritty/alacritty.toml" = { target = "~\\AppData\\Roaming\\alacritty\\alacritty.toml", type = "symbolic", if = "dotter.windows" }
 
 [default.variables]
 
@@ -13,8 +13,8 @@ depends = ["bash", "zsh"]
 depends = []
 
 [bash.files]
-".bash_profile" = "~/.bash_profile"
-".bashrc" = "~/.bashrc"
+"dotfiles/.bash_profile" = "~/.bash_profile"
+"dotfiles/.bashrc" = "~/.bashrc"
 
 [bash.variables]
 
@@ -22,7 +22,7 @@ depends = []
 depends = []
 
 [zsh.files]
-".zshenv" = "~/.zshenv"
+"dotfiles/.zshenv" = "~/.zshenv"
 
 
 [zsh.variables]
