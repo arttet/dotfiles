@@ -30,26 +30,34 @@ directories:
   path: .config\yazi\flavors\catppuccin-mocha.yazi
 - contents:
   - git:
-      commitTitle: 'fix: account for URL covariance in `Url:join()`...'
-      sha: 4e5590280db0de5f130bf377e9c32a202110f575
+      commitTitle: 'fix: missing an `@since` anonation'
+      sha: 57f18631fde7ce9b5eb01f9c3996be296dec9a39
     path: .
   path: .config\yazi\plugins\chmod.yazi
 - contents:
   - git:
-      commitTitle: 'fix: account for URL covariance in `Url:join()`...'
-      sha: 4e5590280db0de5f130bf377e9c32a202110f575
+      commitTitle: 'fix: missing an `@since` anonation'
+      sha: 57f18631fde7ce9b5eb01f9c3996be296dec9a39
     path: .
   path: .config\yazi\plugins\full-border.yazi
 - contents:
   - git:
-      commitTitle: 'fix: account for URL covariance in `Url:join()`...'
-      sha: 4e5590280db0de5f130bf377e9c32a202110f575
+      commitTitle: 'fix: missing an `@since` anonation'
+      sha: 57f18631fde7ce9b5eb01f9c3996be296dec9a39
     path: .
   path: .config\yazi\plugins\git.yazi
 - contents:
   - git:
-      commitTitle: 'fix: account for URL covariance in `Url:join()`...'
-      sha: 4e5590280db0de5f130bf377e9c32a202110f575
+      commitTitle: 'Merge pull request #33 from JamesKim2998/main...'
+      sha: 594b8a2b246633d46b03a3261c9aebd1c4b5abf3
+      tags:
+      - v0.7.0-10-g594b8a2
+    path: .
+  path: .config\yazi\plugins\ouch.yazi
+- contents:
+  - git:
+      commitTitle: 'fix: missing an `@since` anonation'
+      sha: 57f18631fde7ce9b5eb01f9c3996be296dec9a39
     path: .
   path: .config\yazi\plugins\piper.yazi
 - contents:
@@ -60,8 +68,8 @@ directories:
   path: .config\yazi\plugins\starship.yazi
 - contents:
   - git:
-      commitTitle: 'fix: account for URL covariance in `Url:join()`...'
-      sha: 4e5590280db0de5f130bf377e9c32a202110f575
+      commitTitle: 'fix: missing an `@since` anonation'
+      sha: 57f18631fde7ce9b5eb01f9c3996be296dec9a39
     path: .
   path: .config\yazi\plugins\toggle-pane.yazi
 - contents:
