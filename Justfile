@@ -31,13 +31,13 @@ undeploy:
 [doc('Install dotfiles using stow')]
 [unix]
 install:
-	stow -v --target=${HOME} .
+	stow -v --target=${HOME} dotfiles
 
 [group('Dotfiles')]
 [doc('Uninstall dotfiles using stow')]
 [unix]
 uninstall:
-	stow -v --delete --target=${HOME} .
+	stow -v --delete --target=${HOME} dotfiles
 
 [group('Performance')]
 [doc('Run benchmarks for all supported shells')]
