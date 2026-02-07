@@ -2,15 +2,15 @@
 .ai
 
 # alacritty
-.config/alacritty/themes
+dotfiles/.config/alacritty/themes
 
 # dotter
-.dotter/cache.toml
-.dotter/local.toml
+dotfiles/.dotter/cache.toml
+dotfiles/.dotter/local.toml
 
 # tmux
-.config/tmux/plugins
+dotfiles/.config/tmux/plugins
 
 # yazi
-.config/yazi/flavors
-.config/yazi/plugins
+dotfiles/.config/yazi/flavors
+dotfiles/.config/yazi/plugins

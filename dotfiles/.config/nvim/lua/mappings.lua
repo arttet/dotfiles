@@ -30,10 +30,10 @@ end, { desc = "telescope pick the message history" })
 -- Terminal
 -- ====================
 
-map("t", "<Esc>", "<C-\\><C-n>", {
-  noremap = true,
-  desc = "exit terminal mode",
-})
+-- map("t", "<Esc>", "<C-\\><C-n>", {
+--   noremap = true,
+--   desc = "exit terminal mode",
+-- })
 
 map("n", "<A-t>", function()
   vim.cmd "terminal"
