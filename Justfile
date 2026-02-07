@@ -7,6 +7,38 @@ default: help
 help:
     @just --list --unsorted
 
+[group('Dotfiles')]
+[doc('Synchronize external plugins and dependencies using vendir')]
+sync:
+    vendir sync
+
+[group('Dotfiles')]
+[doc('Preview dotfiles deployment')]
+check:
+    dotter deploy --verbose --dry-run
+
+[group('Dotfiles')]
+[doc('Install dotfiles using dotter')]
+deploy:
+    dotter deploy --verbose --force
+
+[group('Dotfiles')]
+[doc('Uninstall dotfiles using dotter')]
+undeploy:
+    dotter undeploy --verbose --noconfirm --force
+
+[group('Dotfiles')]
+[doc('Install dotfiles using stow')]
+[unix]
+install:
+	stow -v --target=${HOME} .
+
+[group('Dotfiles')]
+[doc('Uninstall dotfiles using stow')]
+[unix]
+uninstall:
+	stow -v --delete --target=${HOME} .
+
 [group('Performance')]
 [doc('Run benchmarks for all supported shells')]
 bench:
@@ -35,6 +67,7 @@ benchmark-nu:
 
 [group('Performance')]
 [doc('Benchmark PowerShell 7.0 startup (raw vs configured)')]
+[windows]
 benchmark-pwsh:
 	{{HYPERFINE}} "pwsh -NoLogo -NoProfile -Command 'exit 0'"
 	{{HYPERFINE}} "pwsh -NoLogo -Command 'exit 0'"
