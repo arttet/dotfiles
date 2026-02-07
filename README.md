@@ -4,33 +4,25 @@ My dotfiles
 
 ## 🛠 Management & Development
 
-This project uses `make` for dotfiles symlinking and `just` for modern development workflows.
-
-### 📜 Makefile Commands
-
-Used for managing symlinks and core environment synchronization.
-
-```text
-$ make
-▸▸▸ Dotfiles management ◂◂◂
-help:                   Show this help
-sync:                   Synchronize external plugins
-install:                Stow the package
-clean:                  Unstow the package
-check:                  Preview changes
-deploy:                 Apply dotfiles verbosely
-undeploy:               Remove dotfiles verbosely (no confirmation)
-```
+This project uses `just` as the primary task runner for managing dotfiles, development workflows, and project utilities.
 
 ### ⚡ Justfile Commands
 
-Used for benchmarking shell performance and managing the documentation site.
+The justfile provides a unified interface for dotfiles management, performance benchmarking, and documentation workflows.
 
-```txt
-$ just
+```sh
+$ just help
 Available recipes:
     default        # Run the help recipe by default
     help           # Show available recipes and their descriptions
+
+    [Dotfiles]
+    sync           # Synchronize external plugins and dependencies using vendir
+    check          # Preview dotfiles deployment
+    deploy         # Install dotfiles using dotter
+    undeploy       # Uninstall dotfiles using dotter
+    install        # Install dotfiles using stow
+    uninstall      # Uninstall dotfiles using stow
 
     [Performance]
     bench          # Run benchmarks for all supported shells
