@@ -9,10 +9,10 @@
 # Enforce XDG standards for clean home directory
 # https://specifications.freedesktop.org/basedir-spec/basedir-spec-latest.html
 
-$env.XDG_CONFIG_HOME = ($env.XDG_CONFIG_HOME? | default ($nu.home-path | path join ".config"))
-$env.XDG_CACHE_HOME  = ($env.XDG_CACHE_HOME?  | default ($nu.home-path | path join ".cache"))
-$env.XDG_DATA_HOME   = ($env.XDG_DATA_HOME?   | default ($nu.home-path | path join ".local" "share"))
-$env.XDG_STATE_HOME  = ($env.XDG_STATE_HOME?  | default ($nu.home-path | path join ".local" "state"))
+$env.XDG_CONFIG_HOME = ($env.XDG_CONFIG_HOME? | default ($nu.home-dir | path join ".config"))
+$env.XDG_CACHE_HOME  = ($env.XDG_CACHE_HOME?  | default ($nu.home-dir | path join ".cache"))
+$env.XDG_DATA_HOME   = ($env.XDG_DATA_HOME?   | default ($nu.home-dir | path join ".local" "share"))
+$env.XDG_STATE_HOME  = ($env.XDG_STATE_HOME?  | default ($nu.home-dir | path join ".local" "state"))
 
 # Create directories if they don't exist
 for dir in [$env.XDG_CONFIG_HOME $env.XDG_CACHE_HOME $env.XDG_DATA_HOME $env.XDG_STATE_HOME] {
@@ -38,7 +38,7 @@ $env.LANGUAGE = "en_US.UTF-8"
 # Security: Only add if directory is owned by user
 
 # This directory is standard for user-installed binaries (XDG-like)
-let local_bin = ($nu.home-path | path join ".local" "bin")
+let local_bin = ($nu.home-dir | path join ".local" "bin")
 
 # Create directory if it doesn't exist
 if not ($local_bin | path exists) {
@@ -70,7 +70,7 @@ if ($local_bin | path exists) {
 }
 
 # Optional: Add Cargo binary directory
-let cargo_bin = ($nu.home-path | path join ".cargo" "bin")
+let cargo_bin = ($nu.home-dir | path join ".cargo" "bin")
 if ($cargo_bin | path exists) {
     let current_path = (
         if ($env.PATH | describe) == "string" {
@@ -229,7 +229,7 @@ $env.NPM_CONFIG_USERCONFIG = ($env.XDG_CONFIG_HOME | path join "npm" "npmrc")
 $env.NODE_REPL_HISTORY = ($env.XDG_DATA_HOME | path join "node_repl_history")
 
 # Rust
-let cargo_home = ($env.CARGO_HOME? | default ($nu.home-path | path join ".cargo"))
+let cargo_home = ($env.CARGO_HOME? | default ($nu.home-dir | path join ".cargo"))
 $env.CARGO_HOME = $cargo_home
 
 # Python
@@ -237,7 +237,7 @@ $env.PYTHONPYCACHEPREFIX = ($env.XDG_CACHE_HOME | path join "python")
 $env.PYTHONUSERBASE = ($env.XDG_DATA_HOME | path join "python")
 
 # Go
-let go_path = ($env.GOPATH? | default ($nu.home-path | path join "go"))
+let go_path = ($env.GOPATH? | default ($nu.home-dir | path join "go"))
 $env.GOPATH = $go_path
 if (($go_path | path join "bin") | path exists) {
     $env.PATH = (
