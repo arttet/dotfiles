@@ -54,6 +54,17 @@ directories:
           - 'chmod.yazi/README.md'
         newRootPath: chmod.yazi
 
+  - path: dotfiles/.config/yazi/plugins/copy-file-contents.yazi
+    contents:
+      - path: .
+        git:
+          url: https://github.com/AnirudhG07/plugins-yazi.git
+          ref: main
+        includePaths:
+          - 'copy-file-contents.yazi/main.lua'
+          - 'copy-file-contents.yazi/README.md'
+        newRootPath: copy-file-contents.yazi
+
   - path: dotfiles/.config/yazi/plugins/full-border.yazi
     contents:
       - path: .
