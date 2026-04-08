@@ -2,10 +2,10 @@ apiVersion: vendir.k14s.io/v1alpha1
 directories:
 - contents:
   - git:
-      commitTitle: Add light variant of solarized osaka theme
-      sha: d6aa290133caac2ac297b21cd9491596ac7297c3
+      commitTitle: Add tokyo night light theme
+      sha: a1cefa5ae83eab0c1f89a47e097181417c9e064f
       tags:
-      - yaml-61-gd6aa290
+      - yaml-65-ga1cefa5
     path: .
   path: dotfiles\.config\alacritty\themes\themes
 - contents:
@@ -18,58 +18,64 @@ directories:
   path: dotfiles\.config\tmux\plugins\tpm
 - contents:
   - git:
-      commitTitle: add gruvbox material theme (#65)
-      sha: 9e053d0686a7d54a125d67bdd3aabaa5116d6e99
+      commitTitle: 'feat: add thinkpad-red-oled flavor (#72)'
+      sha: 9511cb09cadcbf57e39a46b06a52d00957177175
     path: .
   path: dotfiles\.config\yazi\flavors\catppuccin-latte.yazi
 - contents:
   - git:
-      commitTitle: add gruvbox material theme (#65)
-      sha: 9e053d0686a7d54a125d67bdd3aabaa5116d6e99
+      commitTitle: 'feat: add thinkpad-red-oled flavor (#72)'
+      sha: 9511cb09cadcbf57e39a46b06a52d00957177175
     path: .
   path: dotfiles\.config\yazi\flavors\catppuccin-mocha.yazi
 - contents:
   - git:
-      commitTitle: 'feat: add `.blend1`, `.kra` and `.kra~` to mime-ext.yazi (#186)'
-      sha: 88990a6cf1d31afd9d8db1a0d74bf37ef50d6786
+      commitTitle: 'feat(mime-ext): add various compression file types (#197)'
+      sha: 43c69783a674108472eadd5c1b81a3c4d9ff78b5
     path: .
   path: dotfiles\.config\yazi\plugins\chmod.yazi
 - contents:
   - git:
-      commitTitle: 'feat: add `.blend1`, `.kra` and `.kra~` to mime-ext.yazi (#186)'
-      sha: 88990a6cf1d31afd9d8db1a0d74bf37ef50d6786
+      commitTitle: manager -> mgr api fix
+      sha: 71545f4ee1a0896c555b3118dc3d2b0a1b92fad9
+    path: .
+  path: dotfiles\.config\yazi\plugins\copy-file-contents.yazi
+- contents:
+  - git:
+      commitTitle: 'feat(mime-ext): add various compression file types (#197)'
+      sha: 43c69783a674108472eadd5c1b81a3c4d9ff78b5
     path: .
   path: dotfiles\.config\yazi\plugins\full-border.yazi
 - contents:
   - git:
-      commitTitle: 'feat: add `.blend1`, `.kra` and `.kra~` to mime-ext.yazi (#186)'
-      sha: 88990a6cf1d31afd9d8db1a0d74bf37ef50d6786
+      commitTitle: 'feat(mime-ext): add various compression file types (#197)'
+      sha: 43c69783a674108472eadd5c1b81a3c4d9ff78b5
     path: .
   path: dotfiles\.config\yazi\plugins\git.yazi
 - contents:
   - git:
-      commitTitle: 'Merge pull request #33 from JamesKim2998/main...'
-      sha: 594b8a2b246633d46b03a3261c9aebd1c4b5abf3
+      commitTitle: 'Merge pull request #35 from openaitx-system/Auto_translate_README_and_Wiki...'
+      sha: 406ce6c13ec3a18d4872b8f64b62f4a530759b2c
       tags:
-      - v0.7.0-10-g594b8a2
+      - v0.7.0-12-g406ce6c
     path: .
   path: dotfiles\.config\yazi\plugins\ouch.yazi
 - contents:
   - git:
-      commitTitle: 'feat: add `.blend1`, `.kra` and `.kra~` to mime-ext.yazi (#186)'
-      sha: 88990a6cf1d31afd9d8db1a0d74bf37ef50d6786
+      commitTitle: 'feat(mime-ext): add various compression file types (#197)'
+      sha: 43c69783a674108472eadd5c1b81a3c4d9ff78b5
     path: .
   path: dotfiles\.config\yazi\plugins\piper.yazi
 - contents:
   - git:
-      commitTitle: 'feat: support for right prompt (#35)...'
-      sha: eca186171c5f2011ce62712f95f699308251c749
+      commitTitle: 'docs(readme): update thanks section'
+      sha: a83710153ab5625a64ef98d55e6ddad480a3756f
     path: .
   path: dotfiles\.config\yazi\plugins\starship.yazi
 - contents:
   - git:
-      commitTitle: 'feat: add `.blend1`, `.kra` and `.kra~` to mime-ext.yazi (#186)'
-      sha: 88990a6cf1d31afd9d8db1a0d74bf37ef50d6786
+      commitTitle: 'feat(mime-ext): add various compression file types (#197)'
+      sha: 43c69783a674108472eadd5c1b81a3c4d9ff78b5
     path: .
   path: dotfiles\.config\yazi\plugins\toggle-pane.yazi
 - contents:
