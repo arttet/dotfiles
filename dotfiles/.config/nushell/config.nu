@@ -35,8 +35,8 @@ $env.config.shell_integration = {
     osc7: true
     osc8: true
     osc9_9: false
-    osc133: true
-    osc633: true
+    osc133: false
+    osc633: false
     reset_application_mode: true
 }
 
@@ -59,6 +59,8 @@ use modules/yazi.nu *
 # Tools Module
 # Manage Starship, Zoxide, Carapace via 'tools init' and 'tools deinit'
 use modules/tools.nu
+
+# tools init
 
 # =============================================================================
 # Initialization
