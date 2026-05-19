@@ -11,7 +11,7 @@ export def "init" [] {
     print $"Target directory: ($autoload_dir)"
 
     # Ensure local bin is in PATH for this session
-    let local_bin = ($nu.home-path | path join ".local" "bin")
+    let local_bin = ($nu.home-dir | path join ".local" "bin")
     let new_path = ($env.PATH | split row (char esep) | prepend $local_bin)
 
     # Define tools with their command names and generators

@@ -29,23 +29,27 @@ export alias _ = cd -
 # Open the Neovim editor
 export alias n = nvim
 
-# Open the Neovim editor in the current directory
-export alias "n." = nvim .
-
-
 # =============================================================================
 # Make
 # =============================================================================
 
-# Run the default build workflow
 export alias m = make
-
-# Build the project
 export alias mb = make build
-
-# Run the test suite
 export alias mt = make test
 
+# ============================================================================
+# Just
+# ============================================================================
+
+export alias j = just
+
+export alias jf = just fmt
+export alias jl = just lint
+export alias ja = just audit
+export alias jb = just build
+export alias jt = just test
+export alias jr = just run
+export alias jw = just watch
 
 # =============================================================================
 # Cargo
