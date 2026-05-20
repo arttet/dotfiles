@@ -1,0 +1,274 @@
+# =============================================================================
+# Git Configuration
+# =============================================================================
+#
+# Path:
+#   ~/.config/git/config
+#
+# Inspect effective configuration:
+#   git config --list
+#
+# Inspect with sources:
+#   git config --list --show-origin
+#
+# Inspect with scopes:
+#   git config --list --show-origin --show-scope
+#
+# Show overridden values:
+#   git config --show-origin --get-all <key>
+#
+# Git maintenance:
+#   git maintenance run
+#
+# Local machine overrides:
+#   ~/.config/git/config.local
+#
+# =============================================================================
+
+[user]
+    name = Artyom Tetyukhin
+    email = 51746822+arttet@users.noreply.github.com
+    signingkey = ~/.ssh/id_ed25519_sk_github.pub
+
+[gpg]
+    format = ssh
+
+[gpg "ssh"]
+    allowedSignersFile = ~/.config/git/allowed_signers
+
+[core]
+    editor = nvim
+    pager = delta
+
+    autocrlf = input
+    eol = lf
+    longpaths = true
+
+    fsmonitor = true
+    untrackedCache = true
+    commitGraph = true
+
+    preloadindex = true
+    fscache = true
+
+[commit]
+    gpgsign = true
+    verbose = true
+
+[tag]
+    gpgsign = true
+    sort = version:refname
+
+[init]
+    defaultBranch = main
+
+[pull]
+    rebase = true
+
+[rebase]
+    autoStash = true
+    autoSquash = true
+    updateRefs = true
+
+    missingCommitsCheck = warn
+    stat = true
+
+    rebaseMerges = true
+
+[fetch]
+    prune = true
+    pruneTags = true
+
+    showForcedUpdates = true
+    parallel = 0
+
+    recurseSubmodules = on-demand
+
+    fsckObjects = true
+
+[push]
+    default = simple
+    autoSetupRemote = true
+    followTags = true
+
+    recurseSubmodules = on-demand
+    atomic = true
+
+[merge]
+    conflictstyle = zdiff3
+    tool = nvimdiff
+    directoryRenames = conflict
+
+[column]
+    ui = auto
+
+[color]
+    ui = auto
+
+[branch]
+    sort = -committerdate
+
+[log]
+    date = iso-local
+
+[pretty]
+    graph = %C(auto)%h %C(auto)%d %s %C(cyan)%an %Creset(%cr)
+
+[blame]
+    ignoreRevsFile = .git-blame-ignore-revs
+
+[rerere]
+    enabled = true
+    autoupdate = true
+
+[diff]
+    algorithm = histogram
+    colorMoved = default
+    renames = copies
+
+    compactionHeuristic = true
+    mnemonicPrefix = true
+    wsErrorHighlight = all
+
+    submodule = log
+
+[status]
+    short = true
+    branch = true
+    showStash = true
+
+    submoduleSummary = true
+    showUntrackedFiles = all
+
+[submodule]
+    recurse = true
+    fetchJobs = 0
+
+[interactive]
+    diffFilter = delta --color-only
+
+[delta]
+    features = decorations
+
+    navigate = true
+    side-by-side = true
+    line-numbers = true
+
+    hyperlinks = true
+    dark = true
+
+    file-style = bold
+
+    hunk-header-style = bold syntax
+    hunk-header-decoration-style = blue box ul
+
+    whitespace-error-style = 22 reverse
+
+[delta "decorations"]
+    commit-decoration-style = bold yellow box ul
+    file-decoration-style = none
+
+[feature]
+    manyFiles = true
+
+[pack]
+    threads = 0
+    windowMemory = 100m
+    packSizeLimit = 2g
+
+[receive]
+    fsckObjects = true
+
+[transfer]
+    fsckObjects = true
+
+[gc]
+    writeCommitGraph = true
+
+[maintenance]
+    auto = false
+
+[maintenance "prefetch"]
+    enabled = false
+
+[advice]
+    detachedHead = false
+    statusHints = false
+
+[help]
+    autocorrect = prompt
+
+[url "git@github.com:"]
+    insteadOf = https://github.com/
+
+[url "git@gitlab.com:"]
+    insteadOf = https://gitlab.com/
+
+[alias]
+    # branching
+    sw = switch
+    swc = switch -c
+    br = branch
+
+    # status
+    st = status
+
+    # commit
+    c = commit
+    a = commit --amend --no-edit
+
+    # push
+    pf = push --force-with-lease
+
+    # undo last commit -> keep changes unstaged
+    undo = reset --mixed HEAD~1
+
+    # stash
+    sl = stash list
+    ss = stash push
+    sp = stash pop
+
+    # restore
+    unstage = restore --staged
+    discard = restore
+
+    # history
+    last = log --show-signature --stat -1
+
+    sig = log --show-signature -1
+    sigs = log --show-signature
+
+    graph = log --graph --decorate --oneline --all
+    lg = log --graph --pretty=graph -n 20
+
+    # diff
+    df = diff
+    dc = diff --cached
+    ds = diff --staged
+    show = show --pretty=fuller
+
+    # stats
+    who = shortlog -sn --no-merges
+    contributors = shortlog -sn
+
+    # submodules
+    smu = submodule update --init --recursive
+    sms = submodule status
+    smp = submodule foreach git pull --rebase
+
+    # raw output without delta pager
+    rdiff = !git --no-pager diff
+    rlog = !git --no-pager log --oneline
+
+    # misc
+    optimize = maintenance run
+    clean = clean -fd
+    root = rev-parse --show-toplevel
+    aliases = config --get-regexp ^alias\\.
+
+# =============================================================================
+# Local Machine Overrides
+# =============================================================================
+
+[include]
+    path = ~/.config/git/config.local
