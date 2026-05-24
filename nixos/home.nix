@@ -24,6 +24,7 @@ let
     ".config/yazi"
     ".config/zellij"
     ".config/zsh"
+    ".ssh/config"
     ".zshenv"
   ];
   missingDotfileLinks = builtins.filter (target: !(builtins.pathExists "${dotfilesRoot}/${target}")) dotfileLinks;
