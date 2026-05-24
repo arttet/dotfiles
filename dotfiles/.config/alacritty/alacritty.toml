@@ -7,14 +7,12 @@ import = ["~/.config/alacritty/themes/theme.toml"]
 # Reload configuration automatically when it changes
 live_config_reload = true
 
-
 # ==================================================
 # Environment variables
 # ==================================================
 [env]
 # Explicit terminal type for better compatibility
 TERM = "xterm-256color"
-
 
 # ==================================================
 # Window settings
@@ -35,7 +33,6 @@ blur = true
 # startup_mode = "Windowed"
 startup_mode = "Maximized"
 
-
 # ==================================================
 # Scrolling behavior
 # ==================================================
@@ -45,7 +42,6 @@ history = 10000
 
 # Scroll speed multiplier
 multiplier = 1
-
 
 # ==================================================
 # Font configuration
@@ -64,12 +60,10 @@ bold_italic = { family = "CaskaydiaCove Nerd Font", style = "Bold Italic" }
 # Font size in points
 size = 14
 
-
 # ==================================================
 # Terminal / shell configuration
 # ==================================================
 [terminal]
-
 # Nushell
 [terminal.shell]
 program = "nu"
@@ -87,7 +81,6 @@ args = ["--login", "--interactive", "--execute", "z"]
 
 # # PowerShell 7
 # shell = { program = "pwsh", args = ["-NoLogo"] }
-
 
 # ==================================================
 # Keyboard bindings
@@ -109,7 +102,6 @@ bindings = [
   # Paste from clipboard
   { key = "V", mods = "Control", action = "Paste" },
 ]
-
 
 # ==================================================
 # Debug options

@@ -35,10 +35,10 @@ This document provides expert guidance for Gemini working with this Neovim confi
 4. **Modern APIs**: Use modern Neovim Lua APIs, such as `vim.keymap.set` for keymappings.
 5. **Lazy.nvim Specs**: When adding or modifying plugins, use the `lazy.nvim` specification format found in the `lua/plugins/` directory.
 6. **Code Style**:
-    - **Indentation**: 2 spaces.
-    - **Quotes**: Use double quotes (`"`) for strings.
-    - **Tables**: Use trailing commas on multi-line table definitions.
-    - **Naming**: Use `snake_case` for variables and function names.
+   - **Indentation**: 2 spaces.
+   - **Quotes**: Use double quotes (`"`) for strings.
+   - **Tables**: Use trailing commas on multi-line table definitions.
+   - **Naming**: Use `snake_case` for variables and function names.
 
 ## Common Tasks
 

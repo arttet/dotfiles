@@ -22,4 +22,3 @@ desc = "Maximize / restore preview pane"
 on = ["C"]
 run = "plugin ouch"
 desc = "Compress with ouch"
-

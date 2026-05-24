@@ -1,0 +1,31 @@
+{
+  // dprint (markdown plugin) owns whitespace/style. Disable everything by
+  // default and enable only semantic checks that can't conflict with it.
+  "config": {
+    "default": false,
+    "MD001": true, // heading levels increment by one
+    "MD003": true, // consistent heading style
+    "MD018": true, // space after # in atx heading
+    "MD019": true, // no multiple spaces after #
+    "MD024": { "siblings_only": true }, // no duplicate sibling headings
+    "MD025": true, // single top-level heading
+    "MD036": true, // no emphasis used instead of a heading
+    "MD037": true, // no spaces inside emphasis markers
+    "MD038": true, // no spaces inside code span
+    "MD039": true, // no spaces inside link text
+    "MD040": true, // fenced code blocks declare a language
+    "MD042": true, // no empty links
+    "MD045": true, // images have alt text
+    "MD051": true, // valid link fragments
+    "MD052": true, // referenced link/image definitions exist
+    "MD053": true, // no unused link/image reference definitions
+  },
+  "globs": ["**/*.md"],
+  "gitignore": true,
+  "ignores": [
+    "**/node_modules/**",
+    "dotfiles/.config/yazi/flavors/**",
+    "dotfiles/.config/yazi/plugins/**",
+    "dotfiles/.config/alacritty/themes/**",
+  ],
+}

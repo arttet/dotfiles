@@ -15,42 +15,42 @@ Debugging is handled by a suite of plugins working together, with `nvim-dap` as 
 - **[nvim-telescope/telescope-dap.nvim](https://github.com/nvim-telescope/telescope-dap.nvim)**: DAP integration for Telescope.
 - **[theHamsta/nvim-dap-virtual-text](https://github.com/theHamsta/nvim-dap-virtual-text)**: Shows debug info inline.
 
-| Keybinding      | Description                      |
-| --------------- | -------------------------------- |
-| `<F5>`          | Start/Continue debugging         |
-| `<F6>`          | Run last debug configuration     |
-| `<F7>`          | Toggle the DAP UI                |
-| `<F8>`          | Set a conditional breakpoint     |
-| `<F9>`          | Toggle a breakpoint              |
-| `<F10>`         | Step Over                        |
-| `<F11>`         | Step Into                        |
-| `<F12>`         | Step Out                         |
-| `<leader>dc`    | Select debug configuration       |
+| Keybinding   | Description                  |
+| ------------ | ---------------------------- |
+| `<F5>`       | Start/Continue debugging     |
+| `<F6>`       | Run last debug configuration |
+| `<F7>`       | Toggle the DAP UI            |
+| `<F8>`       | Set a conditional breakpoint |
+| `<F9>`       | Toggle a breakpoint          |
+| `<F10>`      | Step Over                    |
+| `<F11>`      | Step Into                    |
+| `<F12>`      | Step Out                     |
+| `<leader>dc` | Select debug configuration   |
 
 ### Terminal CLI Integration
 
-| Keybinding      | Description                          |
-| --------------- | ------------------------------------ |
-| `<leader>tt`    | Open Terminal in a new tab           |
-| `<leader>td`    | Open LazyDocker in a new tab         |
-| `<leader>tl`    | Open LazyGit in a new tab            |
-| `<leader>tu`    | Open GitUI in a new tab              |
-| `<leader>tc`    | Open GitHub Copilot CLI in a new tab |
-| `<leader>tg`    | Open Gemini CLI in a new tab         |
+| Keybinding   | Description                          |
+| ------------ | ------------------------------------ |
+| `<leader>tt` | Open Terminal in a new tab           |
+| `<leader>td` | Open LazyDocker in a new tab         |
+| `<leader>tl` | Open LazyGit in a new tab            |
+| `<leader>tu` | Open GitUI in a new tab              |
+| `<leader>tc` | Open GitHub Copilot CLI in a new tab |
+| `<leader>tg` | Open Gemini CLI in a new tab         |
 
 ### UI & General Editor Enhancements
 
 - **[folke/noice.nvim](https://github.com/folke/noice.nvim)**: Replaces the Neovim UI for messages, cmdline and popups.
 - **[mg979/vim-visual-multi](https://github.com/mg979/vim-visual-multi)**: Multiple cursors.
 
-| Keybinding      | Description                      |
-| --------------- | -------------------------------- |
-| `<leader>ph`    | Pick a message from Noice history|
-| `i: jk`         | Escape from insert mode          |
-| `;`             | Enter command mode               |
-| `<C-q>`         | Close window/tab                 |
-| `<A-t>`         | Open a new terminal buffer       |
-| `t: <C-q>`      | Close the terminal               |
+| Keybinding   | Description                       |
+| ------------ | --------------------------------- |
+| `<leader>ph` | Pick a message from Noice history |
+| `i: jk`      | Escape from insert mode           |
+| `;`          | Enter command mode                |
+| `<C-q>`      | Close window/tab                  |
+| `<A-t>`      | Open a new terminal buffer        |
+| `t: <C-q>`   | Close the terminal                |
 
 ### Core Functionality Plugins
 

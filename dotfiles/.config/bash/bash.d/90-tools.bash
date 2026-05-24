@@ -17,20 +17,20 @@ CACHE_DIR="${XDG_CACHE_HOME:-$HOME/.cache}/bash/init"
 # Description: Caches the output of initialization commands to speed up startup.
 # Usage: _bash_eval_cache "command_name" "init_command"
 _bash_eval_cache() {
-    local cmd_name="$1"
-    local cmd_exec="$2"
-    local cache_file="$CACHE_DIR/${cmd_name}.bash"
-    local bin_path
+  local cmd_name="$1"
+  local cmd_exec="$2"
+  local cache_file="$CACHE_DIR/${cmd_name}.bash"
+  local bin_path
 
-    bin_path=$(command -v "$cmd_name")
-    # If binary is not installed, skip
-    [ -z "$bin_path" ] && return
+  bin_path=$(command -v "$cmd_name")
+  # If binary is not installed, skip
+  [ -z "$bin_path" ] && return
 
-    # Regenerate cache if file is missing OR binary is newer than cache
-    if [ ! -f "$cache_file" ] || [ "$bin_path" -nt "$cache_file" ]; then
-        eval "$cmd_exec" > "$cache_file"
-    fi
-    source "$cache_file"
+  # Regenerate cache if file is missing OR binary is newer than cache
+  if [ ! -f "$cache_file" ] || [ "$bin_path" -nt "$cache_file" ]; then
+    eval "$cmd_exec" >"$cache_file"
+  fi
+  source "$cache_file"
 }
 
 # Starship Prompt (Fast & Customizable)
@@ -47,8 +47,8 @@ command -v direnv >/dev/null 2>&1 && _bash_eval_cache "direnv" "direnv hook bash
 
 # Carapace (Shell Completion Engine)
 if command -v carapace >/dev/null 2>&1; then
-    export CARAPACE_ENV=0
-    export CARAPACE_BRIDGES='bash'
-    # Remove the first line that exports PATH because Carapace generates an incorrect Windows-style PATH
-    _bash_eval_cache "carapace" "carapace _carapace | sed '1{/^export PATH=/d}'"
+  export CARAPACE_ENV=0
+  export CARAPACE_BRIDGES='bash'
+  # Remove the first line that exports PATH because Carapace generates an incorrect Windows-style PATH
+  _bash_eval_cache "carapace" "carapace _carapace | sed '1{/^export PATH=/d}'"
 fi

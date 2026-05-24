@@ -1,0 +1,8 @@
+# Lua linter — https://kampfkarren.github.io/selene/
+# Run locally: selene dotfiles/.config/nvim
+std = "vim"
+
+[lints]
+# lazy.nvim plugin specs are intentionally mixed tables: the plugin name lives
+# at index [1] alongside named keys (event, dependencies, ...). Unavoidable here.
+mixed_table = "allow"

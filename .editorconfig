@@ -1,0 +1,54 @@
+root = true
+
+# Defaults for every file in the repo
+[*]
+charset = utf-8
+end_of_line = lf
+insert_final_newline = true
+trim_trailing_whitespace = true
+indent_style = space
+indent_size = 2
+
+# Lua — matches dotfiles/.config/nvim/.stylua.toml (2 spaces, 120 cols)
+[*.lua]
+indent_size = 2
+max_line_length = 120
+
+# Shell scripts
+[*.{sh,bash,zsh,bashrc,zshrc,zshenv,zprofile,bash_profile}]
+indent_size = 2
+
+# Nushell
+[*.nu]
+indent_size = 2
+
+# PowerShell
+[*.ps1]
+indent_size = 4
+
+# Web / docs sources
+[*.{ts,js,json,jsonc}]
+indent_size = 2
+
+# Data / config formats
+[*.{toml,yml,yaml}]
+indent_size = 2
+
+# Markdown — trailing whitespace is significant (hard line breaks)
+[*.md]
+trim_trailing_whitespace = false
+
+# Makefiles require real tabs
+[{Makefile,*.mk}]
+indent_style = tab
+
+# Justfile — recipe bodies use the indentation just expects
+[Justfile]
+indent_size = 4
+
+# Lock files are generated; don't fight the tooling
+[*.lock]
+trim_trailing_whitespace = false
+insert_final_newline = false
+[*-lock.json]
+insert_final_newline = false

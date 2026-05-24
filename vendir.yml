@@ -14,12 +14,12 @@ directories:
           - themes/catppuccin_mocha.toml
         newRootPath: themes
 
-  - path: dotfiles/.config/tmux/plugins/tpm
-    contents:
-      - path: .
-        git:
-          url: https://github.com/tmux-plugins/tpm
-          ref: master
+  # - path: dotfiles/.config/tmux/plugins/tpm
+  #   contents:
+  #     - path: .
+  #       git:
+  #         url: https://github.com/tmux-plugins/tpm
+  #         ref: master
 
   - path: dotfiles/.config/yazi/flavors/catppuccin-latte.yazi
     contents:
@@ -28,8 +28,8 @@ directories:
           url: https://github.com/yazi-rs/flavors.git
           ref: main
         includePaths:
-          - 'catppuccin-latte.yazi/flavor.toml'
-          - 'catppuccin-latte.yazi/README.md'
+          - "catppuccin-latte.yazi/flavor.toml"
+          - "catppuccin-latte.yazi/README.md"
         newRootPath: catppuccin-latte.yazi
 
   - path: dotfiles/.config/yazi/flavors/catppuccin-mocha.yazi
@@ -39,8 +39,8 @@ directories:
           url: https://github.com/yazi-rs/flavors.git
           ref: main
         includePaths:
-          - 'catppuccin-mocha.yazi/flavor.toml'
-          - 'catppuccin-mocha.yazi/README.md'
+          - "catppuccin-mocha.yazi/flavor.toml"
+          - "catppuccin-mocha.yazi/README.md"
         newRootPath: catppuccin-mocha.yazi
 
   - path: dotfiles/.config/yazi/plugins/chmod.yazi
@@ -50,8 +50,8 @@ directories:
           url: https://github.com/yazi-rs/plugins.git
           ref: main
         includePaths:
-          - 'chmod.yazi/main.lua'
-          - 'chmod.yazi/README.md'
+          - "chmod.yazi/main.lua"
+          - "chmod.yazi/README.md"
         newRootPath: chmod.yazi
 
   - path: dotfiles/.config/yazi/plugins/copy-file-contents.yazi
@@ -61,8 +61,8 @@ directories:
           url: https://github.com/AnirudhG07/plugins-yazi.git
           ref: main
         includePaths:
-          - 'copy-file-contents.yazi/main.lua'
-          - 'copy-file-contents.yazi/README.md'
+          - "copy-file-contents.yazi/main.lua"
+          - "copy-file-contents.yazi/README.md"
         newRootPath: copy-file-contents.yazi
 
   - path: dotfiles/.config/yazi/plugins/full-border.yazi
@@ -72,8 +72,8 @@ directories:
           url: https://github.com/yazi-rs/plugins.git
           ref: main
         includePaths:
-          - 'full-border.yazi/main.lua'
-          - 'full-border.yazi/README.md'
+          - "full-border.yazi/main.lua"
+          - "full-border.yazi/README.md"
         newRootPath: full-border.yazi
 
   - path: dotfiles/.config/yazi/plugins/git.yazi
@@ -83,8 +83,8 @@ directories:
           url: https://github.com/yazi-rs/plugins.git
           ref: main
         includePaths:
-          - 'git.yazi/main.lua'
-          - 'git.yazi/README.md'
+          - "git.yazi/main.lua"
+          - "git.yazi/README.md"
         newRootPath: git.yazi
 
   - path: dotfiles/.config/yazi/plugins/ouch.yazi
@@ -94,8 +94,8 @@ directories:
           url: https://github.com/ndtoan96/ouch.yazi.git
           ref: main
         includePaths:
-          - 'main.lua'
-          - 'README.md'
+          - "main.lua"
+          - "README.md"
 
   - path: dotfiles/.config/yazi/plugins/piper.yazi
     contents:
@@ -104,8 +104,8 @@ directories:
           url: https://github.com/yazi-rs/plugins.git
           ref: main
         includePaths:
-          - 'piper.yazi/main.lua'
-          - 'piper.yazi/README.md'
+          - "piper.yazi/main.lua"
+          - "piper.yazi/README.md"
         newRootPath: piper.yazi
 
   - path: dotfiles/.config/yazi/plugins/starship.yazi
@@ -115,8 +115,8 @@ directories:
           url: https://github.com/Rolv-Apneseth/starship.yazi.git
           ref: main
         includePaths:
-          - 'main.lua'
-          - 'README.md'
+          - "main.lua"
+          - "README.md"
 
   - path: dotfiles/.config/yazi/plugins/toggle-pane.yazi
     contents:
@@ -125,8 +125,8 @@ directories:
           url: https://github.com/yazi-rs/plugins.git
           ref: main
         includePaths:
-          - 'toggle-pane.yazi/main.lua'
-          - 'toggle-pane.yazi/README.md'
+          - "toggle-pane.yazi/main.lua"
+          - "toggle-pane.yazi/README.md"
         newRootPath: toggle-pane.yazi
 
   - path: dotfiles/.config/yazi/plugins/torrent-preview.yazi
@@ -136,8 +136,8 @@ directories:
           url: https://github.com/kirasok/torrent-preview.yazi.git
           ref: main
         includePaths:
-          - 'main.lua'
-          - 'README.md'
+          - "main.lua"
+          - "README.md"
 
   - path: dotfiles/.config/yazi/plugins/yaziline.yazi
     contents:
@@ -146,5 +146,5 @@ directories:
           url: https://github.com/llanosrocas/yaziline.yazi.git
           ref: main
         includePaths:
-          - 'main.lua'
-          - 'README.md'
+          - "main.lua"
+          - "README.md"

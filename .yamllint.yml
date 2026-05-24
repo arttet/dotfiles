@@ -1,0 +1,22 @@
+---
+extends: default
+
+rules:
+  # dprint (pretty_yaml) owns formatting — don't double-police style.
+  line-length: disable
+  document-start: disable
+  comments-indentation: disable
+  comments:
+    min-spaces-from-content: 1
+  # `on:` in GitHub Actions parses as the boolean `true`; don't flag keys.
+  truthy:
+    check-keys: false
+
+ignore: |
+  vendir.lock.yml
+  node_modules/
+  docs/.vitepress/cache/
+  docs/.vitepress/dist/
+  dotfiles/.config/yazi/flavors/
+  dotfiles/.config/yazi/plugins/
+  dotfiles/.config/alacritty/themes/
