@@ -1,0 +1,132 @@
+"$schema" = 'https://starship.rs/config-schema.json'
+
+# =============================================================================
+# Lightweight Starship for Zellij
+# =============================================================================
+# Designed for Zellij multi-pane layout: minimal header-style prompt
+# Shows only essential info to avoid clutter in small panes
+# =============================================================================
+
+format = """
+[](surface0)\
+$directory\
+[](fg:peach bg:green)\
+$git_branch\
+$git_status\
+[](fg:green bg:teal)\
+$cmd_duration\
+[ ](fg:teal)\
+$character"""
+
+palette = 'catppuccin_mocha'
+
+[palettes.catppuccin_mocha]
+rosewater = "#f5e0dc"
+flamingo = "#f2cdcd"
+pink = "#f5c2e7"
+orange = "#cba6f7"
+red = "#f38ba8"
+maroon = "#eba0ac"
+peach = "#fab387"
+yellow = "#f9e2af"
+green = "#a6e3a1"
+teal = "#94e2d5"
+sky = "#89dceb"
+sapphire = "#74c7ec"
+blue = "#89b4fa"
+lavender = "#b4befe"
+text = "#cdd6f4"
+subtext1 = "#bac2de"
+subtext0 = "#a6adc8"
+overlay2 = "#9399b2"
+overlay1 = "#7f849c"
+overlay0 = "#6c7086"
+surface2 = "#585b70"
+surface1 = "#45475a"
+surface0 = "#313244"
+base = "#1e1e2e"
+mantle = "#181825"
+crust = "#11111b"
+
+[directory]
+style = "fg:mantle bg:peach"
+format = "[ $path ]($style)"
+truncation_length = 2
+truncation_symbol = "…/"
+
+[directory.substitutions]
+"Documents" = "󰈙 "
+"Downloads" = " "
+"Music" = "󰝚 "
+"Pictures" = " "
+"Developer" = "󰲋 "
+
+[git_branch]
+symbol = ""
+style = "bg:teal"
+format = '[[ $symbol $branch ](fg:base bg:green)]($style)'
+
+[git_status]
+style = "bg:teal"
+format = '[[($all_status$ahead_behind )](fg:base bg:green)]($style)'
+
+[cmd_duration]
+min_time = 2000
+show_milliseconds = false
+format = "[ $duration ]($style)"
+style = "fg:base bg:teal"
+
+[character]
+disabled = false
+success_symbol = '[](bold fg:green)'
+error_symbol = '[](bold fg:red)'
+vimcmd_symbol = '[](bold fg:green)'
+vimcmd_replace_one_symbol = '[](bold fg:purple)'
+vimcmd_replace_symbol = '[](bold fg:purple)'
+vimcmd_visual_symbol = '[](bold fg:lavender)'
+
+# Disabled modules for lightweight mode
+[username]
+disabled = true
+
+[hostname]
+disabled = true
+
+[os]
+disabled = true
+
+[battery]
+disabled = true
+
+[time]
+disabled = true
+
+[c]
+disabled = true
+
+[rust]
+disabled = true
+
+[golang]
+disabled = true
+
+[nodejs]
+disabled = true
+
+[php]
+disabled = true
+
+[java]
+disabled = true
+
+[kotlin]
+disabled = true
+
+[haskell]
+disabled = true
+
+[python]
+disabled = true
+
+[docker_context]
+disabled = true
