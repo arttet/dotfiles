@@ -132,11 +132,10 @@ jobs:
         run: semgrep scan --config p/default --error
 
   # ---------------------------------------------------------------------------
-  # Stage 2: Build Documentation
+  # Stage 1: Build Documentation
   # ---------------------------------------------------------------------------
   docs:
     name: Documentation
-    needs: [fmt, lint, security]
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -174,11 +173,164 @@ jobs:
           path: docs/.vitepress/dist
 
   # ---------------------------------------------------------------------------
+  # Stage 2: Build & Package
+  # ---------------------------------------------------------------------------
+  build:
+    name: Build & Package
+    needs: [fmt, lint, security]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: latest
+
+      - name: Install system tools
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y stow unzip
+
+      - name: Install Vendir
+
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release download --repo carvel-dev/vendir --pattern 'vendir-linux-amd64'
+          chmod +x vendir-linux-amd64
+          sudo mv vendir-linux-amd64 /usr/local/bin/vendir
+
+      - name: Install Neovim
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release download --repo neovim/neovim --pattern 'nvim-linux-x86_64.tar.gz'
+          tar -xzf nvim-linux-x86_64.tar.gz
+          sudo mv nvim-linux-x86_64/bin/nvim /usr/local/bin/
+          sudo cp -r nvim-linux-x86_64/share/* /usr/local/share/
+          sudo cp -r nvim-linux-x86_64/lib/* /usr/local/lib/
+
+      - name: Install Nushell
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release download --repo nushell/nushell --pattern 'nu-*-x86_64-unknown-linux-gnu.tar.gz'
+          tar -xzf nu-*-x86_64-unknown-linux-gnu.tar.gz
+          sudo mv nu-*-x86_64-unknown-linux-gnu/nu* /usr/local/bin/
+
+      - name: Install Starship
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release download --repo starship/starship --pattern 'starship-x86_64-unknown-linux-gnu.tar.gz'
+          tar -xzf starship-x86_64-unknown-linux-gnu.tar.gz
+          sudo mv starship /usr/local/bin/
+
+      - name: Install Yazi
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release download --repo sxyazi/yazi --pattern 'yazi-x86_64-unknown-linux-gnu.zip'
+          unzip yazi-x86_64-unknown-linux-gnu.zip
+          sudo mv yazi-x86_64-unknown-linux-gnu/yazi /usr/local/bin/
+          sudo mv yazi-x86_64-unknown-linux-gnu/ya /usr/local/bin/
+
+      - name: Install Zellij
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release download --repo zellij-org/zellij --pattern 'zellij-x86_64-unknown-linux-musl.tar.gz'
+          tar -xzf zellij-x86_64-unknown-linux-musl.tar.gz
+          sudo mv zellij /usr/local/bin/
+
+      - name: Cleanup installation files
+        run: |
+          rm -rf ./*.tar.gz ./*.zip nvim-linux-x86_64 nu-*-x86_64-unknown-linux-gnu yazi-x86_64-unknown-linux-gnu starship zellij
+
+      - name: Sync dependencies
+        run: vendir sync
+
+      - name: Link dotfiles (stow)
+        run: |
+          # Remove existing bash configs that cause conflicts in CI
+          rm -f "$HOME/.bashrc" "$HOME/.bash_profile"
+          stow -v --target="${HOME}" dotfiles
+
+      - name: Verify configuration paths
+        run: |
+          # shellcheck disable=SC2016
+          echo "🔍 Verifying configuration paths..."
+
+          # Neovim
+          NVIM_CONFIG=$(nvim --headless -c 'lua print(vim.fn.stdpath("config"))' -c 'q' 2>&1 | tail -n 1)
+          echo "Neovim config: $NVIM_CONFIG"
+          test "$NVIM_CONFIG" = "$HOME/.config/nvim" || (echo "❌ Neovim config path mismatch" && exit 1)
+          test -f "$NVIM_CONFIG/init.lua" || (echo "❌ Neovim init.lua not found" && exit 1)
+
+          # Nushell
+          # shellcheck disable=SC2016
+          NU_CONFIG=$(nu -c 'echo $nu.config-path')
+          echo "Nushell config: $NU_CONFIG"
+          echo "$NU_CONFIG" | grep -q ".config/nushell/config.nu" || (echo "❌ Nushell config path mismatch" && exit 1)
+
+          # Starship
+          test -f "$HOME/.config/starship/starship.toml" || (echo "❌ Starship config not found" && exit 1)
+
+          # Yazi
+          test -d "$HOME/.config/yazi" || (echo "❌ Yazi config directory not found" && exit 1)
+          test -f "$HOME/.config/yazi/yazi.toml" || (echo "❌ yazi.toml not found" && exit 1)
+
+          # Zellij
+          test -f "$HOME/.config/zellij/config.kdl" || (echo "❌ Zellij config not found" && exit 1)
+
+          # Functional checks
+          echo "🚀 Running functional checks..."
+
+          # Neovim: Check for syntax errors (ignoring missing modules/plugins)
+          nvim --headless -u NONE -c "lua local _, err = loadfile(os.getenv('HOME') .. '/.config/nvim/init.lua'); if err then print(err); os.exit(1) end" -c "q" || (echo "❌ Neovim configuration syntax error" && exit 1)
+
+          # Starship: Check if it can render a prompt
+          starship prompt > /dev/null || (echo "❌ Starship failed to render prompt" && exit 1)
+
+          # Nushell: Simple command execution
+          nu -c "print 'Nushell is working'" || (echo "❌ Nushell functional check failed" && exit 1)
+
+          # Yazi: Version check
+          yazi --version || (echo "❌ Yazi functional check failed" && exit 1)
+          yazi --debug || (echo "❌ Ya functional check failed" && exit 1)
+
+          # Zellij: Version check
+          zellij --version || (echo "❌ Zellij functional check failed" && exit 1)
+
+          # Bash (Stow check)
+          test -L "$HOME/.bashrc" || (echo "❌ .bashrc symlink missing" && exit 1)
+
+          echo "✅ All configurations verified!"
+
+      - name: Create archive
+        run: tar -czvf dotfiles.tar.gz dotfiles/
+
+      - name: Verify archive content
+        run: |
+          echo "🔍 Verifying archive content..."
+          tar -tf dotfiles.tar.gz | grep "dotfiles/.config/alacritty/themes/themes/catppuccin_mocha.toml"
+          tar -tf dotfiles.tar.gz | grep "dotfiles/.config/nvim/init.lua"
+          echo "✅ Archive content verified!"
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: dotfiles-archive
+          path: dotfiles.tar.gz
+
+  # ---------------------------------------------------------------------------
   # Stage 3: Deploy to GitHub Pages (main only)
   # ---------------------------------------------------------------------------
   deploy:
     name: Deploy
-    needs: docs
+    needs: [docs, build]
     # Deploy only on direct pushes to main — never on the nightly schedule.
     if: github.ref == 'refs/heads/main' && github.event_name != 'schedule'
     runs-on: ubuntu-latest
