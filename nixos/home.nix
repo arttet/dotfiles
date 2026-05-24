@@ -7,9 +7,12 @@
 let
   link = config.lib.file.mkOutOfStoreSymlink;
   dotfileLinks = [
+    ".bash_profile"
+    ".bashrc"
     ".config/alacritty"
     ".config/bash"
     ".config/fastfetch"
+    ".config/ghostty"
     ".config/git"
     ".config/lazygit"
     ".config/nushell"

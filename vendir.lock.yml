@@ -7,43 +7,43 @@ directories:
       tags:
       - yaml-68-g2749b40
     path: .
-  path: dotfiles\.config\alacritty\themes\themes
+  path: dotfiles/.config/alacritty/themes/themes
 - contents:
   - git:
       commitTitle: 'ci: bump dessant/lock-threads from 5 to 6 (#76)'
       sha: 36c49acfd7d3924bd751fd74e37b6ff438af691a
     path: .
-  path: dotfiles\.config\yazi\flavors\catppuccin-latte.yazi
+  path: dotfiles/.config/yazi/flavors/catppuccin-latte.yazi
 - contents:
   - git:
       commitTitle: 'ci: bump dessant/lock-threads from 5 to 6 (#76)'
       sha: 36c49acfd7d3924bd751fd74e37b6ff438af691a
     path: .
-  path: dotfiles\.config\yazi\flavors\catppuccin-mocha.yazi
+  path: dotfiles/.config/yazi/flavors/catppuccin-mocha.yazi
 - contents:
   - git:
       commitTitle: 'ci: bump dessant/lock-threads from 5 to 6 (#211)'
       sha: be524fb140206cc59b3e51037ba6148935263975
     path: .
-  path: dotfiles\.config\yazi\plugins\chmod.yazi
+  path: dotfiles/.config/yazi/plugins/chmod.yazi
 - contents:
   - git:
       commitTitle: manager -> mgr api fix
       sha: 71545f4ee1a0896c555b3118dc3d2b0a1b92fad9
     path: .
-  path: dotfiles\.config\yazi\plugins\copy-file-contents.yazi
+  path: dotfiles/.config/yazi/plugins/copy-file-contents.yazi
 - contents:
   - git:
       commitTitle: 'ci: bump dessant/lock-threads from 5 to 6 (#211)'
       sha: be524fb140206cc59b3e51037ba6148935263975
     path: .
-  path: dotfiles\.config\yazi\plugins\full-border.yazi
+  path: dotfiles/.config/yazi/plugins/full-border.yazi
 - contents:
   - git:
       commitTitle: 'ci: bump dessant/lock-threads from 5 to 6 (#211)'
       sha: be524fb140206cc59b3e51037ba6148935263975
     path: .
-  path: dotfiles\.config\yazi\plugins\git.yazi
+  path: dotfiles/.config/yazi/plugins/git.yazi
 - contents:
   - git:
       commitTitle: 'Merge pull request #35 from openaitx-system/Auto_translate_README_and_Wiki...'
@@ -51,31 +51,31 @@ directories:
       tags:
       - v0.7.0-12-g406ce6c
     path: .
-  path: dotfiles\.config\yazi\plugins\ouch.yazi
+  path: dotfiles/.config/yazi/plugins/ouch.yazi
 - contents:
   - git:
       commitTitle: 'ci: bump dessant/lock-threads from 5 to 6 (#211)'
       sha: be524fb140206cc59b3e51037ba6148935263975
     path: .
-  path: dotfiles\.config\yazi\plugins\piper.yazi
+  path: dotfiles/.config/yazi/plugins/piper.yazi
 - contents:
   - git:
       commitTitle: 'docs(readme): update thanks section'
       sha: a83710153ab5625a64ef98d55e6ddad480a3756f
     path: .
-  path: dotfiles\.config\yazi\plugins\starship.yazi
+  path: dotfiles/.config/yazi/plugins/starship.yazi
 - contents:
   - git:
       commitTitle: 'ci: bump dessant/lock-threads from 5 to 6 (#211)'
       sha: be524fb140206cc59b3e51037ba6148935263975
     path: .
-  path: dotfiles\.config\yazi\plugins\toggle-pane.yazi
+  path: dotfiles/.config/yazi/plugins/toggle-pane.yazi
 - contents:
   - git:
       commitTitle: 'fix(deprecated): use Command:arg() instead of Command:args()'
       sha: f46528243c458de3ffce38c44607d5a0cde67559
     path: .
-  path: dotfiles\.config\yazi\plugins\torrent-preview.yazi
+  path: dotfiles/.config/yazi/plugins/torrent-preview.yazi
 - contents:
   - git:
       commitTitle: 'chore(v26.5.6): `size` => `length`'
@@ -83,5 +83,5 @@ directories:
       tags:
       - v2.5.4
     path: .
-  path: dotfiles\.config\yazi\plugins\yaziline.yazi
+  path: dotfiles/.config/yazi/plugins/yaziline.yazi
 kind: LockConfig
