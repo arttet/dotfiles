@@ -44,7 +44,7 @@ jobs:
           args: --check .
 
       - name: Setup shfmt
-        uses: mfinelli/setup-shfmt@v3
+        uses: mfinelli/setup-shfmt@v4
 
       - name: Check shell formatting (shfmt)
         run: shfmt --diff dotfiles/.bashrc dotfiles/.bash_profile dotfiles/.config/bash dotfiles/.config/shell
