@@ -86,7 +86,7 @@ keybind = ctrl+shift+q=close_window
 
 # View
 keybind = f11=toggle_fullscreen
-keybind = ctrl+enter=toggle_fullscreen
+keybind = ctrl+return=toggle_fullscreen
 
 # Clipboard (Ctrl+Shift to avoid shell conflicts)
 keybind = ctrl+shift+c=copy_to_clipboard
