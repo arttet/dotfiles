@@ -1,0 +1,9 @@
+# selene standard library for the Neovim Lua API.
+# Referenced by selene.toml (`std = "vim"`). `vim` is treated as an
+# arbitrary table so `vim.*` access never trips `undefined_variable`,
+# while selene still catches unused locals, shadowing, empty blocks, etc.
+---
+base: lua51
+globals:
+  vim:
+    any: true

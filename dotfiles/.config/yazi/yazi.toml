@@ -11,24 +11,14 @@ max_height = 2048
 
 [opener]
 edit = [
-    { run = "nvim %s", desc = "nvim", block = true },
+  { run = "nvim %s", desc = "nvim", block = true },
 
-    { run = "zed %s", desc = "zed", orphan = true },
-    { run = "zed -w %s", desc = "zed (block)", block = true },
+  { run = "zed %s", desc = "zed", orphan = true },
+  { run = "zed -w %s", desc = "zed (block)", block = true },
 
-    { run = "code %s", desc = "code", orphan = true },
-    { run = "code -w %s", desc = "code (block)",  block = true },
+  { run = "code %s", desc = "code", orphan = true },
+  { run = "code -w %s", desc = "code (block)", block = true },
 ]
-
-[[plugin.prepend_fetchers]]
-id = "git"
-url = "*"
-run = "git"
-
-[[plugin.prepend_fetchers]]
-id = "git"
-url = "*/"
-run = "git"
 
 [[plugin.prepend_previewers]]
 url = "*/"

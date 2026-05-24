@@ -28,12 +28,12 @@
     {
       "type": "command",
       "key": "Public IP",
-      "text": "curl --fail --show-error --no-progress-meter --connect-timeout 3 --max-time 1 -4 --location https://api.ipify.org"
+      "text": "curl --fail --show-error --no-progress-meter --connect-timeout 3 --max-time 1 -4 --location https://api.ipify.org",
     },
     "battery",
     "poweradapter",
     "locale",
     "break",
-    "colors"
-  ]
+    "colors",
+  ],
 }

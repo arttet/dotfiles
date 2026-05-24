@@ -1,0 +1,197 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  schedule:
+    - cron: "0 3 * * *" # Daily at 03:00 UTC
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  # ---------------------------------------------------------------------------
+  # Stage 1: Formatting
+  # ---------------------------------------------------------------------------
+  fmt:
+    name: Format
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Setup just
+        uses: extractions/setup-just@v3
+
+      - name: Check Justfile formatting
+        run: just --fmt --check
+
+      - name: Check formatting (dprint)
+        uses: dprint/check@v2.3
+
+      - name: Check Lua formatting (stylua)
+        uses: JohnnyMorganz/stylua-action@v5
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          version: latest
+          args: --check .
+
+      - name: Setup shfmt
+        uses: mfinelli/setup-shfmt@v3
+
+      - name: Check shell formatting (shfmt)
+        run: shfmt --diff dotfiles/.bashrc dotfiles/.bash_profile dotfiles/.config/bash dotfiles/.config/shell
+
+  # ---------------------------------------------------------------------------
+  # Stage 1: Linting
+  # ---------------------------------------------------------------------------
+  lint:
+    name: Lint
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: ShellCheck
+        uses: ludeeus/action-shellcheck@master
+        with:
+          severity: warning
+          scandir: ./dotfiles/.config/shell
+        env:
+          SHELLCHECK_OPTS: -s bash -e SC1090 -e SC1091
+
+      - name: Install selene
+        uses: taiki-e/install-action@v2
+        with:
+          tool: selene
+
+      - name: Lint Lua
+        run: selene dotfiles/.config/nvim
+
+      - name: Lint workflows
+        uses: raven-actions/actionlint@v2
+
+      - name: Setup Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: "3.x"
+
+      - name: Lint YAML
+        run: |
+          pip install --quiet yamllint
+          yamllint .
+
+      - name: Lint Markdown
+        uses: DavidAnson/markdownlint-cli2-action@v20
+        with:
+          globs: "**/*.md"
+
+  # ---------------------------------------------------------------------------
+  # Stage 1: Security Scanning
+  # ---------------------------------------------------------------------------
+  security:
+    name: Security
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+
+      - name: Secret scanning
+        uses: trufflesecurity/trufflehog@main
+        with:
+          extra_args: --results=verified,unknown
+
+      - name: Trivy filesystem scan
+        # Pinned from aquasecurity/trivy-action@v0.36.0
+        uses: aquasecurity/trivy-action@ed142fd0673e97e23eac54620cfb913e5ce36c25
+        with:
+          scan-type: fs
+          scanners: secret,misconfig
+          exit-code: "1"
+          severity: HIGH,CRITICAL
+          cache: "true"
+
+      - name: Setup Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: "3.x"
+
+      - name: Install Semgrep
+        run: pip install --quiet semgrep
+
+      - name: Semgrep
+        run: semgrep scan --config p/default --error
+
+  # ---------------------------------------------------------------------------
+  # Stage 2: Build Documentation
+  # ---------------------------------------------------------------------------
+  docs:
+    name: Documentation
+    needs: [fmt, lint, security]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: latest
+
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@0c5077e51419868618aeaa5fe8019c62421857d6
+
+      - name: Setup Pages
+        uses: actions/configure-pages@v6
+
+      - name: Restore Bun cache
+        uses: actions/cache@v5
+        with:
+          path: ~/.bun/install/cache
+          key: ${{ runner.os }}-bun-${{ hashFiles('docs/bun.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-bun-
+
+      - name: Install docs dependencies
+        run: bun --bun install --cwd docs --frozen-lockfile
+
+      - name: Build docs
+        run: bun --bun run --cwd docs docs:build
+
+      - name: Upload GitHub Pages artifact
+        uses: actions/upload-pages-artifact@v5
+        with:
+          name: github-pages
+          path: docs/.vitepress/dist
+
+  # ---------------------------------------------------------------------------
+  # Stage 3: Deploy to GitHub Pages (main only)
+  # ---------------------------------------------------------------------------
+  deploy:
+    name: Deploy
+    needs: docs
+    # Deploy only on direct pushes to main — never on the nightly schedule.
+    if: github.ref == 'refs/heads/main' && github.event_name != 'schedule'
+    runs-on: ubuntu-latest
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    concurrency:
+      group: pages
+      cancel-in-progress: false
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v5

@@ -1,0 +1,3 @@
+# Vendored (vendir-managed) Lua — do not reformat
+dotfiles/.config/yazi/flavors/
+dotfiles/.config/yazi/plugins/

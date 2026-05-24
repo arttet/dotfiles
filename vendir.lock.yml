@@ -2,36 +2,28 @@ apiVersion: vendir.k14s.io/v1alpha1
 directories:
 - contents:
   - git:
-      commitTitle: Add tokyo night light theme
-      sha: a1cefa5ae83eab0c1f89a47e097181417c9e064f
+      commitTitle: Add ganbaru themes
+      sha: 2749b407b597790e6f08b218c2bc2acdf66210a0
       tags:
-      - yaml-65-ga1cefa5
+      - yaml-68-g2749b40
     path: .
   path: dotfiles\.config\alacritty\themes\themes
 - contents:
   - git:
-      commitTitle: 'Merge pull request #243 from andyrichardson/patch-1...'
-      sha: 99469c4a9b1ccf77fade25842dc7bafbc8ce9946
-      tags:
-      - v3.0.0-77-g99469c4
-    path: .
-  path: dotfiles\.config\tmux\plugins\tpm
-- contents:
-  - git:
-      commitTitle: 'feat: add thinkpad-red-oled flavor (#72)'
-      sha: 9511cb09cadcbf57e39a46b06a52d00957177175
+      commitTitle: 'ci: bump dessant/lock-threads from 5 to 6 (#76)'
+      sha: 36c49acfd7d3924bd751fd74e37b6ff438af691a
     path: .
   path: dotfiles\.config\yazi\flavors\catppuccin-latte.yazi
 - contents:
   - git:
-      commitTitle: 'feat: add thinkpad-red-oled flavor (#72)'
-      sha: 9511cb09cadcbf57e39a46b06a52d00957177175
+      commitTitle: 'ci: bump dessant/lock-threads from 5 to 6 (#76)'
+      sha: 36c49acfd7d3924bd751fd74e37b6ff438af691a
     path: .
   path: dotfiles\.config\yazi\flavors\catppuccin-mocha.yazi
 - contents:
   - git:
-      commitTitle: 'feat(mime-ext): add various compression file types (#197)'
-      sha: 43c69783a674108472eadd5c1b81a3c4d9ff78b5
+      commitTitle: 'ci: bump dessant/lock-threads from 5 to 6 (#211)'
+      sha: be524fb140206cc59b3e51037ba6148935263975
     path: .
   path: dotfiles\.config\yazi\plugins\chmod.yazi
 - contents:
@@ -42,14 +34,14 @@ directories:
   path: dotfiles\.config\yazi\plugins\copy-file-contents.yazi
 - contents:
   - git:
-      commitTitle: 'feat(mime-ext): add various compression file types (#197)'
-      sha: 43c69783a674108472eadd5c1b81a3c4d9ff78b5
+      commitTitle: 'ci: bump dessant/lock-threads from 5 to 6 (#211)'
+      sha: be524fb140206cc59b3e51037ba6148935263975
     path: .
   path: dotfiles\.config\yazi\plugins\full-border.yazi
 - contents:
   - git:
-      commitTitle: 'feat(mime-ext): add various compression file types (#197)'
-      sha: 43c69783a674108472eadd5c1b81a3c4d9ff78b5
+      commitTitle: 'ci: bump dessant/lock-threads from 5 to 6 (#211)'
+      sha: be524fb140206cc59b3e51037ba6148935263975
     path: .
   path: dotfiles\.config\yazi\plugins\git.yazi
 - contents:
@@ -62,8 +54,8 @@ directories:
   path: dotfiles\.config\yazi\plugins\ouch.yazi
 - contents:
   - git:
-      commitTitle: 'feat(mime-ext): add various compression file types (#197)'
-      sha: 43c69783a674108472eadd5c1b81a3c4d9ff78b5
+      commitTitle: 'ci: bump dessant/lock-threads from 5 to 6 (#211)'
+      sha: be524fb140206cc59b3e51037ba6148935263975
     path: .
   path: dotfiles\.config\yazi\plugins\piper.yazi
 - contents:
@@ -74,8 +66,8 @@ directories:
   path: dotfiles\.config\yazi\plugins\starship.yazi
 - contents:
   - git:
-      commitTitle: 'feat(mime-ext): add various compression file types (#197)'
-      sha: 43c69783a674108472eadd5c1b81a3c4d9ff78b5
+      commitTitle: 'ci: bump dessant/lock-threads from 5 to 6 (#211)'
+      sha: be524fb140206cc59b3e51037ba6148935263975
     path: .
   path: dotfiles\.config\yazi\plugins\toggle-pane.yazi
 - contents:
@@ -86,10 +78,10 @@ directories:
   path: dotfiles\.config\yazi\plugins\torrent-preview.yazi
 - contents:
   - git:
-      commitTitle: 'chore(v26.1.22): update compatibility matrix'
-      sha: d9cc2cb289977ba1fdea5b9c6fa816febc8ed4f2
+      commitTitle: 'chore(v26.5.6): `size` => `length`'
+      sha: 25161c18e61339b6a79f29f8948e3c360e3f9ace
       tags:
-      - v2.5.2-3-gd9cc2cb
+      - v2.5.4
     path: .
   path: dotfiles\.config\yazi\plugins\yaziline.yazi
 kind: LockConfig

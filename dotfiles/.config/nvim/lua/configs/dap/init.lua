@@ -1,4 +1,3 @@
-local dap = require "dap"
 local json5 = require "json5"
 local telescope = require "telescope"
 local vscode = require "dap.ext.vscode"

@@ -8,7 +8,7 @@ This document provides expert guidance for AI agents working with this Neovim co
 - **Language**: Lua
 - **Plugin Manager**: lazy.nvim
 
-## Important Notes
+## Compatibility Notes
 
 - Use only APIs available in Neovim 0.11+
 - Avoid deprecated functions (e.g., vim.loop → vim.uv, lspconfig → vim.lsp)

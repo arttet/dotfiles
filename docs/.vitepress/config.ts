@@ -1,8 +1,8 @@
-import { defineConfig } from 'vitepress'
+import { defineConfig } from "vitepress";
 
 // https://vitepress.dev/reference/site-config
 export default defineConfig({
-  base: '/dotfiles/',
+  base: "/dotfiles/",
   srcDir: "content",
 
   title: "My dotfiles",
@@ -10,36 +10,36 @@ export default defineConfig({
   themeConfig: {
     // https://vitepress.dev/reference/default-theme-config
     nav: [
-      { text: 'Home', link: '/' },
-      { text: 'User Guide', link: '/user-guide/getting-started/introduction' }
+      { text: "Home", link: "/" },
+      { text: "User Guide", link: "/user-guide/getting-started/introduction" },
     ],
 
     sidebar: [
       {
-        text: 'User Guide',
+        text: "User Guide",
         collapsed: false,
         items: [
-          { text: 'Getting Started', link: '/user-guide/getting-started/introduction' },
-        ]
+          { text: "Getting Started", link: "/user-guide/getting-started/introduction" },
+        ],
       },
     ],
 
     socialLinks: [
-      { icon: 'github', link: 'https://github.com/arttet/dotfiles' }
-    ]
+      { icon: "github", link: "https://github.com/arttet/dotfiles" },
+    ],
   },
 
   vite: {
     build: {
-      minify: 'esbuild',
-      target: 'es2022',
+      minify: "esbuild",
+      target: "es2022",
       cssCodeSplit: true,
     },
 
     ssr: {
-      noExternal: ['vitepress'],
+      noExternal: ["vitepress"],
     },
   },
 
   cleanUrls: true,
-})
+});

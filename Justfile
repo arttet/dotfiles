@@ -1,91 +1,124 @@
 HYPERFINE := "hyperfine --warmup 2 --runs 10 --shell=none"
+SHELL_TARGETS := "dotfiles/.bashrc dotfiles/.bash_profile dotfiles/.config/bash dotfiles/.config/shell"
 
-[doc('Run the help recipe by default')]
+# ==============================================================================
+# Help
+# ==============================================================================
+
+[doc('Show help')]
 default: help
 
-[doc('Show available recipes and their descriptions')]
+[doc('List all commands')]
 help:
-    @just --list --unsorted
+    @just --list --unsorted --list-submodules
 
-[group('Dotfiles')]
+# ==============================================================================
+# Usage
+# ==============================================================================
+
 [doc('Synchronize external plugins and dependencies using vendir')]
-sync:
-    vendir sync
-
 [group('Dotfiles')]
+sync:
+    GIT_CONFIG_GLOBAL=/dev/null vendir sync
+
 [doc('Preview dotfiles deployment')]
+[group('Dotfiles')]
 check:
     dotter deploy --verbose --dry-run
 
-[group('Dotfiles')]
 [doc('Install dotfiles using dotter')]
+[group('Dotfiles')]
 deploy:
     dotter deploy --verbose --force
 
-[group('Dotfiles')]
 [doc('Uninstall dotfiles using dotter')]
+[group('Dotfiles')]
 undeploy:
     dotter undeploy --verbose --noconfirm --force
 
-[group('Dotfiles')]
 [doc('Install dotfiles using stow')]
+[group('Dotfiles')]
 [unix]
 install:
-	stow -v --target=${HOME} dotfiles
+    stow -v --target=${HOME} dotfiles
 
-[group('Dotfiles')]
 [doc('Uninstall dotfiles using stow')]
+[group('Dotfiles')]
 [unix]
 uninstall:
-	stow -v --delete --target=${HOME} dotfiles
+    stow -v --delete --target=${HOME} dotfiles
 
-[group('Performance')]
+# ==============================================================================
+# Development
+# ==============================================================================
+
+[doc('Install dependencies')]
+[group('Development')]
+deps:
+    @echo "🔧 Installing tools..."
+    @echo "✅ Dependencies installed!"
+
+[doc('Format code')]
+[group('Development')]
+fmt:
+    @echo "✨ Formatting code..."
+    dprint fmt
+    stylua .
+    shfmt --write {{ SHELL_TARGETS }}
+    just --fmt
+    @echo "✅ Code formatted!"
+
+[doc('Run linters')]
+[group('Development')]
+lint:
+    @echo "🔍 Running linters..."
+    selene dotfiles/.config/nvim
+    shellcheck -s bash $(shfmt --find {{ SHELL_TARGETS }})
+    yamllint .
+    markdownlint-cli2
+    actionlint
+    @echo "✅ Linting complete!"
+
+# ==============================================================================
+# Documentation
+# ==============================================================================
+
+[group: 'Documentation']
+mod docs 'misc/justfiles/docs.just'
+
+# ==============================================================================
+# Performance
+# ==============================================================================
+
 [doc('Run benchmarks for all supported shells')]
+[group('Performance')]
 bench:
-	@just benchmark-bash
-	@just benchmark-zsh
-	@just benchmark-nu
-	{{ if os_family() == "windows" { "@just benchmark-pwsh" } else { "" } }}
+    @just benchmark-bash
+    @just benchmark-zsh
+    @just benchmark-nu
+    {{ if os_family() == "windows" { "@just benchmark-pwsh" } else { "" } }}
 
-[group('Performance')]
 [doc('Benchmark Bash startup (raw vs configured)')]
+[group('Performance')]
 benchmark-bash:
-	{{HYPERFINE}} "bash --noprofile --norc -c 'exit 0'"
-	{{HYPERFINE}} "bash --login -i -c 'exit 0'"
+    {{ HYPERFINE }} "bash --noprofile --norc -c 'exit 0'"
+    {{ HYPERFINE }} "bash --login -i -c 'exit 0'"
 
-[group('Performance')]
 [doc('Benchmark Zsh startup (raw vs configured)')]
+[group('Performance')]
 benchmark-zsh:
-	{{HYPERFINE}} "zsh -f -c 'exit 0'"
-	{{HYPERFINE}} "zsh --login --interactive -c 'exit 0'"
+    {{ HYPERFINE }} "zsh -f -c 'exit 0'"
+    {{ HYPERFINE }} "zsh --login --interactive -c 'exit 0'"
 
-[group('Performance')]
 [doc('Benchmark Nushell startup (raw vs configured)')]
-benchmark-nu:
-	{{HYPERFINE}} "nu --no-config-file --no-std-lib -c 'exit 0'"
-	{{HYPERFINE}} "nu --login --interactive -c 'exit 0'"
-
 [group('Performance')]
+benchmark-nu:
+    {{ HYPERFINE }} "nu --no-config-file --no-std-lib -c 'exit 0'"
+    {{ HYPERFINE }} "nu --login --interactive -c 'exit 0'"
+
 [doc('Benchmark PowerShell 7.0 startup (raw vs configured)')]
+[group('Performance')]
 [windows]
 benchmark-pwsh:
-	{{HYPERFINE}} "pwsh -NoLogo -NoProfile -Command 'exit 0'"
-	{{HYPERFINE}} "pwsh -NoLogo -Command 'exit 0'"
-
-[group('Documentation')]
-[doc('Start VitePress development server')]
-[working-directory: 'docs']
-serve:
-	bun run docs:dev
-
-[group('Documentation')]
-[doc('Build the site for production')]
-[working-directory: 'docs']
-build:
-	bun run docs:build
-
-[group('Documentation')]
-[doc('Preview the production build locally')]
-[working-directory: 'docs']
-preview:
-	bun run docs:preview
+    {{ HYPERFINE }} "pwsh -NoLogo -NoProfile -Command 'exit 0'"
+    {{ HYPERFINE }} "pwsh -NoLogo -Command 'exit 0'"

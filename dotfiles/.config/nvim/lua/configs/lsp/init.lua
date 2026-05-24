@@ -2,7 +2,7 @@ require("nvchad.configs.lspconfig").defaults()
 
 -- Define default capabilities and on_attach
 local default_capabilities = vim.lsp.protocol.make_client_capabilities()
-local default_on_attach = function(client, bufnr)
+local default_on_attach = function(client, _bufnr)
   vim.notify("LSP attached: " .. client.name, vim.log.levels.INFO)
 end
 

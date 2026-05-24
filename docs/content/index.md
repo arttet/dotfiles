@@ -1,7 +1,6 @@
 ---
 # https://vitepress.dev/reference/default-theme-home-page
 layout: home
-
 hero:
   name: "Dotfiles"
   text: "Secure. Fast. Modern."
@@ -13,7 +12,6 @@ hero:
     - theme: alt
       text: View Source
       link: https://github.com/arttet/dotfiles
-
 features:
   - title: 🚀 Blazing Fast
     details: Optimized for milliseconds. Features lazy-loading, eval-caching, and ultra-efficient CLI tools like <code>ripgrep</code>, <code>fd</code>, and <code>eza</code>.
