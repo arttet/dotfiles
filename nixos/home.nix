@@ -22,6 +22,7 @@ let
     ".config/tmux"
     ".config/wezterm"
     ".config/yazi"
+    ".config/zellij"
     ".config/zsh"
     ".zshenv"
   ];
