@@ -1,6 +1,9 @@
 # AI
 .ai
 
+# nushell history
+dotfiles/.config/nushell/history.sqlite3*
+
 # alacritty
 dotfiles/.config/alacritty/themes
 
