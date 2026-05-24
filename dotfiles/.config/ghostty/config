@@ -1,0 +1,117 @@
+# =============================================================================
+# Ghostty Terminal Configuration
+# =============================================================================
+# Cross-platform terminal emulator: https://ghostty.org
+# This config follows the unified terminal parameters for this dotfiles repo.
+#
+# Font Strategy:
+#   Primary:   IosevkaTerm Nerd Font  (available in this NixOS system)
+#   Fallback:  CaskaydiaCove Nerd Font
+#   Fallback:  JetBrainsMono Nerd Font
+#
+# Unified Parameters (shared with WezTerm, Alacritty):
+#   Shell:     nu --login --interactive
+#   Padding:   5
+#   Opacity:   0.95
+#   Blur:      true
+#   Font size: 13.0
+#   Scrollback: 10000
+# =============================================================================
+
+# -----------------------------------------------------------------------------
+# Shell
+# -----------------------------------------------------------------------------
+command = nu --login --interactive
+
+# -----------------------------------------------------------------------------
+# Font
+# -----------------------------------------------------------------------------
+font-family = IosevkaTerm Nerd Font
+font-family = CaskaydiaCove Nerd Font
+font-family = JetBrainsMono Nerd Font
+font-size = 13.0
+
+# Disable ligatures for cleaner terminal text
+font-feature = -calt
+font-feature = -liga
+font-feature = -dlig
+
+# -----------------------------------------------------------------------------
+# Theme (Catppuccin with auto light/dark)
+# -----------------------------------------------------------------------------
+theme = light:Catppuccin Latte,dark:Catppuccin Mocha
+
+# -----------------------------------------------------------------------------
+# Window Appearance
+# -----------------------------------------------------------------------------
+window-padding-x = 5
+window-padding-y = 5
+window-decoration = false
+background-opacity = 0.95
+background-blur = true
+
+# -----------------------------------------------------------------------------
+# Scrollback
+# -----------------------------------------------------------------------------
+scrollback-limit = 10000
+
+# -----------------------------------------------------------------------------
+# Mouse
+# -----------------------------------------------------------------------------
+mouse-hide-while-typing = true
+mouse-scroll-multiplier = 3
+
+# -----------------------------------------------------------------------------
+# Clipboard
+# -----------------------------------------------------------------------------
+clipboard-read = allow
+clipboard-write = allow
+clipboard-trim-trailing-spaces = true
+
+# -----------------------------------------------------------------------------
+# Keybindings (unified across terminals)
+# -----------------------------------------------------------------------------
+# Rules:
+#   - Ctrl+Shift = terminal actions (no shell conflicts)
+#   - Ctrl alone = shell/TUI (SIGINT, vim, etc.)
+# -----------------------------------------------------------------------------
+
+# Tabs
+keybind = ctrl+shift+t=new_tab
+keybind = ctrl+shift+w=close_tab
+
+# Windows
+keybind = ctrl+shift+n=new_window
+keybind = ctrl+shift+q=close_window
+
+# View
+keybind = f11=toggle_fullscreen
+keybind = ctrl+enter=toggle_fullscreen
+
+# Clipboard (Ctrl+Shift to avoid shell conflicts)
+keybind = ctrl+shift+c=copy_to_clipboard
+keybind = ctrl+shift+v=paste_from_clipboard
+
+# Font size zoom
+keybind = ctrl+shift+plus=increase_font_size
+keybind = ctrl+shift+minus=decrease_font_size
+keybind = ctrl+shift+zero=reset_font_size
+
+# -----------------------------------------------------------------------------
+# Cursor
+# -----------------------------------------------------------------------------
+cursor-style = block
+cursor-style-blink = false
+cursor-click-to-move = true
+
+# -----------------------------------------------------------------------------
+# Shell Integration
+# -----------------------------------------------------------------------------
+shell-integration = detect
+shell-integration-features = cursor,sudo,title
+
+# -----------------------------------------------------------------------------
+# Performance
+# -----------------------------------------------------------------------------
+# Ghostty defaults are already well-optimized
+# No additional tweaks needed

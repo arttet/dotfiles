@@ -20,7 +20,7 @@ TERM = "xterm-256color"
 [window]
 decorations = "None"
 
-# Window padding in pixels
+# Window padding in pixels (unified with WezTerm/Ghostty)
 padding = { x = 5, y = 5 }
 
 # Window transparency (1.0 = fully opaque)
@@ -30,8 +30,7 @@ opacity = 0.95
 blur = true
 
 # Initial window state
-# startup_mode = "Windowed"
-startup_mode = "Maximized"
+startup_mode = "Windowed"
 
 # ==================================================
 # Scrolling behavior
@@ -44,63 +43,63 @@ history = 10000
 multiplier = 1
 
 # ==================================================
-# Font configuration
+# Font configuration (unified with WezTerm/Ghostty)
 # ==================================================
 [font]
-# normal = { family = "JetBrainsMono Nerd Font", style = "Regular" }
-# bold = { family = "JetBrainsMono Nerd Font", style = "Bold" }
-# italic = { family = "JetBrainsMono Nerd Font", style = "Italic" }
-# bold_italic = { family = "JetBrainsMono Nerd Font", style = "Bold Italic" }
+normal = { family = "IosevkaTerm Nerd Font", style = "Regular" }
+bold = { family = "IosevkaTerm Nerd Font", style = "Bold" }
+italic = { family = "IosevkaTerm Nerd Font", style = "Italic" }
+bold_italic = { family = "IosevkaTerm Nerd Font", style = "Bold Italic" }
 
-normal = { family = "CaskaydiaCove Nerd Font", style = "Regular" }
-bold = { family = "CaskaydiaCove Nerd Font", style = "Bold" }
-italic = { family = "CaskaydiaCove Nerd Font", style = "Italic" }
-bold_italic = { family = "CaskaydiaCove Nerd Font", style = "Bold Italic" }
+# Font size in points (unified)
+size = 13.0
 
-# Font size in points
-size = 14
+[font.offset]
+x = 0
+y = 0
+
+[font.glyph_offset]
+x = 0
+y = 0
 
 # ==================================================
-# Terminal / shell configuration
+# Terminal / shell configuration (unified)
 # ==================================================
 [terminal]
 # Nushell
 [terminal.shell]
 program = "nu"
-args = ["--login", "--interactive", "--execute", "z"]
-
-# # Git Bash
-# [terminal.shell]
-# program = "C:\\Program Files\\Git\\bin\\bash.exe"
-# args = ["--cd-to-home", "--login", "-i"]
-
-# # zsh
-# [terminal.shell]
-# program = "C:\\Program Files\\Git\\usr\\bin\\zsh.exe"
-# args = ["--login", "--interactive"]
-
-# # PowerShell 7
-# shell = { program = "pwsh", args = ["-NoLogo"] }
+args = ["--login", "--interactive"]
 
 # ==================================================
-# Keyboard bindings
+# Keyboard bindings (unified across terminals)
+# ==================================================
+# Rules:
+#   - Ctrl+Shift = terminal actions (no shell conflicts)
+#   - Ctrl alone = shell/TUI (SIGINT, vim, etc.)
 # ==================================================
 [keyboard]
 bindings = [
   # Toggle fullscreen mode
   { key = "F11", mods = "None", action = "ToggleFullscreen" },
+  { key = "Return", mods = "Control", action = "ToggleFullscreen" },
 
   # Open a new Alacritty window
-  { key = "T", mods = "Control", action = "CreateNewWindow" },
+  { key = "N", mods = "Control|Shift", action = "CreateNewWindow" },
 
   # Close window
-  { key = "Q", mods = "Control", action = "Quit" },
+  { key = "Q", mods = "Control|Shift", action = "Quit" },
 
-  # Copy to clipboard
-  { key = "C", mods = "Control", action = "Copy" },
+  # Copy to clipboard (Ctrl+Shift to avoid SIGINT conflict)
+  { key = "C", mods = "Control|Shift", action = "Copy" },
 
-  # Paste from clipboard
-  { key = "V", mods = "Control", action = "Paste" },
+  # Paste from clipboard (Ctrl+Shift to avoid vim conflict)
+  { key = "V", mods = "Control|Shift", action = "Paste" },
+
+  # Font size zoom
+  { key = "Plus", mods = "Control|Shift", action = "IncreaseFontSize" },
+  { key = "Minus", mods = "Control|Shift", action = "DecreaseFontSize" },
+  { key = "Key0", mods = "Control|Shift", action = "ResetFontSize" },
 ]
 
 # ==================================================

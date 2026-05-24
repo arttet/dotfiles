@@ -45,21 +45,22 @@ config.default_cwd = wezterm.home_dir
 -- Font configuration with Nerd Font fallback
 -- --------------------------------------------------
 config.font = wezterm.font_with_fallback({
-  "JetBrainsMono Nerd Font",
-  -- "JetBrains Mono",
-  -- "Symbols Nerd Font Mono",
+  { family = "IosevkaTerm Nerd Font", weight = "Medium" },
+  { family = "CaskaydiaCove Nerd Font", weight = "Medium" },
+  { family = "JetBrainsMono Nerd Font", weight = "Medium" },
+  "Noto Color Emoji",
 })
 
 config.font_size = 13.0
 
 -- --------------------------------------------------
--- Window appearance
+-- Window appearance (unified with Alacritty/Ghostty)
 -- --------------------------------------------------
 config.window_padding = {
-  left = 6,
-  right = 6,
-  top = 4,
-  bottom = 4,
+  left = 5,
+  right = 5,
+  top = 5,
+  bottom = 5,
 }
 
 -- Minimal window decorations and no tab bar
@@ -67,13 +68,16 @@ config.window_decorations = "RESIZE"
 config.enable_tab_bar = true
 config.use_fancy_tab_bar = true
 
+-- Background opacity and blur (unified)
+config.window_background_opacity = 0.95
+config.macos_window_background_blur = 20
+
 -- --------------------------------------------------
--- Key bindings
---
--- Default Key Assignments
--- wezterm show-keys --lua
---
--- https://wezterm.org/config/default-keys.html
+-- Key bindings (unified across terminals)
+-- --------------------------------------------------
+-- Rules:
+--   - Ctrl+Shift = terminal actions (no shell conflicts)
+--   - Ctrl alone = shell/TUI (SIGINT, vim, etc.)
 -- --------------------------------------------------
 config.keys = {
   -- New tab
@@ -83,17 +87,67 @@ config.keys = {
     action = wezterm.action.SpawnTab("CurrentPaneDomain"),
   },
 
-  -- Close tab fast
+  -- Close tab
   {
     key = "W",
     mods = "CTRL|SHIFT",
     action = wezterm.action.CloseCurrentTab({ confirm = false }),
   },
 
+  -- New window
+  {
+    key = "N",
+    mods = "CTRL|SHIFT",
+    action = wezterm.action.SpawnWindow,
+  },
+
+  -- Close window
+  {
+    key = "Q",
+    mods = "CTRL|SHIFT",
+    action = wezterm.action.QuitApplication,
+  },
+
   -- Toggle fullscreen
   {
     key = "F11",
     action = wezterm.action.ToggleFullScreen,
+  },
+  {
+    key = "Enter",
+    mods = "CTRL",
+    action = wezterm.action.ToggleFullScreen,
+  },
+
+  -- Copy (Ctrl+Shift to avoid SIGINT conflict)
+  {
+    key = "C",
+    mods = "CTRL|SHIFT",
+    action = wezterm.action.CopyTo("Clipboard"),
+  },
+
+  -- Paste (Ctrl+Shift to avoid vim conflict)
+  {
+    key = "V",
+    mods = "CTRL|SHIFT",
+    action = wezterm.action.PasteFrom("Clipboard"),
+  },
+
+  -- Font size zoom
+  {
+    key = "Equal",
+    mods = "CTRL|SHIFT",
+    action = wezterm.action.IncreaseFontSize,
+  },
+  {
+    key = "Minus",
+    mods = "CTRL|SHIFT",
+    action = wezterm.action.DecreaseFontSize,
+  },
+  {
+    key = "0",
+    mods = "CTRL|SHIFT",
+    action = wezterm.action.ResetFontSize,
   },
 }
 
