@@ -1,0 +1,87 @@
+* {
+  all: unset;
+  font-family: "JetBrains Mono", monospace;
+  font-size: 14px;
+  color: #cdd6f4;
+}
+
+#window {
+  background-color: #1e1e2e;
+  border: 2px solid #313244;
+  border-radius: 12px;
+  padding: 8px;
+  min-width: 520px;
+}
+
+#search {
+  background-color: #181825;
+  border: 1px solid #313244;
+  border-radius: 8px;
+  padding: 10px 14px;
+  margin-bottom: 8px;
+  color: #cdd6f4;
+  caret-color: #89b4fa;
+  font-size: 15px;
+}
+
+#search:focus {
+  border-color: #89b4fa;
+}
+
+#placeholder {
+  color: #585b70;
+}
+
+#list {
+  padding: 4px 0;
+}
+
+#item {
+  border-radius: 8px;
+  padding: 8px 12px;
+  margin: 2px 0;
+  transition: background-color 100ms ease;
+}
+
+#item:selected,
+#item:hover {
+  background-color: #313244;
+}
+
+#item:selected #label,
+#item:hover #label {
+  color: #cdd6f4;
+}
+
+#icon {
+  margin-right: 12px;
+  min-width: 24px;
+  min-height: 24px;
+}
+
+#label {
+  color: #cdd6f4;
+  font-size: 14px;
+}
+
+#sub {
+  color: #6c7086;
+  font-size: 12px;
+  margin-top: 2px;
+}
+
+#activation-label {
+  color: #89b4fa;
+  font-size: 12px;
+  padding: 2px 6px;
+  background-color: #181825;
+  border-radius: 4px;
+}
+
+#spinner {
+  color: #89b4fa;
+}
+
+#typeahead {
+  color: #45475a;
+}
