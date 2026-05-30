@@ -1,0 +1,15 @@
+max_retries = 3
+retry_wait_time = 5
+timeout = 15
+verbose = "info"
+accept = [200, 204, 206, 429]
+exclude_loopback = true
+exclude_private = true
+include_mail = false
+exclude = [
+  "^mailto:",
+  "^file:",
+  "localhost",
+  "127.0.0.1",
+  "0.0.0.0",
+]

@@ -31,9 +31,18 @@ export default defineConfig({
 
   vite: {
     build: {
-      minify: "esbuild",
+      minify: "oxc",
       target: "es2022",
       cssCodeSplit: true,
+      rollupOptions: {
+        onLog(level, log, handler) {
+          if (log.code === "INVALID_ANNOTATION" && log.id?.includes("node_modules/@vueuse/core/")) {
+            return;
+          }
+
+          handler(level, log);
+        },
+      },
     },
 
     ssr: {
