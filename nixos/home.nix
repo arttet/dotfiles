@@ -13,7 +13,7 @@ let
     ".config/bash"
     ".config/fastfetch"
     ".config/ghostty"
-    ".config/environment.d"
+    ".config/environment.d/wayland.conf"
     ".config/gtk-3.0"
     ".config/gtk-4.0"
     ".config/hypr"
