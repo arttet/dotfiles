@@ -86,16 +86,16 @@ keybind = ctrl+shift+q=close_window
 
 # View
 keybind = f11=toggle_fullscreen
-keybind = ctrl+return=toggle_fullscreen
+keybind = ctrl+enter=toggle_fullscreen
 
 # Clipboard (Ctrl+Shift to avoid shell conflicts)
 keybind = ctrl+shift+c=copy_to_clipboard
 keybind = ctrl+shift+v=paste_from_clipboard
 
 # Font size zoom
-keybind = ctrl+shift+plus=increase_font_size
-keybind = ctrl+shift+minus=decrease_font_size
-keybind = ctrl+shift+zero=reset_font_size
+keybind = ctrl+shift+equal=increase_font_size:1
+keybind = ctrl+shift+minus=decrease_font_size:1
+keybind = ctrl+shift+0=reset_font_size
 
 # -----------------------------------------------------------------------------
 # Cursor
