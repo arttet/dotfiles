@@ -56,6 +56,7 @@ uninstall:
 [group('Development')]
 deps:
     @echo "🔧 Installing tools..."
+    go install github.com/rhysd/actionlint/cmd/actionlint@v1.7.12
     @echo "✅ Dependencies installed!"
 
 [doc('Format code')]
@@ -77,6 +78,7 @@ lint:
     yamllint .
     markdownlint-cli2
     actionlint
+    bunx stylelint@16 --config .stylelintrc.json './dotfiles/.config/**/*.css'
     @echo "✅ Linting complete!"
 
 # ==============================================================================

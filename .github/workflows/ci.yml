@@ -1,159 +1,189 @@
 name: CI
 
 on:
-  push:
-    branches: [main]
   pull_request:
-    branches: [main]
+  push:
+    branches:
+      - main
   schedule:
-    - cron: "0 3 * * *" # Daily at 03:00 UTC
+    - cron: "0 2 * * *" # Daily at 02:00 UTC
   workflow_dispatch:
 
-permissions:
-  contents: read
-
 concurrency:
-  group: ci-${{ github.ref }}
+  group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
+
+permissions:
+  contents: read # Default read-only for all jobs
+
+defaults:
+  run:
+    shell: bash
 
 jobs:
   # ---------------------------------------------------------------------------
-  # Stage 1: Formatting
+  # Stage 1: Format Quality Gate
   # ---------------------------------------------------------------------------
   fmt:
     name: Format
     runs-on: ubuntu-latest
+    timeout-minutes: 5
+
     steps:
       - name: Checkout
-        uses: actions/checkout@v6
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          persist-credentials: false
 
-      - name: Setup just
-        uses: extractions/setup-just@v4
+      - name: Setup Just
+        uses: extractions/setup-just@53165ef7e734c5c07cb06b3c8e7b647c5aa16db3 # v4
 
-      - name: Check Justfile formatting
+      - name: Source Format Check
+        uses: dprint/check@9cb3a2b17a8e606d37aae341e49df3654933fc23 # v2.3
+
+      - name: Justfile Format Check
         run: just --fmt --check
 
-      - name: Check formatting (dprint)
-        uses: dprint/check@v2.3
-
-      - name: Check Lua formatting (stylua)
-        uses: JohnnyMorganz/stylua-action@v5
-        with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-          version: latest
-          args: --check .
-
-      - name: Setup shfmt
-        uses: mfinelli/setup-shfmt@v4
-
-      - name: Check shell formatting (shfmt)
-        run: shfmt --diff dotfiles/.bashrc dotfiles/.bash_profile dotfiles/.config/bash dotfiles/.config/shell
-
   # ---------------------------------------------------------------------------
-  # Stage 1: Linting
+  # Stage 1: Lint Quality Gate
   # ---------------------------------------------------------------------------
   lint:
     name: Lint
     runs-on: ubuntu-latest
+    timeout-minutes: 5
+
     steps:
       - name: Checkout
-        uses: actions/checkout@v6
-
-      - name: ShellCheck
-        uses: ludeeus/action-shellcheck@master
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
         with:
-          severity: warning
-          scandir: ./dotfiles/.config/shell
-        env:
-          SHELLCHECK_OPTS: -s bash -e SC1090 -e SC1091
+          persist-credentials: false
 
-      - name: Install selene
-        uses: taiki-e/install-action@v2
+      - name: YAML Lint
+        uses: ibiqlik/action-yamllint@2576378a8e339169678f9939646ee3ee325e845c # v3.1.1
+
+      - name: Setup Go
+        uses: actions/setup-go@4a3601121dd01d1626a1e23e37211e3254c1c06c # v6.4.0
         with:
-          tool: selene
+          go-version: stable
+          cache: false
 
-      - name: Lint Lua
-        run: selene dotfiles/.config/nvim
+      - name: Install actionlint
+        run: go install github.com/rhysd/actionlint/cmd/actionlint@v1.7.12
 
-      - name: Lint workflows
-        uses: raven-actions/actionlint@v2
+      - name: ActionLint
+        run: actionlint
 
-      - name: Setup Python
-        uses: actions/setup-python@v6
-        with:
-          python-version: "3.x"
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@0c5077e51419868618aeaa5fe8019c62421857d6 # v2.2.0
 
-      - name: Lint YAML
-        run: |
-          pip install --quiet yamllint
-          yamllint .
-
-      - name: Lint Markdown
-        uses: DavidAnson/markdownlint-cli2-action@v23
-        with:
-          globs: "**/*.md"
+      - name: Lint CSS
+        run: bunx stylelint@16 --config .stylelintrc.json './dotfiles/.config/**/*.css'
 
   # ---------------------------------------------------------------------------
-  # Stage 1: Security Scanning
+  # Stage 1: Security
   # ---------------------------------------------------------------------------
   security:
     name: Security
     runs-on: ubuntu-latest
+    timeout-minutes: 5
+
+    permissions:
+      contents: read # Default read-only for this job
+      security-events: write # Required to upload security scan results to GitHub Security tab.
+
     steps:
       - name: Checkout
-        uses: actions/checkout@v6
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
         with:
           fetch-depth: 0
+          persist-credentials: false
 
       - name: Secret scanning
-        uses: trufflesecurity/trufflehog@main
+        uses: trufflesecurity/trufflehog@9f0b97f1600cd5f51e5ecb8380087807acb790f9 # main
         with:
           extra_args: --results=verified,unknown
 
       - name: Trivy filesystem scan
-        # Pinned from aquasecurity/trivy-action@v0.36.0
-        uses: aquasecurity/trivy-action@ed142fd0673e97e23eac54620cfb913e5ce36c25
+        uses: aquasecurity/trivy-action@ed142fd0673e97e23eac54620cfb913e5ce36c25 # v0.36.0
         with:
           scan-type: fs
+          scan-ref: .
           scanners: secret,misconfig
+          format: table
           exit-code: "1"
           severity: HIGH,CRITICAL
           cache: "true"
 
-      - name: Setup Python
-        uses: actions/setup-python@v6
+      - name: Trivy SARIF
+        uses: aquasecurity/trivy-action@ed142fd0673e97e23eac54620cfb913e5ce36c25 # v0.36.0
+        if: always()
+        continue-on-error: true
         with:
-          python-version: "3.x"
+          scan-type: fs
+          scan-ref: .
+          scanners: secret,misconfig
+          format: sarif
+          output: trivy-results.sarif
+          exit-code: "0"
+          severity: HIGH,CRITICAL
+          cache: "true"
 
-      - name: Install Semgrep
-        run: pip install --quiet semgrep
-
-      - name: Semgrep
-        run: semgrep scan --config p/default --error
+      - name: Upload Trivy SARIF
+        uses: github/codeql-action/upload-sarif@f52b05f4acaaa234e44466e66d29050e135ea9ef # v4.36.0
+        if: always()
+        with:
+          sarif_file: trivy-results.sarif
 
   # ---------------------------------------------------------------------------
-  # Stage 1: Build Documentation
+  # Stage 1: Antivirus
+  # ---------------------------------------------------------------------------
+  antivirus:
+    name: Antivirus
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          persist-credentials: false
+
+      - name: Install ClamAV
+        run: |
+          sudo apt-get update
+          sudo apt-get install --yes clamav
+
+      - name: Prepare freshclam
+        run: |
+          sudo systemctl stop clamav-freshclam 2>/dev/null || true
+          sudo pkill -f freshclam 2>/dev/null || true
+          sudo rm -f /var/log/clamav/freshclam.log
+
+      - name: Update virus database
+        run: sudo freshclam
+
+      - name: Scan for malware
+        run: clamscan -r --infected .
+
+  # ---------------------------------------------------------------------------
+  # Stage 1: Documentation Gate
   # ---------------------------------------------------------------------------
   docs:
     name: Documentation
     runs-on: ubuntu-latest
+    timeout-minutes: 5
+
     steps:
       - name: Checkout
-        uses: actions/checkout@v6
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v6
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
         with:
-          node-version: latest
+          persist-credentials: false
 
       - name: Setup Bun
-        uses: oven-sh/setup-bun@0c5077e51419868618aeaa5fe8019c62421857d6
-
-      - name: Setup Pages
-        uses: actions/configure-pages@v6
+        uses: oven-sh/setup-bun@0c5077e51419868618aeaa5fe8019c62421857d6 # v2.2.0
 
       - name: Restore Bun cache
-        uses: actions/cache@v5
+        uses: actions/cache@27d5ce7f107fe9357f9df03efb73ab90386fccae # v5
         with:
           path: ~/.bun/install/cache
           key: ${{ runner.os }}-bun-${{ hashFiles('docs/bun.lock') }}
@@ -161,64 +191,234 @@ jobs:
             ${{ runner.os }}-bun-
 
       - name: Install docs dependencies
-        run: bun --bun install --cwd docs --frozen-lockfile
+        working-directory: docs
+        run: bun install --frozen-lockfile
+
+      - name: Audit docs dependencies
+        working-directory: docs
+        run: bun audit
 
       - name: Build docs
-        run: bun --bun run --cwd docs docs:build
+        working-directory: docs
+        run: bun run docs:build
+
+      - name: Install Lychee
+        uses: jaxxstorm/action-install-gh-release@25e24d2d23ae098373794ef1d6faecb48ee52da8 # v3.0.0
+        with:
+          repo: lycheeverse/lychee
+          tag: lychee-v0.24.2
+          digest: 1f4e0ef7f6554a6ed33dd7ac144fb2e1bbed98598e7af973042fc5cd43951c9a
+          platform: linux
+          arch: x86_64
+
+      - name: Link Check
+        run: >-
+          lychee --config .lychee.toml --root-dir "$GITHUB_WORKSPACE/docs/.vitepress/dist" docs/.vitepress/dist
 
       - name: Upload GitHub Pages artifact
-        uses: actions/upload-pages-artifact@v5
+        uses: actions/upload-pages-artifact@fc324d3547104276b827a68afc52ff2a11cc49c9 # v5
         with:
           name: github-pages
           path: docs/.vitepress/dist
 
   # ---------------------------------------------------------------------------
-  # Stage 2: Build & Package
+  # Stage 2: Hyprland
   # ---------------------------------------------------------------------------
-  build:
-    name: Build & Package
-    needs: [fmt, lint, security]
+  hyprland:
+    name: Hyprland
     runs-on: ubuntu-latest
+    timeout-minutes: 5
+    needs: [fmt, lint, security, antivirus, docs]
+
     steps:
       - name: Checkout
-        uses: actions/checkout@v6
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v6
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
         with:
-          node-version: latest
+          persist-credentials: false
 
-      - name: Install system tools
+      - name: Install Nix
+        uses: cachix/install-nix-action@b97f05dcb019ddea06450a50ef6203d2fdc19fee # v31
+
+      - name: Verify Hyprland config
+        run: nix shell nixpkgs#hyprland --command hyprland --verify-config -c "$PWD/dotfiles/.config/hypr/hyprland.lua"
+
+  # ---------------------------------------------------------------------------
+  # Stage 2: Neovim
+  # ---------------------------------------------------------------------------
+  neovim:
+    name: Neovim
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    needs: [fmt, lint, security, antivirus, docs]
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          persist-credentials: false
+
+      - name: Install Nix
+        uses: cachix/install-nix-action@b97f05dcb019ddea06450a50ef6203d2fdc19fee # v31
+
+      - name: Validate Neovim config
         run: |
-          sudo apt-get update
-          sudo apt-get install -y stow unzip
+          tmp_home="$(mktemp -d)"
+          mkdir -p "$tmp_home/.config"
+          ln -s "$PWD/dotfiles/.config/nvim" "$tmp_home/.config/nvim"
 
-      - name: Install Vendir
+          HOME="$tmp_home" nix shell nixpkgs#lua5_1 --command \
+            luac -p "$tmp_home/.config/nvim/init.lua"
 
+          # shellcheck disable=SC2016
+          nix shell nixpkgs#neovim nixpkgs#git --command \
+            bash -euo pipefail -c '
+              export HOME="$1"
+              export XDG_CONFIG_HOME="$HOME/.config"
+              export XDG_DATA_HOME="$HOME/.local/share"
+              export XDG_STATE_HOME="$HOME/.local/state"
+              export XDG_CACHE_HOME="$HOME/.cache"
+
+              nvim --headless "+Lazy! sync" +qa
+              nvim_output="$(mktemp)"
+              nvim --headless +qa >"$nvim_output" 2>&1
+              if [ -s "$nvim_output" ]; then
+                cat "$nvim_output"
+                exit 1
+              fi
+            ' bash "$tmp_home"
+
+  # ---------------------------------------------------------------------------
+  # Stage 2: Ghostty
+  # ---------------------------------------------------------------------------
+  ghostty:
+    name: Ghostty
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    needs: [fmt, lint, security, antivirus, docs]
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          persist-credentials: false
+
+      - name: Install Nix
+        uses: cachix/install-nix-action@b97f05dcb019ddea06450a50ef6203d2fdc19fee # v31
+
+      - name: Validate Ghostty config
+        run: nix shell nixpkgs#ghostty --command ghostty +validate-config --config-file="$PWD/dotfiles/.config/ghostty/config"
+
+  # ---------------------------------------------------------------------------
+  # Stage 2: Alacritty
+  # ---------------------------------------------------------------------------
+  alacritty:
+    name: Alacritty
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    needs: [fmt, lint, security, antivirus, docs]
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          persist-credentials: false
+
+      - name: Install Nix
+        uses: cachix/install-nix-action@b97f05dcb019ddea06450a50ef6203d2fdc19fee # v31
+
+      - name: Setup Vendir
+        uses: carvel-dev/setup-action@efbf2625e8469080d87175c02690634d4b0ad476 # v2.2.0
+        with:
+          only: vendir
+          token: ${{ github.token }}
+
+      - name: Sync dependencies
+        run: vendir sync
+
+      - name: Validate Alacritty config
+        run: |
+          tmp_home="$(mktemp -d)"
+          mkdir -p "$tmp_home/.config"
+          ln -s "$PWD/dotfiles/.config/alacritty" "$tmp_home/.config/alacritty"
+
+          HOME="$tmp_home" nix shell nixpkgs#alacritty --command \
+            alacritty migrate --dry-run --config-file "$tmp_home/.config/alacritty/alacritty.toml" >/dev/null
+
+  # ---------------------------------------------------------------------------
+  # Stage 2: Nushell
+  # ---------------------------------------------------------------------------
+  nushell:
+    name: Nushell
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    needs: [fmt, lint, security, antivirus, docs]
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          persist-credentials: false
+
+      - name: Install Nix
+        uses: cachix/install-nix-action@b97f05dcb019ddea06450a50ef6203d2fdc19fee # v31
+
+      - name: Validate Nushell config
+        run: |
+          nix shell nixpkgs#nushell --command \
+            nu --config dotfiles/.config/nushell/config.nu \
+              --env-config dotfiles/.config/nushell/env.nu \
+              -c "exit 0"
+
+  # ---------------------------------------------------------------------------
+  # Stage 2: Yazi
+  # ---------------------------------------------------------------------------
+  yazi:
+    name: Yazi
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    needs: [fmt, lint, security, antivirus, docs]
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          persist-credentials: false
+
+      - name: Install Yazi
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          gh release download --repo carvel-dev/vendir --pattern 'vendir-linux-amd64'
-          chmod +x vendir-linux-amd64
-          sudo mv vendir-linux-amd64 /usr/local/bin/vendir
+          gh release download --repo sxyazi/yazi --pattern 'yazi-x86_64-unknown-linux-gnu.zip'
+          unzip -q yazi-x86_64-unknown-linux-gnu.zip
+          sudo mv yazi-x86_64-unknown-linux-gnu/yazi /usr/local/bin/
+          sudo mv yazi-x86_64-unknown-linux-gnu/ya /usr/local/bin/
 
-      - name: Install Neovim
-        env:
-          GH_TOKEN: ${{ github.token }}
-        run: |
-          gh release download --repo neovim/neovim --pattern 'nvim-linux-x86_64.tar.gz'
-          tar -xzf nvim-linux-x86_64.tar.gz
-          sudo mv nvim-linux-x86_64/bin/nvim /usr/local/bin/
-          sudo cp -r nvim-linux-x86_64/share/* /usr/local/share/
-          sudo cp -r nvim-linux-x86_64/lib/* /usr/local/lib/
+      - name: Setup Vendir
+        uses: carvel-dev/setup-action@efbf2625e8469080d87175c02690634d4b0ad476 # v2.2.0
+        with:
+          only: vendir
+          token: ${{ github.token }}
 
-      - name: Install Nushell
-        env:
-          GH_TOKEN: ${{ github.token }}
-        run: |
-          gh release download --repo nushell/nushell --pattern 'nu-*-x86_64-unknown-linux-gnu.tar.gz'
-          tar -xzf nu-*-x86_64-unknown-linux-gnu.tar.gz
-          sudo mv nu-*-x86_64-unknown-linux-gnu/nu* /usr/local/bin/
+      - name: Sync dependencies
+        run: vendir sync
+
+      - name: Validate Yazi config
+        run: YAZI_CONFIG_HOME="$PWD/dotfiles/.config/yazi" yazi --debug
+
+  # ---------------------------------------------------------------------------
+  # Stage 2: Starship
+  # ---------------------------------------------------------------------------
+  starship:
+    name: Starship
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    needs: [fmt, lint, security, antivirus, docs]
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          persist-credentials: false
 
       - name: Install Starship
         env:
@@ -228,14 +428,26 @@ jobs:
           tar -xzf starship-x86_64-unknown-linux-gnu.tar.gz
           sudo mv starship /usr/local/bin/
 
-      - name: Install Yazi
-        env:
-          GH_TOKEN: ${{ github.token }}
+      - name: Validate Starship configs
         run: |
-          gh release download --repo sxyazi/yazi --pattern 'yazi-x86_64-unknown-linux-gnu.zip'
-          unzip yazi-x86_64-unknown-linux-gnu.zip
-          sudo mv yazi-x86_64-unknown-linux-gnu/yazi /usr/local/bin/
-          sudo mv yazi-x86_64-unknown-linux-gnu/ya /usr/local/bin/
+          STARSHIP_CONFIG="$PWD/dotfiles/.config/starship/starship.toml" starship print-config >/dev/null
+          STARSHIP_CONFIG="$PWD/dotfiles/.config/starship/starship.tmux.toml" starship print-config >/dev/null
+          STARSHIP_CONFIG="$PWD/dotfiles/.config/starship/starship.zellij.toml" starship print-config >/dev/null
+
+  # ---------------------------------------------------------------------------
+  # Stage 2: Zellij
+  # ---------------------------------------------------------------------------
+  zellij:
+    name: Zellij
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    needs: [fmt, lint, security, antivirus, docs]
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          persist-credentials: false
 
       - name: Install Zellij
         env:
@@ -245,105 +457,142 @@ jobs:
           tar -xzf zellij-x86_64-unknown-linux-musl.tar.gz
           sudo mv zellij /usr/local/bin/
 
-      - name: Cleanup installation files
+      - name: Validate Zellij config
+        run: zellij --config "$PWD/dotfiles/.config/zellij/config.kdl" setup --dump-config >/dev/null
+
+  # ---------------------------------------------------------------------------
+  # Stage 2: Bash
+  # ---------------------------------------------------------------------------
+  bash:
+    name: Bash
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    needs: [fmt, lint, security, antivirus, docs]
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          persist-credentials: false
+
+      - name: Validate Bash config
         run: |
-          rm -rf ./*.tar.gz ./*.zip nvim-linux-x86_64 nu-*-x86_64-unknown-linux-gnu yazi-x86_64-unknown-linux-gnu starship zellij
+          bash -n dotfiles/.bashrc dotfiles/.bash_profile
+          bash -n dotfiles/.config/bash/bashrc dotfiles/.config/bash/bash_profile
+          bash -n dotfiles/.config/bash/bash.d/*.bash
+          bash -n dotfiles/.config/shell/shell.d/*.sh dotfiles/.config/shell/profile.d/*.sh
+
+  # ---------------------------------------------------------------------------
+  # Stage 2: Zsh
+  # ---------------------------------------------------------------------------
+  zsh:
+    name: Zsh
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    needs: [fmt, lint, security, antivirus, docs]
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          persist-credentials: false
+
+      - name: Validate Zsh config
+        shell: bash
+        run: |
+          sudo apt-get update
+          sudo apt-get install --yes zsh
+
+          zsh -n dotfiles/.config/zsh/.zshrc
+          zsh -n dotfiles/.config/zsh/.zprofile
+          zsh -n dotfiles/.config/zsh/zsh.d/*.zsh
+
+  # ---------------------------------------------------------------------------
+  # Stage 2: Stow
+  # ---------------------------------------------------------------------------
+  stow:
+    name: Stow
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    needs: [fmt, lint, security, antivirus, docs]
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          persist-credentials: false
+
+      - name: Install stow
+        run: |
+          sudo apt-get update
+          sudo apt-get install --yes stow
+
+      - name: Setup Vendir
+        uses: carvel-dev/setup-action@efbf2625e8469080d87175c02690634d4b0ad476 # v2.2.0
+        with:
+          only: vendir
+          token: ${{ github.token }}
 
       - name: Sync dependencies
         run: vendir sync
 
-      - name: Link dotfiles (stow)
+      - name: Link dotfiles
         run: |
-          # Remove existing bash configs that cause conflicts in CI
           rm -f "$HOME/.bashrc" "$HOME/.bash_profile"
           stow -v --target="${HOME}" dotfiles
 
-      - name: Verify configuration paths
+      - name: Verify symlinks
         run: |
-          # shellcheck disable=SC2016
-          echo "🔍 Verifying configuration paths..."
-
-          # Neovim
-          NVIM_CONFIG=$(nvim --headless -c 'lua print(vim.fn.stdpath("config"))' -c 'q' 2>&1 | tail -n 1)
-          echo "Neovim config: $NVIM_CONFIG"
-          test "$NVIM_CONFIG" = "$HOME/.config/nvim" || (echo "❌ Neovim config path mismatch" && exit 1)
-          test -f "$NVIM_CONFIG/init.lua" || (echo "❌ Neovim init.lua not found" && exit 1)
-
-          # Nushell
-          # shellcheck disable=SC2016
-          NU_CONFIG=$(nu -c 'echo $nu.config-path')
-          echo "Nushell config: $NU_CONFIG"
-          echo "$NU_CONFIG" | grep -q ".config/nushell/config.nu" || (echo "❌ Nushell config path mismatch" && exit 1)
-
-          # Starship
-          test -f "$HOME/.config/starship/starship.toml" || (echo "❌ Starship config not found" && exit 1)
-
-          # Yazi
-          test -d "$HOME/.config/yazi" || (echo "❌ Yazi config directory not found" && exit 1)
-          test -f "$HOME/.config/yazi/yazi.toml" || (echo "❌ yazi.toml not found" && exit 1)
-
-          # Zellij
-          test -f "$HOME/.config/zellij/config.kdl" || (echo "❌ Zellij config not found" && exit 1)
-
-          # Functional checks
-          echo "🚀 Running functional checks..."
-
-          # Neovim: Check for syntax errors (ignoring missing modules/plugins)
-          nvim --headless -u NONE -c "lua local _, err = loadfile(os.getenv('HOME') .. '/.config/nvim/init.lua'); if err then print(err); os.exit(1) end" -c "q" || (echo "❌ Neovim configuration syntax error" && exit 1)
-
-          # Starship: Check if it can render a prompt
-          starship prompt > /dev/null || (echo "❌ Starship failed to render prompt" && exit 1)
-
-          # Nushell: Simple command execution
-          nu -c "print 'Nushell is working'" || (echo "❌ Nushell functional check failed" && exit 1)
-
-          # Yazi: Version check
-          yazi --version || (echo "❌ Yazi functional check failed" && exit 1)
-          yazi --debug || (echo "❌ Ya functional check failed" && exit 1)
-
-          # Zellij: Version check
-          zellij --version || (echo "❌ Zellij functional check failed" && exit 1)
-
-          # Bash (Stow check)
-          test -L "$HOME/.bashrc" || (echo "❌ .bashrc symlink missing" && exit 1)
-
-          echo "✅ All configurations verified!"
-
-      - name: Create archive
-        run: tar -czvf dotfiles.tar.gz dotfiles/
-
-      - name: Verify archive content
-        run: |
-          echo "🔍 Verifying archive content..."
-          tar -tf dotfiles.tar.gz | grep "dotfiles/.config/alacritty/themes/themes/catppuccin_mocha.toml"
-          tar -tf dotfiles.tar.gz | grep "dotfiles/.config/nvim/init.lua"
-          echo "✅ Archive content verified!"
-
-      - name: Upload artifact
-        uses: actions/upload-artifact@v7
-        with:
-          name: dotfiles-archive
-          path: dotfiles.tar.gz
+          test -L "$HOME/.bashrc"
+          test -L "$HOME/.config/nvim"
+          test -L "$HOME/.config/nushell"
+          test -L "$HOME/.config/starship"
+          test -L "$HOME/.config/zellij"
+          test -L "$HOME/.config/yazi"
+          test -L "$HOME/.config/ghostty"
+          test -L "$HOME/.config/zsh"
 
   # ---------------------------------------------------------------------------
   # Stage 3: Deploy to GitHub Pages (main only)
   # ---------------------------------------------------------------------------
   deploy:
     name: Deploy
-    needs: [docs, build]
-    # Deploy only on direct pushes to main — never on the nightly schedule.
-    if: github.ref == 'refs/heads/main' && github.event_name != 'schedule'
     runs-on: ubuntu-latest
+    timeout-minutes: 5
+
+    if: github.ref == 'refs/heads/main' && github.event_name != 'schedule'
+    needs:
+      - fmt
+      - lint
+      - antivirus
+      - security
+
+      - alacritty
+      - bash
+      - docs
+      - ghostty
+      - hyprland
+      - neovim
+      - nushell
+      - starship
+      - stow
+      - yazi
+      - zellij
+      - zsh
+
     permissions:
       pages: write
       id-token: write
+
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
+
     concurrency:
       group: pages
       cancel-in-progress: false
+
     steps:
       - name: Deploy to GitHub Pages
         id: deployment
-        uses: actions/deploy-pages@v5
+        uses: actions/deploy-pages@cd2ce8fcbc39b97be8ca5fce6e763baed58fa128 # v5
