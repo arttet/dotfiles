@@ -320,7 +320,7 @@ jobs:
           echo "✅ Archive content verified!"
 
       - name: Upload artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: dotfiles-archive
           path: dotfiles.tar.gz
