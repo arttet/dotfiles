@@ -312,7 +312,7 @@ jobs:
           ln -s "$PWD/dotfiles/.config/helix" "$tmp_home/.config/helix"
 
           HOME="$tmp_home" XDG_CONFIG_HOME="$tmp_home/.config" \
-            nix shell nixpkgs#helix --command hx --health languages >/dev/null
+            nix shell nixpkgs#helix --command hx --health all
 
   # ---------------------------------------------------------------------------
   # Stage 2: Ghostty
