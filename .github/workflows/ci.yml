@@ -288,6 +288,33 @@ jobs:
             ' bash "$tmp_home"
 
   # ---------------------------------------------------------------------------
+  # Stage 2: Helix
+  # ---------------------------------------------------------------------------
+  helix:
+    name: Helix
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    needs: [fmt, lint, security, antivirus, docs]
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          persist-credentials: false
+
+      - name: Install Nix
+        uses: cachix/install-nix-action@b97f05dcb019ddea06450a50ef6203d2fdc19fee # v31
+
+      - name: Validate Helix config
+        run: |
+          tmp_home="$(mktemp -d)"
+          mkdir -p "$tmp_home/.config"
+          ln -s "$PWD/dotfiles/.config/helix" "$tmp_home/.config/helix"
+
+          HOME="$tmp_home" XDG_CONFIG_HOME="$tmp_home/.config" \
+            nix shell nixpkgs#helix --command hx --health languages >/dev/null
+
+  # ---------------------------------------------------------------------------
   # Stage 2: Ghostty
   # ---------------------------------------------------------------------------
   ghostty:
@@ -545,6 +572,7 @@ jobs:
         run: |
           test -L "$HOME/.bashrc"
           test -L "$HOME/.config/nvim"
+          test -L "$HOME/.config/helix"
           test -L "$HOME/.config/nushell"
           test -L "$HOME/.config/starship"
           test -L "$HOME/.config/zellij"
@@ -571,6 +599,7 @@ jobs:
       - bash
       - docs
       - ghostty
+      - helix
       - hyprland
       - neovim
       - nushell

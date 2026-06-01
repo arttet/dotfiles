@@ -1,0 +1,382 @@
+# =============================================================================
+# Helix Editor - languages.toml
+# Target: NixOS primary, Arch secondary, WSL fallback
+# Copy to: ~/.config/helix/languages.toml
+# =============================================================================
+#
+# Language server binaries and formatters must be in $PATH.
+# On NixOS, put them in systemPackages, home.packages, or devShells.
+# On Arch, install via pacman/paru/cargo/npm/go/pip as appropriate.
+
+# =============================================================================
+# Language servers
+# =============================================================================
+
+[language-server.rust-analyzer]
+command = "rust-analyzer"
+
+[language-server.rust-analyzer.config]
+check.command = "clippy"
+check.extraArgs = ["--", "-W", "clippy::pedantic", "-A", "clippy::must_use_candidate"]
+cargo.allFeatures = true
+cargo.loadOutDirsFromCheck = true
+cargo.buildScripts.enable = true
+procMacro.enable = true
+procMacro.ignored = {}
+diagnostics.enable = true
+diagnostics.experimental.enable = true
+completion.autoimport.enable = true
+completion.autoself.enable = true
+completion.postfix.enable = true
+hover.actions.enable = true
+hover.documentation.enable = true
+inlayHints.bindingModeHints.enable = true
+inlayHints.chainingHints.enable = true
+inlayHints.closureReturnTypeHints.enable = "always"
+inlayHints.parameterHints.enable = true
+inlayHints.typeHints.enable = true
+inlayHints.typeHints.hideNamedConstructor = false
+
+[language-server.gopls]
+command = "gopls"
+config.hints.assignVariableTypes = true
+config.hints.compositeLiteralFields = true
+config.hints.compositeLiteralTypes = true
+config.hints.constantValues = true
+config.hints.functionTypeParameters = true
+config.hints.parameterNames = true
+config.hints.rangeVariableTypes = true
+config.analyses.staticcheck = true
+config.analyses.unusedparams = true
+config.analyses.shadow = true
+
+[language-server.clangd]
+command = "clangd"
+args = [
+  "--background-index",
+  "--clang-tidy",
+  "--header-insertion=never",
+  "--completion-style=detailed",
+  "--function-arg-placeholders=false",
+  "--fallback-style=LLVM",
+]
+# clangd expects compile_commands.json.
+# CMake: cmake -DCMAKE_EXPORT_COMPILE_COMMANDS=ON -B build
+# Make:  bear -- make
+# Nix:   nix develop -c bear -- make
+
+[language-server.typescript-language-server]
+command = "typescript-language-server"
+args = ["--stdio"]
+config.preferences.importModuleSpecifier = "relative"
+config.preferences.quotePreference = "auto"
+config.inlayHints.includeInlayParameterNameHints = "all"
+config.inlayHints.includeInlayParameterNameHintsWhenArgumentMatchesName = false
+config.inlayHints.includeInlayFunctionParameterTypeHints = true
+config.inlayHints.includeInlayVariableTypeHints = true
+config.inlayHints.includeInlayPropertyDeclarationTypeHints = true
+config.inlayHints.includeInlayFunctionLikeReturnTypeHints = true
+config.inlayHints.includeInlayEnumMemberValueHints = true
+
+[language-server.svelteserver]
+command = "svelteserver"
+args = ["--stdio"]
+
+[language-server.nil]
+command = "nil"
+config.formatting.command = ["nixfmt"]
+
+[language-server.pyright]
+command = "pyright-langserver"
+args = ["--stdio"]
+
+[language-server.zls]
+command = "zls"
+
+[language-server.tinymist]
+command = "tinymist"
+config.exportPdf = "never"
+# Older alternative:
+# command = "typst-lsp"
+
+[language-server.bash-language-server]
+command = "bash-language-server"
+args = ["start"]
+
+[language-server.marksman]
+command = "marksman"
+args = ["server"]
+
+[language-server.vscode-css-language-server]
+command = "vscode-css-language-server"
+args = ["--stdio"]
+config.css.validate = true
+config.scss.validate = true
+config.less.validate = true
+config.provideFormatter = true
+
+[language-server.vscode-html-language-server]
+command = "vscode-html-language-server"
+args = ["--stdio"]
+config.provideFormatter = true
+
+[language-server.sqls]
+command = "sqls"
+# sqls config: ~/.config/sqls/config.yml
+# Alternative: sql-language-server from npm; define another server if preferred.
+
+[language-server.wgsl-analyzer]
+command = "wgsl-analyzer"
+
+[language-server.glsl_analyzer]
+command = "glsl_analyzer"
+# Optional/experimental. If absent, remove from GLSL language-servers.
+
+[language-server.slangd]
+command = "slangd"
+# Optional. Some Slang SDK builds ship an LSP binary; remove if unavailable.
+
+[language-server.taplo]
+command = "taplo"
+args = ["lsp", "stdio"]
+
+[language-server.nu-lsp]
+command = "nu"
+args = ["--lsp"]
+# Nushell LSP availability depends on Nushell version.
+
+# =============================================================================
+# Languages
+# =============================================================================
+
+[[language]]
+name = "rust"
+language-servers = ["rust-analyzer"]
+auto-format = true
+formatter = { command = "rustfmt", args = ["--edition", "2021"] }
+indent = { tab-width = 4, unit = "    " }
+
+[[language]]
+name = "go"
+language-servers = ["gopls"]
+auto-format = true
+formatter = { command = "goimports" }
+# Alternative: formatter = { command = "gofmt" }
+indent = { tab-width = 4, unit = "\t" }
+
+[[language]]
+name = "c"
+language-servers = ["clangd"]
+auto-format = true
+formatter = { command = "clang-format", args = ["--assume-filename", "%{buffer_name}"] }
+indent = { tab-width = 4, unit = "    " }
+
+[[language]]
+name = "cpp"
+language-servers = ["clangd"]
+auto-format = true
+formatter = { command = "clang-format", args = ["--assume-filename", "%{buffer_name}"] }
+indent = { tab-width = 4, unit = "    " }
+
+[[language]]
+name = "typescript"
+language-servers = ["typescript-language-server"]
+auto-format = true
+formatter = { command = "prettier", args = ["--stdin-filepath", "%{buffer_name}"] }
+indent = { tab-width = 2, unit = "  " }
+
+[[language]]
+name = "tsx"
+language-servers = ["typescript-language-server"]
+auto-format = true
+formatter = { command = "prettier", args = ["--stdin-filepath", "%{buffer_name}"] }
+indent = { tab-width = 2, unit = "  " }
+
+[[language]]
+name = "javascript"
+language-servers = ["typescript-language-server"]
+auto-format = true
+formatter = { command = "prettier", args = ["--stdin-filepath", "%{buffer_name}"] }
+indent = { tab-width = 2, unit = "  " }
+
+[[language]]
+name = "jsx"
+language-servers = ["typescript-language-server"]
+auto-format = true
+formatter = { command = "prettier", args = ["--stdin-filepath", "%{buffer_name}"] }
+indent = { tab-width = 2, unit = "  " }
+
+[[language]]
+name = "svelte"
+language-servers = ["svelteserver"]
+auto-format = true
+formatter = { command = "prettier", args = ["--stdin-filepath", "%{buffer_name}"] }
+indent = { tab-width = 2, unit = "  " }
+
+[[language]]
+name = "html"
+language-servers = ["vscode-html-language-server"]
+auto-format = true
+formatter = { command = "prettier", args = ["--stdin-filepath", "%{buffer_name}"] }
+indent = { tab-width = 2, unit = "  " }
+
+[[language]]
+name = "css"
+language-servers = ["vscode-css-language-server"]
+auto-format = true
+formatter = { command = "prettier", args = ["--stdin-filepath", "%{buffer_name}"] }
+indent = { tab-width = 2, unit = "  " }
+
+[[language]]
+name = "scss"
+language-servers = ["vscode-css-language-server"]
+auto-format = true
+formatter = { command = "prettier", args = ["--stdin-filepath", "%{buffer_name}"] }
+indent = { tab-width = 2, unit = "  " }
+
+[[language]]
+name = "python"
+language-servers = ["pyright"]
+auto-format = true
+formatter = { command = "ruff", args = ["format", "--stdin-filename", "%{buffer_name}", "-"] }
+# Alternatives:
+# formatter = { command = "black", args = ["-", "--quiet"] }
+# formatter = { command = "autopep8", args = ["-"] }
+indent = { tab-width = 4, unit = "    " }
+
+[[language]]
+name = "zig"
+language-servers = ["zls"]
+auto-format = true
+formatter = { command = "zig", args = ["fmt", "--stdin"] }
+indent = { tab-width = 4, unit = "    " }
+
+[[language]]
+name = "nix"
+language-servers = ["nil"]
+auto-format = true
+formatter = { command = "nixfmt" }
+indent = { tab-width = 2, unit = "  " }
+# Flakes workflow:
+#   nix flake check
+#   nix flake update
+#   nix develop
+#   nix build
+#   nix run
+
+[[language]]
+name = "bash"
+language-servers = ["bash-language-server"]
+auto-format = true
+formatter = { command = "shfmt", args = ["-i", "2", "-ci", "-bn"] }
+indent = { tab-width = 2, unit = "  " }
+
+[[language]]
+name = "nu"
+language-servers = ["nu-lsp"]
+auto-format = false
+indent = { tab-width = 2, unit = "  " }
+# Nushell formatter support is still not universally stable. Keep formatting off
+# unless your projects standardize on nufmt or another wrapper.
+
+[[language]]
+name = "markdown"
+language-servers = ["marksman"]
+auto-format = true
+formatter = { command = "prettier", args = ["--stdin-filepath", "%{buffer_name}"] }
+indent = { tab-width = 2, unit = "  " }
+soft-wrap.enable = true
+soft-wrap.wrap-at-text-width = true
+# Helix has no built-in spellcheck. For prose, add ltex-ls as a second LSP.
+
+[[language]]
+name = "typst"
+language-servers = ["tinymist"]
+auto-format = true
+formatter = { command = "typstyle" }
+indent = { tab-width = 2, unit = "  " }
+soft-wrap.enable = true
+soft-wrap.wrap-at-text-width = true
+
+[[language]]
+name = "sql"
+language-servers = ["sqls"]
+auto-format = false
+indent = { tab-width = 2, unit = "  " }
+# SQL formatting is project-specific. Options:
+# formatter = { command = "sqlfmt", args = ["-"] }
+# formatter = { command = "sqlformat", args = ["--reindent", "--keywords", "upper", "-"] }
+
+[[language]]
+name = "wgsl"
+scope = "source.wgsl"
+file-types = ["wgsl"]
+comment-token = "//"
+language-servers = ["wgsl-analyzer"]
+indent = { tab-width = 4, unit = "    " }
+
+[[language]]
+name = "glsl"
+scope = "source.glsl"
+file-types = ["glsl", "vert", "frag", "comp", "geom", "tesc", "tese"]
+comment-token = "//"
+language-servers = ["glsl_analyzer"]
+indent = { tab-width = 4, unit = "    " }
+# If glsl_analyzer is not installed, remove language-servers. Syntax highlighting
+# still works with the bundled grammar.
+
+[[language]]
+name = "slang"
+scope = "source.slang"
+file-types = ["slang"]
+comment-token = "//"
+language-servers = ["slangd"]
+indent = { tab-width = 4, unit = "    " }
+# If slangd is not installed, remove language-servers. If your Helix build lacks
+# Slang grammar, temporarily map "slang" into GLSL file-types for partial syntax.
+
+[[language]]
+name = "json"
+auto-format = true
+formatter = { command = "prettier", args = ["--stdin-filepath", "%{buffer_name}"] }
+indent = { tab-width = 2, unit = "  " }
+
+[[language]]
+name = "jsonc"
+auto-format = false
+indent = { tab-width = 2, unit = "  " }
+
+[[language]]
+name = "yaml"
+auto-format = true
+formatter = { command = "prettier", args = ["--stdin-filepath", "%{buffer_name}"] }
+indent = { tab-width = 2, unit = "  " }
+
+[[language]]
+name = "toml"
+language-servers = ["taplo"]
+auto-format = true
+formatter = { command = "taplo", args = ["fmt", "-"] }
+indent = { tab-width = 2, unit = "  " }
+
+[[language]]
+name = "dockerfile"
+auto-format = false
+indent = { tab-width = 4, unit = "    " }
+
+[[language]]
+name = "docker-compose"
+auto-format = true
+formatter = { command = "prettier", args = ["--stdin-filepath", "%{buffer_name}"] }
+indent = { tab-width = 2, unit = "  " }
+
+[[language]]
+name = "just"
+scope = "source.just"
+file-types = ["just", { glob = "justfile" }, { glob = "Justfile" }, { glob = ".justfile" }]
+comment-token = "#"
+indent = { tab-width = 4, unit = "\t" }
+
+[[language]]
+name = "git-commit"
+soft-wrap.enable = true
