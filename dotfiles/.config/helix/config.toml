@@ -122,7 +122,7 @@ smart-case = true
 wrap-around = true
 
 [editor.whitespace.render]
-space = "none"
+space = "all"
 nbsp = "all"
 nnbsp = "all"
 tab = "all"
@@ -173,19 +173,16 @@ max-diagnostics = 5
 # - Run Zellij in prefix mode so it does not steal Vim-style navigation.
 # - All custom Zellij/Tmux/plain-terminal integrations live under Space.
 #
-# Current file expansions:
-# - %{file_path_absolute}: absolute current file path, if supported by your Helix.
-# - %{cursor_line}: 1-based cursor line.
-# File-aware Git bindings call wrapper scripts so filenames are passed as argv,
-# avoiding shell interpolation of path contents inside the actual Git commands.
+# Helix does not expose a remote-open/socket API. Interactive external tools are
+# launched directly; file picking uses the built-in Helix picker where possible.
 
 [keys.normal]
 "C-h" = "jump_view_left"
 "C-j" = "jump_view_down"
 "C-k" = "jump_view_up"
 "C-l" = "jump_view_right"
-tab = "move_parent_node_end"
-"S-tab" = "move_parent_node_start"
+tab = "goto_next_buffer"
+"S-tab" = "goto_previous_buffer"
 
 [keys.insert]
 "S-tab" = "move_parent_node_start"
@@ -196,30 +193,30 @@ tab = "extend_parent_node_end"
 
 [keys.normal.space]
 # Floating pane integrations.
-y = ':sh if [ -n "$ZELLIJ" ]; then zellij run --floating --close-on-exit -- hx-yazi; elif [ -n "$TMUX" ]; then tmux display-popup -E "hx-yazi"; else hx-yazi; fi'
+y = ':sh if [ -n "$ZELLIJ" ]; then zellij run --floating --close-on-exit -- yazi; elif [ -n "$TMUX" ]; then tmux display-popup -E "yazi"; else yazi; fi'
 g = ':sh if [ -n "$ZELLIJ" ]; then zellij run --floating --close-on-exit -- lazygit; elif [ -n "$TMUX" ]; then tmux display-popup -E "lazygit"; else lazygit; fi'
-b = ':sh if [ -n "$ZELLIJ" ]; then zellij run --floating --close-on-exit -- btop; elif [ -n "$TMUX" ]; then tmux display-popup -E "btop"; else btop; fi'
-f = ':sh if [ -n "$ZELLIJ" ]; then zellij run --floating --close-on-exit -- hx-fzf; elif [ -n "$TMUX" ]; then tmux display-popup -E "hx-fzf"; else hx-fzf; fi'
+b = "buffer_picker"
+C = "changed_file_picker"
+d = "diagnostics_picker"
+D = "workspace_diagnostics_picker"
+e = "file_explorer_in_current_buffer_directory"
+E = "file_explorer"
+f = "file_picker"
+j = "jumplist_picker"
+s = "symbol_picker"
+S = "workspace_symbol_picker"
 t = ':sh if [ -n "$ZELLIJ" ]; then zellij run --floating --close-on-exit -- nu; elif [ -n "$TMUX" ]; then tmux display-popup -E "nu"; else nu; fi'
+"/" = "global_search"
+"?" = "command_palette"
 
 # Persistent adjacent panes. Some Zellij versions prefer `zellij action new-pane
 # --direction down -- yazi`; if your build rejects `--`, remove it.
 Y = ':sh if [ -n "$ZELLIJ" ]; then zellij action new-pane --direction down -- yazi; elif [ -n "$TMUX" ]; then tmux split-window -v yazi; else yazi; fi'
 T = ':sh if [ -n "$ZELLIJ" ]; then zellij action new-pane --direction right -- nu; elif [ -n "$TMUX" ]; then tmux split-window -h nu; else nu; fi'
-
-# Git workflow.
-B = ':echo %sh{hx-git-blame-line "%{file_path_absolute}" "%{cursor_line}" 2>/dev/null || true}'
-D = ':sh if [ -n "$ZELLIJ" ]; then zellij run --floating --close-on-exit -- hx-git-diff "%{file_path_absolute}"; elif [ -n "$TMUX" ]; then tmux display-popup -E "hx-git-diff \"%{file_path_absolute}\""; else hx-git-diff "%{file_path_absolute}"; fi'
-L = ':sh if [ -n "$ZELLIJ" ]; then zellij run --floating --close-on-exit -- lazygit; elif [ -n "$TMUX" ]; then tmux display-popup -E "lazygit"; else lazygit; fi'
-S = ':sh if [ -n "$ZELLIJ" ]; then zellij run --floating --close-on-exit -- sh -c "git status --short --branch; printf \"\nPress Enter...\"; read _"; elif [ -n "$TMUX" ]; then tmux display-popup -E "git status --short --branch; printf \"\nPress Enter...\"; read _"; else git status --short --branch; fi'
-G = ':sh if [ -n "$ZELLIJ" ]; then zellij run --floating --close-on-exit -- sh -c "gh pr status || gh pr list"; elif [ -n "$TMUX" ]; then tmux display-popup -E "gh pr status || gh pr list"; else gh pr status || gh pr list; fi'
-K = ':sh if [ -n "$ZELLIJ" ]; then zellij run --floating --close-on-exit -- sh -c "gitleaks detect --source . --verbose; printf \"\nPress Enter...\"; read _"; elif [ -n "$TMUX" ]; then tmux display-popup -E "gitleaks detect --source . --verbose; printf \"\nPress Enter...\"; read _"; else gitleaks detect --source . --verbose; fi'
-H = ':sh if [ -n "$ZELLIJ" ]; then zellij run --floating --close-on-exit -- sh -c "lefthook run pre-commit; printf \"\nPress Enter...\"; read _"; elif [ -n "$TMUX" ]; then tmux display-popup -E "lefthook run pre-commit; printf \"\nPress Enter...\"; read _"; else lefthook run pre-commit; fi'
+G = ':sh if [ -n "$ZELLIJ" ]; then zellij action new-pane --direction right -- lazygit; elif [ -n "$TMUX" ]; then tmux split-window -h lazygit; else lazygit; fi'
 
 # Common project commands.
 c = ":config-reload"
 w = ":write"
 q = ":quit"
 F = ":format"
-r = ':sh if [ -f justfile ] || [ -f Justfile ]; then just; elif [ -f Cargo.toml ]; then cargo run; elif [ -f package.json ]; then npm run dev; else printf "No known project runner found\n"; fi'
-n = ':sh if [ -f flake.nix ]; then nix flake check; else printf "No flake.nix found\n"; fi'
