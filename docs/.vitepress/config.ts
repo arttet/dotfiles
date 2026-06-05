@@ -1,42 +1,120 @@
 import { defineConfig } from "vitepress";
+import llmstxt, { copyOrDownloadAsMarkdownButtons } from "vitepress-plugin-llms";
+
+const nav = [
+  { text: "Home", link: "/" },
+  { text: "Guide", link: "/guide/" },
+  {
+    text: "Tools",
+    items: [
+      { text: "Terminals", link: "/terminals/overview" },
+      { text: "Editors", link: "/editors/neovim" },
+      { text: "Multiplexers", link: "/multiplexers/zellij" },
+      { text: "CLI", link: "/cli/yazi" },
+      { text: "WM", link: "/wm/hyprland" },
+    ],
+  },
+];
+
+const sidebar = [
+  {
+    text: "Introduction",
+    collapsed: false,
+    items: [{ text: "Getting Started", link: "/guide/" }],
+  },
+  {
+    text: "Terminals",
+    collapsed: false,
+    items: [{ text: "Terminal Stack", link: "/terminals/overview" }],
+  },
+  {
+    text: "Editors",
+    collapsed: false,
+    items: [
+      { text: "Neovim", link: "/editors/neovim" },
+      { text: "Helix", link: "/editors/helix" },
+    ],
+  },
+  {
+    text: "Multiplexers",
+    collapsed: false,
+    items: [
+      { text: "Zellij", link: "/multiplexers/zellij" },
+      { text: "Tmux", link: "/multiplexers/tmux" },
+    ],
+  },
+  {
+    text: "CLI & Shell",
+    collapsed: false,
+    items: [
+      { text: "Nushell", link: "/cli/nushell" },
+      { text: "Yazi", link: "/cli/yazi" },
+    ],
+  },
+  {
+    text: "Window Management",
+    collapsed: false,
+    items: [{ text: "Hyprland", link: "/wm/hyprland" }],
+  },
+];
 
 // https://vitepress.dev/reference/site-config
 export default defineConfig({
-  base: "/dotfiles/",
-  srcDir: "content",
+  // base: "/dotfiles/",
+  srcDir: "src",
 
-  title: "My dotfiles",
-  description: "My dotfiles",
+  title: "Dotfiles",
+  description: "Secure. Fast. Modern.",
+
+  head: [["meta", { name: "theme-color", content: "#6366f1" }]],
+
+  markdown: {
+    theme: {
+      light: "github-light",
+      dark: "github-dark",
+    },
+    config(md) {
+      md.use(copyOrDownloadAsMarkdownButtons);
+    },
+  },
+
   themeConfig: {
-    // https://vitepress.dev/reference/default-theme-config
-    nav: [
-      { text: "Home", link: "/" },
-      { text: "User Guide", link: "/user-guide/getting-started/introduction" },
-    ],
+    logo: "/logo.svg",
+    siteTitle: "Dotfiles",
 
-    sidebar: [
-      {
-        text: "User Guide",
-        collapsed: false,
-        items: [
-          { text: "Getting Started", link: "/user-guide/getting-started/introduction" },
-        ],
-      },
-    ],
+    nav,
+    sidebar,
+
+    search: {
+      provider: "local",
+    },
+
+    outline: {
+      level: [2, 3],
+    },
 
     socialLinks: [
       { icon: "github", link: "https://github.com/arttet/dotfiles" },
     ],
+
+    footer: {
+      message: "Platform Documentation",
+      copyright: "Copyright © 2026 Artyom Tetyukhin",
+    },
   },
 
   vite: {
+    plugins: [llmstxt()],
     build: {
       minify: "oxc",
       target: "es2022",
       cssCodeSplit: true,
       rollupOptions: {
         onLog(level, log, handler) {
-          if (log.code === "INVALID_ANNOTATION" && log.id?.includes("node_modules/@vueuse/core/")) {
+          if (
+            log.code === "INVALID_ANNOTATION"
+            && log.id?.includes("node_modules/@vueuse/core/")
+          ) {
             return;
           }
 
