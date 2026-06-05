@@ -1,4 +1,6 @@
-# dependencies (bun install)
-node_modules
+# Dependencies (bun install)
+node_modules/
+
+# VitePress build and cache
 .vitepress/cache/
 .vitepress/dist/

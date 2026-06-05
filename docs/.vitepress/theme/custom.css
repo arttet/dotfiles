@@ -1,0 +1,6 @@
+/* Custom CSS variables and overrides */
+
+/* Invert ONLY the custom logo in dark mode */
+.dark .logo {
+  filter: invert(1);
+}
