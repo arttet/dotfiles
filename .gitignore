@@ -11,8 +11,8 @@ dotfiles/.config/zsh/.zcompdump*
 dotfiles/.config/alacritty/themes
 
 # dotter
-dotfiles/.dotter/cache.toml
-dotfiles/.dotter/local.toml
+**/.dotter/cache.toml
+**/.dotter/local.toml
 
 # tmux
 dotfiles/.config/tmux/plugins
