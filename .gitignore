@@ -4,6 +4,9 @@
 # nushell history
 dotfiles/.config/nushell/history.sqlite3*
 
+# zsh
+dotfiles/.config/zsh/.zcompdump*
+
 # alacritty
 dotfiles/.config/alacritty/themes
 
