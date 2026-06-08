@@ -19,6 +19,7 @@ let
     ".config/helix"
     ".config/hypr"
     ".config/mako"
+    ".config/swayosd"
     ".config/walker"
     ".config/wlogout"
     ".config/git"
