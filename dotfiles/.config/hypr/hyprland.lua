@@ -4,6 +4,10 @@ local function app(cmd)
   return "uwsm app -- " .. cmd
 end
 
+local function osd(args)
+  return "swayosd-client " .. args
+end
+
 hl.monitor {
   output = "",
   mode = "preferred",
@@ -36,6 +40,10 @@ hl.config {
     touchpad = {
       natural_scroll = true,
       disable_while_typing = true,
+      tap_to_click = true,
+      tap_and_drag = true,
+      clickfinger_behavior = true,
+      scroll_factor = 1.15,
     },
   },
   general = {
@@ -76,6 +84,20 @@ hl.gesture {
   fingers = 3,
   direction = "horizontal",
   action = "workspace",
+}
+
+hl.gesture {
+  fingers = 3,
+  direction = "down",
+  action = function()
+    local window = hl.get_active_window()
+    if not window or not window.class or not window.class:lower():find("zen", 1, true) then
+      return
+    end
+
+    hl.dispatch(hl.dsp.send_shortcut { mods = "CTRL", key = "r", window = "activewindow" })
+    hl.dispatch(hl.dsp.exec_cmd(osd "--custom-message 'Zen refreshed' --custom-icon view-refresh-symbolic"))
+  end,
 }
 
 -- Applications
@@ -133,14 +155,20 @@ for i = 1, 10 do
 end
 
 -- Media & brightness
-hl.bind("XF86AudioRaiseVolume", hl.dsp.exec_cmd "pamixer -i 5", { locked = true, repeating = true })
-hl.bind("XF86AudioLowerVolume", hl.dsp.exec_cmd "pamixer -d 5", { locked = true, repeating = true })
-hl.bind("XF86AudioMute", hl.dsp.exec_cmd "pamixer -t", { locked = true, repeating = true })
-hl.bind("XF86MonBrightnessUp", hl.dsp.exec_cmd "brightnessctl set 5%+", { locked = true, repeating = true })
-hl.bind("XF86MonBrightnessDown", hl.dsp.exec_cmd "brightnessctl set 5%-", { locked = true, repeating = true })
-hl.bind("XF86AudioPlay", hl.dsp.exec_cmd "playerctl play-pause", { locked = true })
-hl.bind("XF86AudioNext", hl.dsp.exec_cmd "playerctl next", { locked = true })
-hl.bind("XF86AudioPrev", hl.dsp.exec_cmd "playerctl previous", { locked = true })
+hl.bind("XF86AudioRaiseVolume", hl.dsp.exec_cmd(osd "--output-volume +5"), { locked = true, repeating = true })
+hl.bind("XF86AudioLowerVolume", hl.dsp.exec_cmd(osd "--output-volume -5"), { locked = true, repeating = true })
+hl.bind("XF86AudioMute", hl.dsp.exec_cmd(osd "--output-volume mute-toggle"), { locked = true })
+hl.bind("XF86AudioMicMute", hl.dsp.exec_cmd(osd "--input-volume mute-toggle"), { locked = true })
+hl.bind("XF86MonBrightnessUp", hl.dsp.exec_cmd(osd "--brightness +5"), { locked = true, repeating = true })
+hl.bind("XF86MonBrightnessDown", hl.dsp.exec_cmd(osd "--brightness -5"), { locked = true, repeating = true })
+hl.bind("XF86AudioPlay", hl.dsp.exec_cmd(osd "--playerctl play-pause"), { locked = true })
+hl.bind("XF86AudioNext", hl.dsp.exec_cmd(osd "--playerctl next"), { locked = true })
+hl.bind("XF86AudioPrev", hl.dsp.exec_cmd(osd "--playerctl prev"), { locked = true })
+hl.bind("Caps_Lock", hl.dsp.exec_cmd(osd "--caps-lock"), {
+  locked = true,
+  release = true,
+  non_consuming = true,
+})
 
 -- Screenshots
 hl.bind(mod .. " + SHIFT + S", hl.dsp.exec_cmd(app "hyprshot -m region --clipboard"))
