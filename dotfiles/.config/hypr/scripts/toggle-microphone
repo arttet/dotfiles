@@ -1,0 +1,25 @@
+#!/bin/sh
+
+set -eu
+
+lock_dir="${XDG_RUNTIME_DIR:-/tmp}/toggle-microphone.lock"
+if ! mkdir "$lock_dir" 2>/dev/null; then
+  exit 0
+fi
+trap 'rmdir "$lock_dir"' EXIT
+
+wpctl set-mute @DEFAULT_AUDIO_SOURCE@ toggle
+
+if wpctl get-volume @DEFAULT_AUDIO_SOURCE@ | grep -q '\[MUTED\]'; then
+  swayosd-client \
+    --custom-progress 0 \
+    --custom-icon microphone-sensitivity-muted-symbolic
+else
+  volume=$(wpctl get-volume @DEFAULT_AUDIO_SOURCE@ | awk '{ print $2 }')
+  swayosd-client \
+    --custom-progress "$volume" \
+    --custom-icon microphone-sensitivity-high-symbolic
+fi
+
+# Keep duplicate keycode and keysym binds from handling the same key press.
+sleep 0.2
