@@ -19,7 +19,7 @@
     "dock": "left"
   },
   "agent": {
-    "button": false,
+    "button": true,
     "sidebar_side": "right",
     "dock": "right",
     "favorite_models": [],
@@ -39,12 +39,18 @@
   },
   "diff_view_style": "split",
   "agent_servers": {
+    "qwen-code": {
+      "type": "registry"
+    },
+    "opencode": {
+      "type": "registry"
+    },
+    "kimi": {
+      "type": "registry"
+    },
     "claude-acp": {
       "type": "registry"
     }
-  },
-  "features": {
-    "edit_prediction_provider": "none"
   },
   "telemetry": {
     "diagnostics": false,
@@ -59,11 +65,10 @@
   "vim": {
     "use_system_clipboard": "always",
     "toggle_relative_line_numbers": true,
-    "use_smartcase_find": true,
-    "use_multiline_find": true
+    "use_smartcase_find": true
   },
   "base_keymap": "VSCode",
-  "relative_line_numbers": true,
+  "relative_line_numbers": "enabled",
   "format_on_save": "on",
   "remove_trailing_whitespace_on_save": true,
   "ensure_final_newline_on_save": true,
@@ -157,7 +162,6 @@
     "zls": {},
     "typescript-language-server": {},
     "svelte-language-server": {},
-    "taplo": {},
     "yaml-language-server": {},
     "json-language-server": {},
     "lua-language-server": {}
