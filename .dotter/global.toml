@@ -6,6 +6,7 @@ depends = ["bash", "zsh"]
 [default.files]
 "dotfiles/.config" = "~/.config"
 "dotfiles/.config/alacritty/alacritty.toml" = { target = "~\\AppData\\Roaming\\alacritty\\alacritty.toml", type = "symbolic", if = "dotter.windows" }
+"dotfiles/.config/zed/settings.json" = { target = "~\\AppData\\Roaming\\Zed\\settings.json", type = "symbolic", if = "dotter.windows" }
 
 [default.variables]
 

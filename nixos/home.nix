@@ -30,6 +30,7 @@ let
     ".config/tmux"
     ".config/wezterm"
     ".config/yazi"
+    ".config/zed/settings.json"
     ".config/zellij"
     ".config/zsh"
     ".ssh/config"

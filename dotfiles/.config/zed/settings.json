@@ -1,0 +1,301 @@
+// Zed settings
+//
+// For information on how to configure Zed, see the Zed
+// documentation: https://zed.dev/docs/configuring-zed
+//
+// To see all of Zed's default settings without changing your
+// custom settings, run `zed: open default settings` from the
+// command palette (cmd-shift-p / ctrl-shift-p)
+{
+  "cli_default_open_behavior": "existing_window",
+  "project_panel": {
+    "dock": "left"
+  },
+  "outline_panel": {
+    "dock": "right"
+  },
+  "collaboration_panel": {
+    "button": false,
+    "dock": "left"
+  },
+  "agent": {
+    "button": false,
+    "sidebar_side": "right",
+    "dock": "right",
+    "favorite_models": [],
+    "model_parameters": [],
+    "use_modifier_to_send": false
+  },
+  "git_panel": {
+    "tree_view": true,
+    "dock": "left",
+    "sort_by_path": true
+  },
+  "git": {
+    "inline_blame": {
+      "enabled": true,
+      "delay_ms": 500
+    }
+  },
+  "diff_view_style": "split",
+  "agent_servers": {
+    "claude-acp": {
+      "type": "registry"
+    }
+  },
+  "features": {
+    "edit_prediction_provider": "none"
+  },
+  "telemetry": {
+    "diagnostics": false,
+    "metrics": false
+  },
+  "show_whitespaces": "all",
+  "buffer_font_family": "CaskaydiaCove Nerd Font",
+  "buffer_font_size": 15,
+  "icon_theme": "Material Icon Theme",
+  "ui_font_size": 16,
+  "vim_mode": true,
+  "vim": {
+    "use_system_clipboard": "always",
+    "toggle_relative_line_numbers": true,
+    "use_smartcase_find": true,
+    "use_multiline_find": true
+  },
+  "base_keymap": "VSCode",
+  "relative_line_numbers": true,
+  "format_on_save": "on",
+  "remove_trailing_whitespace_on_save": true,
+  "ensure_final_newline_on_save": true,
+  "code_actions_on_format": {
+    "source.organizeImports": true
+  },
+  "restore_on_startup": "last_session",
+  "preferred_line_length": 120,
+  "wrap_guides": [120],
+  "vertical_scroll_margin": 8,
+  "private_files": [
+    "**/.env*",
+    "**/*.pem",
+    "**/*.key",
+    "**/*.cert",
+    "**/*.crt",
+    "**/secrets.yml",
+    "**/id_rsa*",
+    "**/id_ed25519*",
+    "**/secrets/**"
+  ],
+  "inlay_hints": {
+    "enabled": true,
+    "show_type_hints": true,
+    "show_parameter_hints": true,
+    "show_other_hints": true
+  },
+  "indent_guides": {
+    "enabled": true,
+    "coloring": "indent_aware"
+  },
+  "current_line_highlight": "all",
+  "cursor_blink": false,
+  "minimap": {
+    "show": "auto"
+  },
+  "search": {
+    "whole_word": false,
+    "case_sensitive": false,
+    "include_ignored": false
+  },
+  "diagnostics": {
+    "button": true,
+    "include_warnings": true,
+    "inline": {
+      "enabled": true
+    }
+  },
+  "theme": {
+    "mode": "system",
+    "light": "Gruvbox Light",
+    "dark": "Gruvbox Dark"
+  },
+  "terminal": {
+    "dock": "bottom",
+    "font_family": "CaskaydiaCove Nerd Font",
+    "font_size": 14,
+    "shell": {
+      "program": "nu"
+    },
+    "copy_on_select": true,
+    "cursor_shape": "block",
+    "blinking": "off",
+    "working_directory": "current_project_directory"
+  },
+  "debugger": {
+    "stepping_granularity": "line",
+    "save_breakpoints": true,
+    "dock": "bottom",
+    "button": true
+  },
+  "lsp": {
+    "rust-analyzer": {
+      "initialization_options": {
+        "check": { "command": "clippy" }
+      }
+    },
+    "gopls": {
+      "initialization_options": {
+        "staticcheck": true,
+        "usePlaceholders": true
+      }
+    },
+    "clangd": {
+      "initialization_options": {
+        "fallbackFlags": ["-std=c++20"]
+      }
+    },
+    "pyright": {},
+    "ruff": {},
+    "zls": {},
+    "typescript-language-server": {},
+    "svelte-language-server": {},
+    "taplo": {},
+    "yaml-language-server": {},
+    "json-language-server": {},
+    "lua-language-server": {}
+  },
+  "languages": {
+    "Lua": {
+      "formatter": {
+        "external": {
+          "command": "stylua",
+          "arguments": ["--stdin-filepath", "{buffer_path}", "-"]
+        }
+      }
+    },
+    "Shell Script": {
+      "formatter": {
+        "external": {
+          "command": "shfmt",
+          "arguments": ["-"]
+        }
+      }
+    },
+    "JSON": {
+      "tab_size": 2,
+      "hard_tabs": false,
+      "formatter": {
+        "external": {
+          "command": "dprint",
+          "arguments": ["fmt", "--stdin", "{buffer_path}"]
+        }
+      }
+    },
+    "JSONC": {
+      "formatter": {
+        "external": {
+          "command": "dprint",
+          "arguments": ["fmt", "--stdin", "{buffer_path}"]
+        }
+      }
+    },
+    "TOML": {
+      "formatter": {
+        "external": {
+          "command": "dprint",
+          "arguments": ["fmt", "--stdin", "{buffer_path}"]
+        }
+      }
+    },
+    "YAML": {
+      "tab_size": 2,
+      "hard_tabs": false,
+      "formatter": {
+        "external": {
+          "command": "dprint",
+          "arguments": ["fmt", "--stdin", "{buffer_path}"]
+        }
+      }
+    },
+    "Markdown": {
+      "formatter": {
+        "external": {
+          "command": "dprint",
+          "arguments": ["fmt", "--stdin", "{buffer_path}"]
+        }
+      }
+    },
+    "Rust": {
+      "formatter": {
+        "external": {
+          "command": "rustfmt",
+          "arguments": []
+        }
+      }
+    },
+    "Go": {
+      "formatter": {
+        "external": {
+          "command": "goimports",
+          "arguments": []
+        }
+      }
+    },
+    "C++": {
+      "formatter": {
+        "external": {
+          "command": "clang-format",
+          "arguments": ["--assume-filename={buffer_path}"]
+        }
+      }
+    },
+    "JavaScript": {
+      "formatter": {
+        "external": {
+          "command": "dprint",
+          "arguments": ["fmt", "--stdin", "{buffer_path}"]
+        }
+      }
+    },
+    "TypeScript": {
+      "formatter": {
+        "external": {
+          "command": "dprint",
+          "arguments": ["fmt", "--stdin", "{buffer_path}"]
+        }
+      }
+    },
+    "TSX": {
+      "formatter": {
+        "external": {
+          "command": "dprint",
+          "arguments": ["fmt", "--stdin", "{buffer_path}"]
+        }
+      }
+    },
+    "Python": {
+      "tab_size": 4,
+      "hard_tabs": false,
+      "formatter": {
+        "external": {
+          "command": "ruff",
+          "arguments": ["format", "--stdin-filename", "{buffer_path}", "-"]
+        }
+      }
+    },
+    "Nix": {
+      "formatter": {
+        "external": {
+          "command": "nixfmt",
+          "arguments": ["--filename", "{buffer_path}"]
+        }
+      }
+    },
+    "Zig": {
+      "formatter": {
+        "external": {
+          "command": "zig",
+          "arguments": ["fmt", "--stdin"]
+        }
+      }
+    }
+  }
+}
