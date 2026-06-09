@@ -158,7 +158,9 @@ end
 hl.bind("XF86AudioRaiseVolume", hl.dsp.exec_cmd(osd "--output-volume +5"), { locked = true, repeating = true })
 hl.bind("XF86AudioLowerVolume", hl.dsp.exec_cmd(osd "--output-volume -5"), { locked = true, repeating = true })
 hl.bind("XF86AudioMute", hl.dsp.exec_cmd(osd "--output-volume mute-toggle"), { locked = true })
-hl.bind("XF86AudioMicMute", hl.dsp.exec_cmd(osd "--input-volume mute-toggle"), { locked = true })
+hl.bind("XF86AudioMicMute", hl.dsp.exec_cmd "$HOME/.config/hypr/scripts/toggle-microphone", { locked = true })
+-- Huawei WMI emits KEY_MICMUTE (248), which maps to XKB code 256.
+hl.bind("code:256", hl.dsp.exec_cmd "$HOME/.config/hypr/scripts/toggle-microphone", { locked = true })
 hl.bind("XF86MonBrightnessUp", hl.dsp.exec_cmd(osd "--brightness +5"), { locked = true, repeating = true })
 hl.bind("XF86MonBrightnessDown", hl.dsp.exec_cmd(osd "--brightness -5"), { locked = true, repeating = true })
 hl.bind("XF86AudioPlay", hl.dsp.exec_cmd(osd "--playerctl play-pause"), { locked = true })
