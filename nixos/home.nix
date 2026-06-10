@@ -26,6 +26,7 @@ let
     ".config/lazygit"
     ".config/nushell"
     ".config/nvim"
+    ".config/opencode/tui.json"
     ".config/shell"
     ".config/starship"
     ".config/tmux"
