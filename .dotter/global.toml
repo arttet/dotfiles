@@ -1,14 +1,75 @@
 [helpers]
 
+# =============================================================================
+# Profile Groups
+# =============================================================================
+# These groups bundle related packages for easy deployment.
+
 [default]
+depends = ["agent", "editor", "shell", "terminal"]
+
+[agent]
+depends = ["opencode"]
+
+[editor]
+depends = ["helix", "zed"]
+
+[shell]
 depends = ["bash", "zsh"]
+
+[terminal]
+depends = ["alacritty"]
+
+# =============================================================================
+# Base Configuration
+# =============================================================================
 
 [default.files]
 "dotfiles/.config" = "~/.config"
+
+# =============================================================================
+# Tools
+# =============================================================================
+# Each tool package can be deployed independently.
+# Windows-only paths use `if = "dotter.windows"`.
+
+# -----------------------------------------------------------------------------
+# Terminal Emulators
+# -----------------------------------------------------------------------------
+
+[alacritty]
+depends = []
+
+[alacritty.files]
 "dotfiles/.config/alacritty/alacritty.toml" = { target = "~\\AppData\\Roaming\\alacritty\\alacritty.toml", type = "symbolic", if = "dotter.windows" }
+
+# -----------------------------------------------------------------------------
+# Text Editors
+# -----------------------------------------------------------------------------
+
+[helix]
+depends = []
+
+[helix.files]
+"dotfiles/.config/helix/config.toml" = { target = "~\\AppData\\Roaming\\helix\\config.toml", type = "symbolic", if = "dotter.windows" }
+"dotfiles/.config/helix/languages.toml" = { target = "~\\AppData\\Roaming\\helix\\languages.toml", type = "symbolic", if = "dotter.windows" }
+
+[zed]
+depends = []
+
+[zed.files]
 "dotfiles/.config/zed/settings.json" = { target = "~\\AppData\\Roaming\\Zed\\settings.json", type = "symbolic", if = "dotter.windows" }
 
-[default.variables]
+# -----------------------------------------------------------------------------
+# AI Tools
+# -----------------------------------------------------------------------------
+
+[opencode]
+depends = []
+
+# -----------------------------------------------------------------------------
+# Shells
+# -----------------------------------------------------------------------------
 
 [bash]
 depends = []
@@ -17,17 +78,15 @@ depends = []
 "dotfiles/.bash_profile" = "~/.bash_profile"
 "dotfiles/.bashrc" = "~/.bashrc"
 
-[bash.variables]
-
 [zsh]
 depends = []
 
 [zsh.files]
 "dotfiles/.zshenv" = "~/.zshenv"
 
-
-[zsh.variables]
-
+# =============================================================================
+# Settings
+# =============================================================================
 
 [settings]
 default_target_type = "symbolic"
