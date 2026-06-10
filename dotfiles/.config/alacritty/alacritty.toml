@@ -18,7 +18,7 @@ TERM = "xterm-256color"
 # Window settings
 # ==================================================
 [window]
-decorations = "None"
+decorations = "Full"
 
 # Window padding in pixels (unified with WezTerm/Ghostty)
 padding = { x = 5, y = 5 }
@@ -43,7 +43,7 @@ history = 10000
 multiplier = 1
 
 # ==================================================
-# Font configuration (unified with WezTerm/Ghostty)
+# Font configuration
 # ==================================================
 [font]
 normal = { family = "IosevkaTerm Nerd Font", style = "Regular" }
