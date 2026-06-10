@@ -6,6 +6,18 @@ A workspace manager and terminal multiplexer that is designed to be user-friendl
 
 - Config: `dotfiles/.config/zellij/config.kdl`
 
+## Themes
+
+Uses built-in Zellij themes with auto-switching based on terminal color scheme (CSI 2031 / DSR 997):
+
+- **Default**: `gruvbox-dark`
+- **Dark mode**: `gruvbox-dark`
+- **Light mode**: `gruvbox-light`
+
+## Troubleshooting
+
+Run `zellij setup --check` to verify configuration, theme loading, and directory paths.
+
 ## Keybindings
 
 Zellij uses modal input. Each mode is entered via a prefix and has its own keymap.
