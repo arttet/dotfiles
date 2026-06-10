@@ -1,25 +1,22 @@
-# AI
-.ai
-
-# nushell history
-dotfiles/.config/nushell/history.sqlite3*
-
-# zsh
-dotfiles/.config/zsh/.zcompdump*
+# dotter
+**/.dotter/cache
+**/.dotter/cache.toml
 
 # alacritty
 dotfiles/.config/alacritty/themes
 
-# dotter
-**/.dotter/cache.toml
-**/.dotter/local.toml
+# nushell history
+dotfiles/.config/nushell/history.sqlite3*
 
 # tmux
 dotfiles/.config/tmux/plugins
+
+# wallpapers
+dotfiles/.config/hypr/wallpapers
 
 # yazi
 dotfiles/.config/yazi/flavors
 dotfiles/.config/yazi/plugins
 
-# hypr wallpapers (vendir)
-dotfiles/.config/hypr/wallpapers
+# zsh
+dotfiles/.config/zsh/.zcompdump*
