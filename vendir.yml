@@ -148,3 +148,70 @@ directories:
         includePaths:
           - "main.lua"
           - "README.md"
+
+  - path: dotfiles/.config/hypr/wallpapers/catppuccin
+    contents:
+      - path: .
+        git:
+          url: https://github.com/white-spaced/catppuccin-wallpapers.git
+          ref: main
+        newRootPath: wallpapers
+
+  - path: dotfiles/.config/hypr/wallpapers/graphite
+    contents:
+      - path: .
+        git:
+          url: https://github.com/vinceliuice/Graphite-gtk-theme.git
+          ref: main
+        includePaths:
+          - wallpaper/wallpapers/wave-color.jpg
+          - wallpaper/wallpapers/wave-Dark.jpg
+          - wallpaper/wallpapers/wave-Light.jpg
+        newRootPath: wallpaper/wallpapers
+
+  - path: dotfiles/.config/hypr/wallpapers/graphite-nord
+    contents:
+      - path: .
+        git:
+          url: https://github.com/vinceliuice/Graphite-gtk-theme.git
+          ref: main
+        includePaths:
+          - wallpaper/wallpapers-nord/wave-color-nord.jpg
+          - wallpaper/wallpapers-nord/wave-Dark-nord.jpg
+          - wallpaper/wallpapers-nord/wave-Light-nord.jpg
+        newRootPath: wallpaper/wallpapers-nord
+
+  - path: dotfiles/.config/hypr/wallpapers/nord
+    contents:
+      - path: .
+        git:
+          url: https://github.com/linuxdotexe/nordic-wallpapers.git
+          ref: master
+        newRootPath: wallpapers
+
+  - path: dotfiles/.config/hypr/wallpapers/whitesur
+    contents:
+      - path: .
+        git:
+          url: https://github.com/vinceliuice/WhiteSur-wallpapers.git
+          ref: main
+        newRootPath: 4k
+
+  - path: dotfiles/.config/hypr/wallpapers/whitesur-nord
+    contents:
+      - path: .
+        git:
+          url: https://github.com/vinceliuice/WhiteSur-wallpapers.git
+          ref: main
+        newRootPath: Wallpaper-nord
+
+  - path: dotfiles/.config/hypr/wallpapers/mactahoe
+    contents:
+      - path: .
+        git:
+          url: https://github.com/vinceliuice/MacTahoe-gtk-theme.git
+          ref: main
+        includePaths:
+          - wallpaper/MacTahoe-day.jpeg
+          - wallpaper/MacTahoe-night.jpeg
+        newRootPath: wallpaper
