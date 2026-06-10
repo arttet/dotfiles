@@ -172,6 +172,11 @@ hl.bind("Caps_Lock", hl.dsp.exec_cmd(osd "--caps-lock"), {
   non_consuming = true,
 })
 
+-- Wallpapers
+hl.bind(mod .. " + W", hl.dsp.exec_cmd "~/.config/hypr/scripts/wallpaper.sh pick")
+hl.bind(mod .. " + SHIFT + W", hl.dsp.exec_cmd "~/.config/hypr/scripts/wallpaper.sh next")
+hl.bind(mod .. " + CTRL + W", hl.dsp.exec_cmd "~/.config/hypr/scripts/wallpaper.sh random")
+
 -- Screenshots
 hl.bind(mod .. " + SHIFT + S", hl.dsp.exec_cmd(app "hyprshot -m region --clipboard"))
 hl.bind("Print", hl.dsp.exec_cmd(app "hyprshot -m output --clipboard"))

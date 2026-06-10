@@ -10,20 +10,20 @@ directories:
   path: dotfiles/.config/alacritty/themes/themes
 - contents:
   - git:
-      commitTitle: 'ci: bump dessant/lock-threads from 5 to 6 (#76)'
-      sha: 36c49acfd7d3924bd751fd74e37b6ff438af691a
+      commitTitle: Update gruvbox-dark.yazi preview link (#78)
+      sha: 0f9204bc948c8313963f5c9d571a82edc201f8aa
     path: .
   path: dotfiles/.config/yazi/flavors/catppuccin-latte.yazi
 - contents:
   - git:
-      commitTitle: 'ci: bump dessant/lock-threads from 5 to 6 (#76)'
-      sha: 36c49acfd7d3924bd751fd74e37b6ff438af691a
+      commitTitle: Update gruvbox-dark.yazi preview link (#78)
+      sha: 0f9204bc948c8313963f5c9d571a82edc201f8aa
     path: .
   path: dotfiles/.config/yazi/flavors/catppuccin-mocha.yazi
 - contents:
   - git:
-      commitTitle: 'ci: bump dessant/lock-threads from 5 to 6 (#211)'
-      sha: be524fb140206cc59b3e51037ba6148935263975
+      commitTitle: 'chore: use the new `ya env` subcommand'
+      sha: 598cdb671401574ac27aeee257e2f3b0c80610a1
     path: .
   path: dotfiles/.config/yazi/plugins/chmod.yazi
 - contents:
@@ -34,14 +34,14 @@ directories:
   path: dotfiles/.config/yazi/plugins/copy-file-contents.yazi
 - contents:
   - git:
-      commitTitle: 'ci: bump dessant/lock-threads from 5 to 6 (#211)'
-      sha: be524fb140206cc59b3e51037ba6148935263975
+      commitTitle: 'chore: use the new `ya env` subcommand'
+      sha: 598cdb671401574ac27aeee257e2f3b0c80610a1
     path: .
   path: dotfiles/.config/yazi/plugins/full-border.yazi
 - contents:
   - git:
-      commitTitle: 'ci: bump dessant/lock-threads from 5 to 6 (#211)'
-      sha: be524fb140206cc59b3e51037ba6148935263975
+      commitTitle: 'chore: use the new `ya env` subcommand'
+      sha: 598cdb671401574ac27aeee257e2f3b0c80610a1
     path: .
   path: dotfiles/.config/yazi/plugins/git.yazi
 - contents:
@@ -54,8 +54,8 @@ directories:
   path: dotfiles/.config/yazi/plugins/ouch.yazi
 - contents:
   - git:
-      commitTitle: 'ci: bump dessant/lock-threads from 5 to 6 (#211)'
-      sha: be524fb140206cc59b3e51037ba6148935263975
+      commitTitle: 'chore: use the new `ya env` subcommand'
+      sha: 598cdb671401574ac27aeee257e2f3b0c80610a1
     path: .
   path: dotfiles/.config/yazi/plugins/piper.yazi
 - contents:
@@ -66,8 +66,8 @@ directories:
   path: dotfiles/.config/yazi/plugins/starship.yazi
 - contents:
   - git:
-      commitTitle: 'ci: bump dessant/lock-threads from 5 to 6 (#211)'
-      sha: be524fb140206cc59b3e51037ba6148935263975
+      commitTitle: 'chore: use the new `ya env` subcommand'
+      sha: 598cdb671401574ac27aeee257e2f3b0c80610a1
     path: .
   path: dotfiles/.config/yazi/plugins/toggle-pane.yazi
 - contents:
@@ -84,4 +84,56 @@ directories:
       - v2.5.4
     path: .
   path: dotfiles/.config/yazi/plugins/yaziline.yazi
+- contents:
+  - git:
+      commitTitle: update wallpapers/README.MD
+      sha: d9f546becccd095e051ede4594c6889884d2297a
+    path: .
+  path: dotfiles/.config/hypr/wallpapers/catppuccin
+- contents:
+  - git:
+      commitTitle: update
+      sha: 57028b0bfcc0cfee1ba42273c545e4e269973433
+      tags:
+      - 2025-07-06-10-g57028b0
+    path: .
+  path: dotfiles/.config/hypr/wallpapers/graphite
+- contents:
+  - git:
+      commitTitle: update
+      sha: 57028b0bfcc0cfee1ba42273c545e4e269973433
+      tags:
+      - 2025-07-06-10-g57028b0
+    path: .
+  path: dotfiles/.config/hypr/wallpapers/graphite-nord
+- contents:
+  - git:
+      commitTitle: 'upd: change links to ign'
+      sha: 7a8e3bcabafbefd1c5b19229841b9bf377a4b765
+    path: .
+  path: dotfiles/.config/hypr/wallpapers/nord
+- contents:
+  - git:
+      commitTitle: 'Merge pull request #11 from sam-itt/patch-1...'
+      sha: 5c1d7ca20b8de0a7efe443792c19e49277262e02
+      tags:
+      - 2023-06-11-4-g5c1d7ca
+    path: .
+  path: dotfiles/.config/hypr/wallpapers/whitesur
+- contents:
+  - git:
+      commitTitle: 'Merge pull request #11 from sam-itt/patch-1...'
+      sha: 5c1d7ca20b8de0a7efe443792c19e49277262e02
+      tags:
+      - 2023-06-11-4-g5c1d7ca
+    path: .
+  path: dotfiles/.config/hypr/wallpapers/whitesur-nord
+- contents:
+  - git:
+      commitTitle: update
+      sha: 5c9ffd312c7348400d49d686e6429271f035d751
+      tags:
+      - 2026-05-24-14-g5c9ffd3
+    path: .
+  path: dotfiles/.config/hypr/wallpapers/mactahoe
 kind: LockConfig

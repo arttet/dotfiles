@@ -20,3 +20,6 @@ dotfiles/.config/tmux/plugins
 # yazi
 dotfiles/.config/yazi/flavors
 dotfiles/.config/yazi/plugins
+
+# hypr wallpapers (vendir)
+dotfiles/.config/hypr/wallpapers
