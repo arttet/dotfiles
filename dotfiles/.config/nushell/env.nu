@@ -202,6 +202,7 @@ if (which zoxide | is-not-empty) {
 
 # Windows-specific
 if $nu.os-info.name == "windows" {
+    $env.ZELLIJ_CONFIG_DIR = ($nu.home-dir | path join ".config" "zellij")
 }
 
 # macOS-specific
