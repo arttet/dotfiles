@@ -16,10 +16,15 @@ help:
 # Usage
 # ==============================================================================
 
-[doc('Synchronize external plugins and dependencies using vendir')]
+[doc('Synchronize external plugins and dependencies')]
 [group('Dotfiles')]
 sync:
-    GIT_CONFIG_GLOBAL=/dev/null vendir sync
+    vendir sync --locked
+
+[doc('Update vendored dependencies to latest')]
+[group('Dotfiles')]
+update *args:
+    vendir sync {{ args }}
 
 [doc('Preview dotfiles deployment')]
 [group('Dotfiles')]
