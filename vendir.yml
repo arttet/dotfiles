@@ -14,12 +14,12 @@ directories:
           - themes/catppuccin_mocha.toml
         newRootPath: themes
 
-  # - path: dotfiles/.config/tmux/plugins/tpm
-  #   contents:
-  #     - path: .
-  #       git:
-  #         url: https://github.com/tmux-plugins/tpm
-  #         ref: master
+  - path: dotfiles/.config/tmux/plugins/tpm
+    contents:
+      - path: .
+        git:
+          url: https://github.com/tmux-plugins/tpm
+          ref: master
 
   - path: dotfiles/.config/yazi/flavors/catppuccin-latte.yazi
     contents:
