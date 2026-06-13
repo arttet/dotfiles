@@ -55,16 +55,24 @@ use modules/aliases.nu *
 use modules/fzf.nu *
 use modules/yazi.nu *
 use modules/git.nu *
+use modules/history.nu *
+use modules/ai.nu *
 
 # Tools Module
 # Manage Starship, Zoxide, Carapace via 'tools init' and 'tools deinit'
 use modules/tools.nu
 
-# tools init
-
 # =============================================================================
 # Initialization
 # =============================================================================
+
+# Generate Starship/Carapace/Zoxide autoload configs on first run. 'tools init'
+# always creates vendor/autoload, so this fires at most once.
+if not (($nu.data-dir | path join "vendor" "autoload") | path exists) {
+    if (["starship" "carapace" "zoxide"] | any { |tool| (which $tool | is-not-empty) }) {
+        tools init
+    }
+}
 
 # Apply Theme
 # init_theme
