@@ -37,7 +37,7 @@
     allowedSignersFile = ~/.config/git/allowed_signers
 
 [core]
-    editor = nvim
+    editor = hx
     pager = delta
 
     autocrlf = input
@@ -202,14 +202,17 @@
     # branching
     sw = switch
     swc = switch -c
-    br = branch
 
-    # status
-    st = status
+    # add
+    a = add
+    aa = add -A
 
     # commit
     c = commit
     ca = commit --amend --no-edit
+    fixup = commit --fixup
+    wip = !git add -A && git commit --no-verify --message WIP
+    unwip = "!git log -1 --pretty=%s | grep -qx WIP && git reset --mixed HEAD~1"
 
     # push
     pf = push --force-with-lease
@@ -222,18 +225,21 @@
     ss = stash push
     sp = stash pop
 
-    # restore
-    unstage = restore --staged
-    discard = restore
+    # status
+    st = status
 
     # history
     last = log --show-signature --stat -1
 
-    sig = log --show-signature -1
-    sigs = log --show-signature
-
     graph = log --graph --decorate --oneline --all
-    lg = log --graph --pretty=graph -n 20
+    lg = log --graph --decorate --oneline -n 10
+
+    find = log --all --oneline --grep
+    today = "!git log --since=midnight --oneline --author=\"$(git config user.name)\""
+    recent = for-each-ref --sort=-committerdate --count=15 --format=%(committerdate:short)%09%(refname:short) refs/heads/
+
+    # blame ignoring whitespace and code movement
+    bl = blame -w -C -C -C
 
     # diff
     df = diff
@@ -255,7 +261,6 @@
     rlog = !git --no-pager log --oneline
 
     # misc
-    optimize = maintenance run
     clean = clean -fd
     root = rev-parse --show-toplevel
     aliases = config --get-regexp ^alias\\.
