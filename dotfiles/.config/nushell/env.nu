@@ -165,7 +165,12 @@ if (which fzf | is-not-empty) {
 # Bat
 if (which bat | is-not-empty) {
     $env.BAT_THEME = "Dracula"
-    $env.BAT_STYLE = "numbers,changes,header"
+    $env.BAT_CONFIG_PATH = ($env.XDG_CONFIG_HOME | path join "bat" "config")
+}
+
+# GitHub CLI
+if (which gh | is-not-empty) {
+    $env.GH_CONFIG_DIR = ($env.XDG_CONFIG_HOME | path join "gh")
 }
 
 # Eza
