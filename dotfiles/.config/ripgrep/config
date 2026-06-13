@@ -1,0 +1,18 @@
+# ~/.config/ripgrep/config
+#
+# One argument per line. Loaded via $RIPGREP_CONFIG_PATH (set in
+# nushell env.nu and shell/profile.d/00-profile.sh).
+# See: rg --help
+
+# Case-insensitive unless the pattern contains an uppercase letter
+--smart-case
+
+# Search hidden files and directories too
+--hidden
+
+# Never search inside .git
+--glob=!.git/
+
+# Keep long lines readable
+--max-columns=200
+--max-columns-preview

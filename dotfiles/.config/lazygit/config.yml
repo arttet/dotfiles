@@ -1,3 +1,44 @@
 git:
   autoFetch: false
   fetchInterval: 0
+
+gui:
+  nerdFontsVersion: "3"
+
+quitOnTopLevelReturn: true
+
+customCommands:
+  - key: "<c-g>"
+    context: "files"
+    description: "Conventional commit (staged files)"
+    command: >-
+      git commit -m "{{.Form.Type}}{{if .Form.Scope}}({{.Form.Scope}}){{end}}: {{.Form.Subject}}"
+    prompts:
+      - type: "menu"
+        title: "Type"
+        key: "Type"
+        options:
+          - name: "feat"
+            description: "A new feature"
+          - name: "fix"
+            description: "A bug fix"
+          - name: "docs"
+            description: "Documentation only changes"
+          - name: "style"
+            description: "Formatting, missing semicolons, etc."
+          - name: "refactor"
+            description: "Neither fixes a bug nor adds a feature"
+          - name: "perf"
+            description: "A code change that improves performance"
+          - name: "test"
+            description: "Adding or correcting tests"
+          - name: "chore"
+            description: "Build process or auxiliary tool changes"
+          - name: "ci"
+            description: "CI configuration changes"
+      - type: "input"
+        title: "Scope (optional)"
+        key: "Scope"
+      - type: "input"
+        title: "Subject"
+        key: "Subject"

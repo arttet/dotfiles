@@ -177,3 +177,19 @@ if command -v yazi >/dev/null 2>&1; then
   # Set configuration directory to follow XDG standards
   export YAZI_CONFIG_HOME="${XDG_CONFIG_HOME:-$HOME/.config}/yazi"
 fi
+
+# Ripgrep
+if command -v rg >/dev/null 2>&1; then
+  RIPGREP_CONFIG="${XDG_CONFIG_HOME:-$HOME/.config}/ripgrep/config"
+  [ -f "$RIPGREP_CONFIG" ] && export RIPGREP_CONFIG_PATH="$RIPGREP_CONFIG"
+fi
+
+# Bat
+if command -v bat >/dev/null 2>&1 || command -v batcat >/dev/null 2>&1; then
+  export BAT_CONFIG_PATH="${XDG_CONFIG_HOME:-$HOME/.config}/bat/config"
+fi
+
+# GitHub CLI
+if command -v gh >/dev/null 2>&1; then
+  export GH_CONFIG_DIR="${XDG_CONFIG_HOME:-$HOME/.config}/gh"
+fi

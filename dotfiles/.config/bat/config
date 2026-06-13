@@ -1,0 +1,13 @@
+# ~/.config/bat/config
+#
+# Loaded via $BAT_CONFIG_PATH (set in nushell env.nu and
+# shell/profile.d/00-profile.sh). Theme is controlled separately via
+# $BAT_THEME so it can follow the active terminal theme.
+
+# Line numbers + grid, collapse long runs of unchanged context
+--style=numbers,grid,snip
+
+# Syntaxes bat doesn't map to these filenames by default
+--map-syntax "justfile:Makefile"
+--map-syntax "Justfile:Makefile"
+--map-syntax "*.conf:INI"
