@@ -150,11 +150,11 @@ if (which fzf | is-not-empty) {
         "--border"
         "--cycle"
         "--inline-info"
-        # Dracula/Nord hybrid theme
-        "--color=fg:#d0d0d0,bg:#121212,hl:#5f87af"
-        "--color=fg+:#d0d0d0,bg+:#262626,hl+:#5fd7ff"
-        "--color=info:#afaf87,prompt:#d7005f,pointer:#af5fff"
-        "--color=marker:#87ff00,spinner:#af5fff,header:#87afaf"
+        # Catppuccin Mocha
+        "--color=fg:#cdd6f4,bg:#1e1e2e,hl:#89b4fa"
+        "--color=fg+:#cdd6f4,bg+:#313244,hl+:#89dceb"
+        "--color=info:#cba6f7,prompt:#89b4fa,pointer:#f5c2e7"
+        "--color=marker:#a6e3a1,spinner:#cba6f7,header:#6c7086"
         # Key-bindings
         "--bind=ctrl-/:toggle-preview"
         "--bind=ctrl-u:preview-half-page-up"

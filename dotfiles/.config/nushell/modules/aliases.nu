@@ -21,6 +21,7 @@ export alias .. = cd ..
 export alias ... = cd ../..
 export alias .... = cd ../../..
 export alias _ = cd -
+export alias - = cd -
 
 # =============================================================================
 # Editor
@@ -64,11 +65,20 @@ export alias cbr = cargo build --release
 # Run the application
 export alias cr = cargo run
 
+# Run the application in release mode
+export alias crr = cargo run --release
+
 # Run all tests
 export alias ct = cargo test
 
 # Perform static analysis and validation
 export alias cc = cargo check
+
+# Format code
+export alias cf = cargo fmt
+
+# Generate and open documentation
+export alias cdoc = cargo doc --open
 
 
 # =============================================================================
@@ -87,6 +97,12 @@ export alias ns = npm start
 # Build the production bundle
 export alias nb = npm run build
 
+# Run the test suite
+export alias nt = npm test
+
+# Fix security vulnerabilities
+export alias nau = npm audit fix
+
 
 # =============================================================================
 # Python
@@ -95,8 +111,14 @@ export alias nb = npm run build
 # Install a Python package
 export alias pi = pip install
 
+# Uninstall a Python package
+export alias pu = pip uninstall
+
 # Display installed Python packages
 export alias pl = pip list
+
+# Install the current project in development mode
+export alias pf = pip install -e .
 
 
 # =============================================================================
