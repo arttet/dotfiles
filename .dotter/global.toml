@@ -15,10 +15,10 @@ depends = ["opencode"]
 depends = ["helix", "zed"]
 
 [shell]
-depends = ["bash", "zsh"]
+depends = ["bash", "zsh", "powershell"]
 
 [terminal]
-depends = ["alacritty"]
+depends = ["alacritty", "windows-terminal"]
 
 # =============================================================================
 # Base Configuration
@@ -42,6 +42,12 @@ depends = []
 
 [alacritty.files]
 "dotfiles/.config/alacritty/alacritty.toml" = { target = "~\\AppData\\Roaming\\alacritty\\alacritty.toml", type = "symbolic", if = "dotter.windows" }
+
+[windows-terminal]
+depends = []
+
+[windows-terminal.files]
+"dotfiles/.config/windows-terminal/fragments/dotfiles.json" = { target = "~\\AppData\\Local\\Microsoft\\Windows Terminal\\Fragments\\dotfiles\\dotfiles.json", type = "symbolic", if = "dotter.windows" }
 
 # -----------------------------------------------------------------------------
 # Text Editors
@@ -83,6 +89,12 @@ depends = []
 
 [zsh.files]
 "dotfiles/.zshenv" = "~/.zshenv"
+
+[powershell]
+depends = []
+
+[powershell.files]
+"dotfiles/.config/powershell/profile.ps1" = { target = "~\\OneDrive\\Documents\\PowerShell\\Microsoft.PowerShell_profile.ps1", type = "symbolic", if = "dotter.windows" }
 
 # =============================================================================
 # Settings

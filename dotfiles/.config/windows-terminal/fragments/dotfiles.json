@@ -1,0 +1,23 @@
+{
+  "profiles": [
+    {
+      "guid": "{d73c9604-66cd-48fc-817f-d7b5d2ecff4a}",
+      "name": "PowerShell",
+      "commandline": "pwsh.exe",
+      "startingDirectory": "%USERPROFILE%",
+      "font": {
+        "face": "IosevkaTerm Nerd Font"
+      }
+    },
+    {
+      "guid": "{f8aeb8d1-ec01-46d8-b386-47a54183713c}",
+      "name": "Nushell",
+      "commandline": "\"C:\\Program Files\\nu\\bin\\nu.exe\"",
+      "startingDirectory": "%USERPROFILE%",
+      "icon": "C:\\Program Files\\nu\\nu.ico",
+      "font": {
+        "face": "IosevkaTerm Nerd Font"
+      }
+    }
+  ]
+}
