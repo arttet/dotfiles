@@ -1,3 +1,7 @@
+################################################################################
+# Requires just >= 1.52.0+
+################################################################################
+
 HYPERFINE := "hyperfine --warmup 2 --runs 10 --shell=none"
 SHELL_TARGETS := "dotfiles/.bashrc dotfiles/.bash_profile dotfiles/.config/bash dotfiles/.config/shell"
 

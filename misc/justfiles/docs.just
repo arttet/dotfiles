@@ -1,17 +1,42 @@
-docs_dir := env_var_or_default("DOCS_DIR", "docs")
-docs_port := env_var_or_default("DOCS_PORT", "5173")
+docs_dir := justfile_directory() / env("DOCS_DIR", "docs")
+docs_port := env("DOCS_PORT", "5173")
+
+[doc('Install dependencies')]
+[working-directory(docs_dir)]
+install:
+    @echo "✨ Installing Dependencies..."
+    bun install --frozen-lockfile
+    @echo "✅ Documentation dependencies finished installing"
+
+[doc('Update dependencies')]
+[working-directory(docs_dir)]
+update:
+    @echo "✨ Updating Dependencies..."
+    bun update --interactive
+    @echo "✅ Documentation dependencies finished updating"
+
+[doc('Audit dependencies')]
+[working-directory(docs_dir)]
+audit:
+    @echo "🔍 Auditing dependencies..."
+    bun audit
+    @echo "✅ Audit complete!"
 
 [doc('Serve docs')]
-[no-cd]
+[working-directory(docs_dir)]
 dev:
-    bun run --cwd {{ docs_dir }} docs:dev --port {{ docs_port }}
+    @echo "🚀 Starting development server on port {{ docs_port }}..."
+    bun run docs:dev --port {{ docs_port }}
 
 [doc('Build docs')]
-[no-cd]
+[working-directory(docs_dir)]
 build:
-    bun run --cwd {{ docs_dir }} docs:build
+    @echo "🏗️ Building documentation..."
+    bun run docs:build
+    @echo "✅ Build complete!"
 
 [doc('Preview docs')]
-[no-cd]
+[working-directory(docs_dir)]
 preview:
-    bun run --cwd {{ docs_dir }} docs:preview --port {{ docs_port }}
+    @echo "👀 Starting preview server on port {{ docs_port }}..."
+    bun run docs:preview --port {{ docs_port }}
