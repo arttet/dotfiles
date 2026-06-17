@@ -6,5 +6,7 @@ aliases:
   co: pr checkout
   pv: pr view --web
   ci: pr checks
+  new: pr create --fill
+  review: pr comment --body "/gemini review"
   threads: '!owner=$(gh repo view --json owner --jq .owner.login); repo=$(gh repo view --json name --jq .name); pr=${1:-$(gh pr view --json number --jq .number)}; gh pr view "$pr" --comments; gh api graphql -F owner="$owner" -F repo="$repo" -F pr="$pr" -f query="query(\$owner:String!,\$repo:String!,\$pr:Int!){repository(owner:\$owner,name:\$repo){pullRequest(number:\$pr){reviewThreads(first:100){nodes{isResolved comments(first:100){nodes{author{login} body path line}}}}}}}" --jq ".data.repository.pullRequest.reviewThreads.nodes"'
 version: "1"
