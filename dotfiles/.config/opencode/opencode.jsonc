@@ -1,0 +1,219 @@
+{
+  "$schema": "https://opencode.ai/config.json",
+
+  // Default to Plan mode so sessions start by designing the change before editing.
+  "model": "kimi-for-coding/k2p7",
+  "small_model": "kimi-for-coding/k2p6",
+  "default_agent": "plan",
+
+  "autoupdate": false,
+
+  // OpenCode runs commands through Bash.
+  "shell": "bash",
+
+  "server": {
+    "port": 4096,
+  },
+
+  "compaction": {
+    "auto": true,
+    "prune": true,
+    "reserved": 20000,
+  },
+
+  "watcher": {
+    "ignore": [
+      ".cache/**",
+      ".direnv/**",
+      ".git/**",
+      ".next/**",
+      ".turbo/**",
+      ".venv/**",
+      "__pycache__/**",
+      "build/**",
+      "coverage/**",
+      "dist/**",
+      "node_modules/**",
+      "target/**",
+    ],
+  },
+
+  "instructions": [
+    "AGENTS.md",
+  ],
+
+  "mcp": {
+    "serena": {
+      "type": "local",
+      "enabled": true,
+      // Pin the Serena package and let it infer the project from OpenCode's cwd.
+      "command": [
+        "uvx",
+        "serena-agent@v1.5.3",
+        "start-mcp-server",
+        "--context",
+        "agent",
+        "--project-from-cwd",
+        "--open-web-dashboard=false",
+      ],
+      "environment": {
+        "PYTHONUNBUFFERED": "1",
+      },
+      "timeout": 30000,
+    },
+  },
+
+  "permission": {
+    "*": "ask",
+
+    "read": {
+      "*.env": "deny",
+      "*.env.*": "deny",
+      "*.pem": "deny",
+      "*.key": "deny",
+      "*.netrc": "deny",
+
+      "*id_rsa*": "deny",
+      "*id_dsa*": "deny",
+      "*id_ecdsa*": "deny",
+      "*id_ed25519*": "deny",
+
+      "*.git/*": "deny",
+      "*.ssh/*": "deny",
+      "*.gnupg/*": "deny",
+      "*history*": "deny",
+      "*kube/config": "deny",
+      "*.aws/*": "deny",
+      "*.azure/*": "deny",
+      "*gcloud/*": "deny",
+      "*credentials.json": "deny",
+      "*git-credentials": "deny",
+      "*gh/hosts.yml": "deny",
+      "*cargo/credentials*": "deny",
+      "*docker/config.json": "deny",
+
+      "*.env.example": "allow",
+    },
+
+    "grep": "allow",
+    "glob": "allow",
+    "lsp": "allow",
+    "skill": "allow",
+
+    "edit": "ask",
+    "write": "ask",
+    "webfetch": "ask",
+    "websearch": "allow",
+    "question": "allow",
+    "doom_loop": "ask",
+    "external_directory": "ask",
+
+    "bash": {
+      "*": "ask",
+
+      // Read-only inspection commands are allowed to keep routine exploration fast.
+      // Bare + with-args forms; bare `fd`/`bat` (not `fd*`/`bat*`) avoid matching
+      // siblings like `fdisk`/`batch`.
+      "pwd": "allow",
+      "eza": "allow",
+      "eza *": "allow",
+      "fd": "allow",
+      "fd *": "allow",
+
+      "git status*": "allow",
+      "git diff*": "allow",
+      "git log*": "allow",
+      "git show*": "allow",
+      "git remote": "allow",
+      "git remote -v": "allow",
+      "git remote show*": "allow",
+      "git stash list": "allow",
+      "git stash show*": "allow",
+      "git worktree list": "allow",
+
+      "gh pr view*": "allow",
+      "gh pr list*": "allow",
+      "gh pr diff*": "allow",
+      "gh run list*": "allow",
+      "gh run view*": "allow",
+
+      "just fmt*": "allow",
+      "just lint*": "allow",
+      "just build*": "allow",
+      "just test*": "allow",
+
+      // Prefer structured OpenCode tools over raw file-dumping commands.
+      // Bare + with-args forms; bare `ls`/`cat` (not `ls*`/`cat*`) avoid matching
+      // siblings like `lsof`/`catimg`.
+      "ls": "deny",
+      "ls *": "deny",
+      "find": "deny",
+      "find *": "deny",
+      "grep": "deny",
+      "grep *": "deny",
+      "cat": "deny",
+      "cat *": "deny",
+
+      // Network and mutating git operations should never run silently.
+      "git branch*": "deny",
+      "git fetch*": "deny",
+      "git pull*": "deny",
+      "git push*": "deny",
+      "git revert*": "deny",
+
+      // Privilege escalation, destructive filesystems, disks, and permissions.
+      "sudo*": "deny",
+      "doas*": "deny",
+
+      "rm -rf *": "deny",
+      "rm -fr *": "deny",
+      "rm -r /*": "deny",
+      "rm -rf /*": "deny",
+      "rm -rf ~*": "deny",
+      "rm -rf $HOME*": "deny",
+      "mv * /dev/null": "deny",
+
+      "truncate *": "deny",
+      "shred *": "deny",
+      "wipe *": "deny",
+      "mkfs*": "deny",
+      "dd *": "deny",
+      "fdisk*": "deny",
+      "parted*": "deny",
+      "sfdisk*": "deny",
+      "mount*": "deny",
+      "umount*": "deny",
+      "chmod *777*": "deny",
+
+      // Shell escapes and remote execution patterns require review.
+      "eval *": "deny",
+      "powershell*": "deny",
+      "pwsh*": "deny",
+      "cmd.exe*": "deny",
+      "cmd /c *": "deny",
+      "curl *|*sh*": "deny",
+      "wget *|*sh*": "deny",
+
+      // Destructive repository changes, publishing, and infrastructure mutation.
+      "git reset --hard*": "deny",
+      "git clean*": "deny",
+      "npm publish*": "deny",
+      "pnpm publish*": "deny",
+      "bun publish*": "deny",
+      "cargo publish*": "deny",
+      "twine upload*": "deny",
+      "gh release create*": "deny",
+      "gh repo delete*": "deny",
+      "terraform apply*": "deny",
+      "terraform destroy*": "deny",
+      "tofu apply*": "deny",
+      "tofu destroy*": "deny",
+      "kubectl delete*": "deny",
+      "docker system prune*": "deny",
+      "docker volume rm*": "deny",
+      "aws * delete*": "deny",
+      "az * delete*": "deny",
+      "gcloud * delete*": "deny",
+    },
+  },
+}
