@@ -1,0 +1,139 @@
+{
+  "model": "opus",
+  "includeCoAuthoredBy": false,
+  "statusLine": {
+    "type": "command",
+    "command": "bash ~/.claude/statusline.sh",
+    "padding": 1,
+    "refreshInterval": 5,
+    "hideVimModeIndicator": true
+  },
+  "subagentStatusLine": {
+    "type": "command",
+    "command": "bash ~/.claude/statusline.sh"
+  },
+  "permissions": {
+    "additionalDirectories": [
+      "~/.agents"
+    ],
+    "allow": [
+      "Bash(pwd)",
+      "Bash(bat:*)",
+      "Bash(rg:*)",
+      "Bash(eza:*)",
+      "Bash(fd:*)",
+
+      "Bash(just fmt:*)",
+      "Bash(just lint:*)",
+      "Bash(just build:*)",
+      "Bash(just test:*)",
+
+      "Bash(git status:*)",
+      "Bash(git diff:*)",
+      "Bash(git log:*)",
+      "Bash(git show:*)",
+      "Bash(git remote:*)",
+      "Bash(git stash:*)",
+      "Bash(git worktree list:*)",
+
+      "Bash(gh pr view:*)",
+      "Bash(gh pr list:*)",
+      "Bash(gh pr diff:*)",
+      "Bash(gh pr checks:*)",
+      "Bash(gh pr status:*)",
+      "Bash(gh run list:*)",
+      "Bash(gh run view:*)",
+      "Bash(gh issue view:*)",
+      "Bash(gh issue list:*)",
+      "Bash(gh search:*)"
+    ],
+    "ask": [
+      "Bash(chmod -R:*)",
+      "Bash(setfacl:*)",
+
+      "Bash(bash -c:*)",
+      "Bash(sh -c:*)",
+      "Bash(source:*)",
+      "Bash(powershell:*)",
+      "Bash(pwsh:*)",
+      "Bash(cmd.exe:*)",
+      "Bash(cmd /c:*)",
+
+      "Bash(git checkout:*)",
+      "Bash(git restore:*)",
+      "Bash(git rebase:*)",
+      "Bash(git commit:*)",
+      "Bash(git tag:*)",
+
+      "Bash(kubectl apply:*)",
+      "Bash(docker rm:*)"
+    ],
+    "deny": [
+      "Read(**/.env)",
+      "Read(**/.env.*)",
+      "Read(**/*.pem)",
+      "Read(**/*.key)",
+      "Read(**/*.netrc)",
+      "Read(**/.netrc)",
+      "Read(**/*id_rsa*)",
+      "Read(**/*id_ed25519*)",
+      "Read(**/.ssh/**)",
+      "Read(**/.gnupg/**)",
+      "Read(**/.git/**)",
+      "Read(**/*history*)",
+      "Read(**/.kube/config)",
+      "Read(**/.aws/**)",
+      "Read(**/.azure/**)",
+      "Read(**/.config/gcloud/**)",
+      "Read(**/*credentials.json)",
+
+      "Bash(ls:*)",
+      "Bash(find:*)",
+      "Bash(grep:*)",
+      "Bash(cat:*)",
+
+      "Bash(git branch:*)",
+      "Bash(git fetch:*)",
+      "Bash(git pull:*)",
+      "Bash(git push:*)",
+      "Bash(git revert:*)",
+      "Bash(git reset --hard:*)",
+      "Bash(git clean:*)",
+
+      "Bash(sudo:*)",
+      "Bash(doas:*)",
+      "Bash(rm -rf:*)",
+      "Bash(rm -fr:*)",
+      "Bash(truncate:*)",
+      "Bash(shred:*)",
+      "Bash(wipe:*)",
+      "Bash(mkfs:*)",
+      "Bash(dd:*)",
+      "Bash(fdisk:*)",
+      "Bash(parted:*)",
+      "Bash(sfdisk:*)",
+      "Bash(mount:*)",
+      "Bash(umount:*)",
+      "Bash(chmod -R 777:*)",
+      "Bash(chown -R:*)",
+      "Bash(eval:*)",
+
+      "Bash(npm publish:*)",
+      "Bash(pnpm publish:*)",
+      "Bash(bun publish:*)",
+      "Bash(cargo publish:*)",
+      "Bash(twine upload:*)",
+      "Bash(gh release create:*)",
+      "Bash(gh repo delete:*)",
+
+      "Bash(terraform apply:*)",
+      "Bash(terraform destroy:*)",
+      "Bash(tofu apply:*)",
+      "Bash(tofu destroy:*)",
+      "Bash(kubectl delete:*)",
+      "Bash(docker system prune:*)",
+      "Bash(docker volume rm:*)"
+    ]
+  },
+  "cleanupPeriodDays": 30
+}
