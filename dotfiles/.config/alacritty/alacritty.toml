@@ -100,6 +100,9 @@ bindings = [
   { key = "Plus", mods = "Control|Shift", action = "IncreaseFontSize" },
   { key = "Minus", mods = "Control|Shift", action = "DecreaseFontSize" },
   { key = "Key0", mods = "Control|Shift", action = "ResetFontSize" },
+
+  # Map Shift+Return to Alt+Return (Esc+CR) to trigger multiline prompt in Nushell
+  { key = "Return", mods = "Shift", chars = "\u001B\r" },
 ]
 
 # ==================================================
