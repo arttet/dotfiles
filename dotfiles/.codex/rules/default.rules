@@ -1,0 +1,667 @@
+# ~/.codex/rules/default.rules
+
+# =============================================================================
+# Allow: read-only inspection
+# =============================================================================
+
+prefix_rule(
+    pattern = ["git", "status"],
+    decision = "allow",
+    justification = "Reading Git status is safe.",
+    match = ["git status", "git status --short"],
+)
+
+prefix_rule(
+    pattern = ["git", "diff"],
+    decision = "allow",
+    justification = "Reading Git diffs is safe.",
+    match = ["git diff", "git diff --cached", "git diff --check"],
+)
+
+prefix_rule(
+    pattern = ["git", "log"],
+    decision = "allow",
+    justification = "Reading Git history is safe.",
+    match = ["git log", "git log --oneline -5"],
+)
+
+prefix_rule(
+    pattern = ["git", "show"],
+    decision = "allow",
+    justification = "Reading Git objects is safe.",
+    match = ["git show HEAD", "git show --stat HEAD"],
+)
+
+prefix_rule(
+    pattern = ["git", "remote", "-v"],
+    decision = "allow",
+    justification = "Reading configured Git remotes is safe.",
+    match = ["git remote -v"],
+)
+
+prefix_rule(
+    pattern = ["git", "stash", "list"],
+    decision = "allow",
+    justification = "Listing stashes is read-only.",
+    match = ["git stash list"],
+)
+
+prefix_rule(
+    pattern = ["git", "stash", "show"],
+    decision = "allow",
+    justification = "Inspecting a stash is read-only.",
+    match = ["git stash show", "git stash show --stat stash@{0}"],
+)
+
+prefix_rule(
+    pattern = ["git", "worktree", "list"],
+    decision = "allow",
+    justification = "Listing worktrees is read-only.",
+    match = ["git worktree list"],
+)
+
+prefix_rule(
+    pattern = ["git", "branch", "--show-current"],
+    decision = "allow",
+    justification = "Reading the current branch name is safe.",
+    match = ["git branch --show-current"],
+)
+
+prefix_rule(
+    pattern = ["git", "branch", "-vv"],
+    decision = "allow",
+    justification = "Reading local branch tracking state is safe.",
+    match = ["git branch -vv"],
+)
+
+prefix_rule(
+    pattern = ["gh", "repo", "view"],
+    decision = "allow",
+    justification = "Reading repository metadata is safe.",
+    match = ["gh repo view", "gh repo view openai/codex"],
+)
+
+prefix_rule(
+    pattern = ["gh", "pr", "view"],
+    decision = "allow",
+    justification = "Reading pull request metadata is safe.",
+    match = ["gh pr view 123", "gh pr view 123 --json title,body"],
+)
+
+prefix_rule(
+    pattern = ["gh", "pr", "list"],
+    decision = "allow",
+    justification = "Listing pull requests is read-only.",
+    match = ["gh pr list", "gh pr list --state open"],
+)
+
+prefix_rule(
+    pattern = ["gh", "pr", "diff"],
+    decision = "allow",
+    justification = "Reading pull request diffs is safe.",
+    match = ["gh pr diff 123"],
+)
+
+prefix_rule(
+    pattern = ["gh", "pr", "checks"],
+    decision = "allow",
+    justification = "Reading pull request checks is safe.",
+    match = ["gh pr checks 123"],
+)
+
+prefix_rule(
+    pattern = ["gh", "pr", "status"],
+    decision = "allow",
+    justification = "Reading pull request status is safe.",
+    match = ["gh pr status"],
+)
+
+prefix_rule(
+    pattern = ["gh", "run", "view"],
+    decision = "allow",
+    justification = "Reading workflow run details is safe.",
+    match = ["gh run view 123", "gh run view 123 --log-failed"],
+)
+
+prefix_rule(
+    pattern = ["gh", "run", "list"],
+    decision = "allow",
+    justification = "Listing workflow runs is read-only.",
+    match = ["gh run list", "gh run list --limit 10"],
+)
+
+prefix_rule(
+    pattern = ["gh", "issue", "view"],
+    decision = "allow",
+    justification = "Reading issue metadata is safe.",
+    match = ["gh issue view 123"],
+)
+
+prefix_rule(
+    pattern = ["gh", "issue", "list"],
+    decision = "allow",
+    justification = "Listing issues is read-only.",
+    match = ["gh issue list", "gh issue list --state open"],
+)
+
+prefix_rule(
+    pattern = ["gh", "search"],
+    decision = "allow",
+    justification = "GitHub search is read-only.",
+    match = ["gh search repos codex", "gh search code serena"],
+)
+
+prefix_rule(
+    pattern = ["rg"],
+    decision = "allow",
+    justification = "Ripgrep is a read-only inspection tool.",
+    match = ["rg TODO", "rg --files"],
+)
+
+prefix_rule(
+    pattern = ["fd"],
+    decision = "allow",
+    justification = "fd is a read-only file discovery tool.",
+    match = ["fd config", "fd --hidden toml"],
+)
+
+prefix_rule(
+    pattern = [["bat", "batcat"]],
+    decision = "allow",
+    justification = "bat is a read-only file viewer.",
+    match = ["bat README.md", "batcat README.md"],
+)
+
+# =============================================================================
+# Prompt: local or remote mutations
+# =============================================================================
+
+prefix_rule(
+    pattern = ["git", "add"],
+    decision = "prompt",
+    justification = "Staging changes should be explicitly approved.",
+    match = ["git add README.md", "git add -A"],
+)
+
+prefix_rule(
+    pattern = ["git", "commit"],
+    decision = "prompt",
+    justification = "Creating commits should be explicitly approved.",
+    match = ["git commit -S -m test"],
+)
+
+prefix_rule(
+    pattern = ["git", "switch"],
+    decision = "prompt",
+    justification = "Switching branches changes the working tree.",
+    match = ["git switch main", "git switch -c feat/example main"],
+)
+
+prefix_rule(
+    pattern = ["git", "checkout"],
+    decision = "prompt",
+    justification = "Checkout can change branches or files.",
+    match = ["git checkout main", "git checkout -- README.md"],
+)
+
+prefix_rule(
+    pattern = ["git", "restore"],
+    decision = "prompt",
+    justification = "Restore can discard working-tree or staged changes.",
+    match = ["git restore README.md", "git restore --staged README.md"],
+)
+
+prefix_rule(
+    pattern = ["git", "reset"],
+    decision = "prompt",
+    justification = "Reset changes Git state and may rewrite history.",
+    match = ["git reset HEAD README.md", "git reset --soft HEAD~1"],
+)
+
+prefix_rule(
+    pattern = ["git", "rebase"],
+    decision = "prompt",
+    justification = "Rebase rewrites history.",
+    match = ["git rebase main", "git rebase --interactive HEAD~3"],
+)
+
+prefix_rule(
+    pattern = ["git", "revert"],
+    decision = "prompt",
+    justification = "Revert creates history-changing commits.",
+    match = ["git revert HEAD"],
+)
+
+prefix_rule(
+    pattern = ["git", "fetch"],
+    decision = "prompt",
+    justification = "Fetch uses the network and updates remote-tracking refs.",
+    match = ["git fetch", "git fetch origin main"],
+)
+
+prefix_rule(
+    pattern = ["git", "pull"],
+    decision = "prompt",
+    justification = "Pull uses the network and changes the working tree or history.",
+    match = ["git pull", "git pull --rebase"],
+)
+
+prefix_rule(
+    pattern = ["git", "push"],
+    decision = "prompt",
+    justification = "Pushing changes remote repository state.",
+    match = ["git push", "git push origin main", "git push --force-with-lease origin main"],
+)
+
+prefix_rule(
+    pattern = ["git", "tag"],
+    decision = "prompt",
+    justification = "Creating or deleting tags changes repository state.",
+    match = ["git tag v1.0.0", "git tag -d v1.0.0"],
+)
+
+prefix_rule(
+    pattern = ["git", "branch", "-d"],
+    decision = "prompt",
+    justification = "Deleting a branch should be explicitly approved.",
+    match = ["git branch -d feat/example"],
+)
+
+prefix_rule(
+    pattern = ["git", "branch", "-D"],
+    decision = "prompt",
+    justification = "Force-deleting a branch should be explicitly approved.",
+    match = ["git branch -D feat/example"],
+)
+
+prefix_rule(
+    pattern = ["git", "branch", "-m"],
+    decision = "prompt",
+    justification = "Renaming a branch changes repository state.",
+    match = ["git branch -m old-name new-name"],
+)
+
+prefix_rule(
+    pattern = ["git", "worktree", ["add", "move", "remove", "prune", "lock", "unlock", "repair"]],
+    decision = "prompt",
+    justification = "Worktree operations other than list change checkout state.",
+    match = ["git worktree add ../repo main", "git worktree remove ../repo"],
+    not_match = ["git worktree list"],
+)
+
+prefix_rule(
+    pattern = ["git", "stash", ["push", "pop", "apply", "drop", "clear", "branch", "create", "store"]],
+    decision = "prompt",
+    justification = "Stash operations other than list and show change working-tree or stash state.",
+    match = ["git stash push", "git stash pop", "git stash drop"],
+    not_match = ["git stash list", "git stash show"],
+)
+
+prefix_rule(
+    pattern = ["gh", "api"],
+    decision = "prompt",
+    justification = "GitHub API calls can mutate remote state and require review.",
+    match = ["gh api repos/openai/codex", "gh api --method POST repos/example/example/issues"],
+)
+
+prefix_rule(
+    pattern = ["gh", "pr", "comment"],
+    decision = "prompt",
+    justification = "Posting a pull request comment changes remote state.",
+    match = ["gh pr comment 123 --body hello"],
+)
+
+prefix_rule(
+    pattern = ["gh", "pr", "review"],
+    decision = "prompt",
+    justification = "Submitting a pull request review changes remote state.",
+    match = ["gh pr review 123 --approve"],
+)
+
+prefix_rule(
+    pattern = ["gh", "pr", "merge"],
+    decision = "prompt",
+    justification = "Merging a pull request changes remote history.",
+    match = ["gh pr merge 123"],
+)
+
+prefix_rule(
+    pattern = ["gh", "pr", "close"],
+    decision = "prompt",
+    justification = "Closing a pull request changes remote state.",
+    match = ["gh pr close 123"],
+)
+
+prefix_rule(
+    pattern = ["gh", "issue", "create"],
+    decision = "prompt",
+    justification = "Creating an issue changes remote state.",
+    match = ["gh issue create --title bug --body details"],
+)
+
+prefix_rule(
+    pattern = ["gh", "issue", "comment"],
+    decision = "prompt",
+    justification = "Posting an issue comment changes remote state.",
+    match = ["gh issue comment 123 --body hello"],
+)
+
+prefix_rule(
+    pattern = ["gh", "issue", "close"],
+    decision = "prompt",
+    justification = "Closing an issue changes remote state.",
+    match = ["gh issue close 123"],
+)
+
+prefix_rule(
+    pattern = ["npx"],
+    decision = "prompt",
+    justification = "npx may download and execute remote packages.",
+    match = ["npx ctx7@latest react"],
+)
+
+prefix_rule(
+    pattern = ["curl"],
+    decision = "prompt",
+    justification = "curl performs network access and may download untrusted content.",
+    match = ["curl https://example.com"],
+)
+
+prefix_rule(
+    pattern = ["wget"],
+    decision = "prompt",
+    justification = "wget performs network access and may download untrusted content.",
+    match = ["wget https://example.com/file"],
+)
+
+prefix_rule(
+    pattern = ["npm", "install"],
+    decision = "prompt",
+    justification = "Installing dependencies changes the local environment and can run lifecycle scripts.",
+    match = ["npm install package"],
+)
+
+prefix_rule(
+    pattern = ["pnpm", "add"],
+    decision = "prompt",
+    justification = "Adding dependencies changes project manifests and the local environment.",
+    match = ["pnpm add package"],
+)
+
+prefix_rule(
+    pattern = ["bun", "add"],
+    decision = "prompt",
+    justification = "Adding dependencies changes project manifests and the local environment.",
+    match = ["bun add package"],
+)
+
+prefix_rule(
+    pattern = ["cargo", "add"],
+    decision = "prompt",
+    justification = "Adding dependencies changes project manifests and the local environment.",
+    match = ["cargo add crate"],
+)
+
+prefix_rule(
+    pattern = ["uv", "add"],
+    decision = "prompt",
+    justification = "Adding dependencies changes project manifests and the local environment.",
+    match = ["uv add package"],
+)
+
+prefix_rule(
+    pattern = ["docker", "run"],
+    decision = "prompt",
+    justification = "Starting containers changes local Docker state.",
+    match = ["docker run --rm alpine"],
+)
+
+prefix_rule(
+    pattern = ["docker", "build"],
+    decision = "prompt",
+    justification = "Building images changes local Docker state and may execute build steps.",
+    match = ["docker build ."],
+)
+
+prefix_rule(
+    pattern = ["docker", "compose", "up"],
+    decision = "prompt",
+    justification = "Starting Compose services changes local or external service state.",
+    match = ["docker compose up", "docker compose up -d"],
+)
+
+prefix_rule(
+    pattern = ["docker", "compose", "down"],
+    decision = "prompt",
+    justification = "Stopping Compose services changes service state.",
+    match = ["docker compose down"],
+)
+
+prefix_rule(
+    pattern = ["kubectl", "apply"],
+    decision = "prompt",
+    justification = "Applying Kubernetes manifests changes cluster state.",
+    match = ["kubectl apply -f deployment.yaml"],
+)
+
+prefix_rule(
+    pattern = ["kubectl", "patch"],
+    decision = "prompt",
+    justification = "Patching Kubernetes resources changes cluster state.",
+    match = ["kubectl patch deployment app -p {}"],
+)
+
+# =============================================================================
+# Forbidden: destructive, privileged, and publishing operations
+# =============================================================================
+
+prefix_rule(
+    pattern = ["sudo"],
+    decision = "forbidden",
+    justification = "Privileged commands must be run manually when explicitly intended.",
+    match = ["sudo apt update", "sudo rm file"],
+)
+
+prefix_rule(
+    pattern = ["doas"],
+    decision = "forbidden",
+    justification = "Privileged commands must be run manually when explicitly intended.",
+    match = ["doas apk add git", "doas rm file"],
+)
+
+prefix_rule(
+    pattern = ["rm", "-rf"],
+    decision = "forbidden",
+    justification = "Recursive forced deletion can irreversibly destroy data.",
+    match = ["rm -rf build", "rm -rf /"],
+)
+
+prefix_rule(
+    pattern = ["rm", "-fr"],
+    decision = "forbidden",
+    justification = "Recursive forced deletion can irreversibly destroy data.",
+    match = ["rm -fr build", "rm -fr /"],
+)
+
+prefix_rule(
+    pattern = ["truncate"],
+    decision = "forbidden",
+    justification = "Truncation irreversibly destroys file contents.",
+    match = ["truncate -s 0 data.db"],
+)
+
+prefix_rule(
+    pattern = ["shred"],
+    decision = "forbidden",
+    justification = "Secure deletion is destructive and irreversible.",
+    match = ["shred -u secret.txt"],
+)
+
+prefix_rule(
+    pattern = [["mkfs", "mkfs.ext2", "mkfs.ext3", "mkfs.ext4", "mkfs.fat", "mkfs.vfat", "mkfs.xfs", "mkfs.btrfs"]],
+    decision = "forbidden",
+    justification = "Formatting filesystems is destructive and irreversible.",
+    match = ["mkfs /dev/sda1", "mkfs.ext4 /dev/sda1"],
+)
+
+prefix_rule(
+    pattern = [["dd", "fdisk", "parted", "sfdisk"]],
+    decision = "forbidden",
+    justification = "Raw disk and partition operations can irreversibly destroy data.",
+    match = ["dd if=image.iso of=/dev/sda", "fdisk /dev/sda", "parted /dev/sda print"],
+)
+
+prefix_rule(
+    pattern = ["chmod", "777"],
+    decision = "forbidden",
+    justification = "World-writable permissions are forbidden.",
+    match = ["chmod 777 script.sh"],
+)
+
+prefix_rule(
+    pattern = ["chown", "-R"],
+    decision = "forbidden",
+    justification = "Recursive ownership changes have an excessive blast radius.",
+    match = ["chown -R user:user ."],
+)
+
+prefix_rule(
+    pattern = ["git", "reset", "--hard"],
+    decision = "forbidden",
+    justification = "Hard reset can irreversibly discard user work.",
+    match = ["git reset --hard HEAD"],
+)
+
+prefix_rule(
+    pattern = ["git", "clean"],
+    decision = "forbidden",
+    justification = "Git clean can irreversibly delete untracked user work.",
+    match = ["git clean -fd", "git clean -fdx"],
+)
+
+prefix_rule(
+    pattern = ["git", "push", "--force"],
+    decision = "forbidden",
+    justification = "Unqualified force-push can overwrite remote history.",
+    match = ["git push --force origin main"],
+    not_match = ["git push --force-with-lease origin main"],
+)
+
+prefix_rule(
+    pattern = ["git", "push", "-f"],
+    decision = "forbidden",
+    justification = "Unqualified force-push can overwrite remote history.",
+    match = ["git push -f origin main"],
+)
+
+prefix_rule(
+    pattern = ["npm", "publish"],
+    decision = "forbidden",
+    justification = "Publishing packages is outside normal Codex authority.",
+    match = ["npm publish"],
+)
+
+prefix_rule(
+    pattern = ["pnpm", "publish"],
+    decision = "forbidden",
+    justification = "Publishing packages is outside normal Codex authority.",
+    match = ["pnpm publish"],
+)
+
+prefix_rule(
+    pattern = ["bun", "publish"],
+    decision = "forbidden",
+    justification = "Publishing packages is outside normal Codex authority.",
+    match = ["bun publish"],
+)
+
+prefix_rule(
+    pattern = ["cargo", "publish"],
+    decision = "forbidden",
+    justification = "Publishing packages is outside normal Codex authority.",
+    match = ["cargo publish"],
+)
+
+prefix_rule(
+    pattern = ["twine", "upload"],
+    decision = "forbidden",
+    justification = "Publishing packages is outside normal Codex authority.",
+    match = ["twine upload dist/*"],
+)
+
+prefix_rule(
+    pattern = ["gh", "release", "create"],
+    decision = "forbidden",
+    justification = "Publishing releases requires explicit manual control.",
+    match = ["gh release create v1.0.0"],
+)
+
+prefix_rule(
+    pattern = ["gh", "release", "delete"],
+    decision = "forbidden",
+    justification = "Deleting releases is destructive remote mutation.",
+    match = ["gh release delete v1.0.0"],
+)
+
+prefix_rule(
+    pattern = ["gh", "repo", "delete"],
+    decision = "forbidden",
+    justification = "Deleting repositories is destructive and irreversible.",
+    match = ["gh repo delete owner/repo"],
+)
+
+prefix_rule(
+    pattern = [["terraform", "tofu"], ["apply", "destroy"]],
+    decision = "forbidden",
+    justification = "Applying or destroying infrastructure requires explicit manual control.",
+    match = ["terraform apply", "terraform destroy", "tofu apply", "tofu destroy"],
+)
+
+prefix_rule(
+    pattern = ["kubectl", "delete"],
+    decision = "forbidden",
+    justification = "Deleting cluster resources is destructive remote mutation.",
+    match = ["kubectl delete deployment app"],
+)
+
+prefix_rule(
+    pattern = ["docker", "system", "prune"],
+    decision = "forbidden",
+    justification = "Docker system prune can delete unrelated local data.",
+    match = ["docker system prune -a"],
+)
+
+prefix_rule(
+    pattern = ["docker", "volume", "rm"],
+    decision = "forbidden",
+    justification = "Deleting Docker volumes can irreversibly destroy data.",
+    match = ["docker volume rm data"],
+)
+
+prefix_rule(
+    pattern = ["aws", "s3", "rm"],
+    decision = "forbidden",
+    justification = "Deleting cloud data is destructive remote mutation.",
+    match = ["aws s3 rm s3://bucket/key"],
+)
+
+prefix_rule(
+    pattern = ["aws", "cloudformation", "delete-stack"],
+    decision = "forbidden",
+    justification = "Deleting cloud infrastructure is destructive remote mutation.",
+    match = ["aws cloudformation delete-stack --stack-name app"],
+)
+
+prefix_rule(
+    pattern = ["gcloud", "projects", "delete"],
+    decision = "forbidden",
+    justification = "Deleting cloud projects is destructive and irreversible.",
+    match = ["gcloud projects delete project-id"],
+)
+
+prefix_rule(
+    pattern = ["az", "group", "delete"],
+    decision = "forbidden",
+    justification = "Deleting cloud resource groups is destructive remote mutation.",
+    match = ["az group delete --name rg"],
+)

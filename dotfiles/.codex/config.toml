@@ -1,0 +1,135 @@
+# Codex configuration (config.toml).
+
+################################################################################
+# Model and response behavior
+################################################################################
+
+model = "gpt-5.5"
+model_provider = "openai"
+personality = "pragmatic"
+
+model_reasoning_effort = "high"
+plan_mode_reasoning_effort = "xhigh"
+model_reasoning_summary = "auto"
+model_verbosity = "medium"
+
+################################################################################
+# Execution, authentication, and project discovery
+################################################################################
+
+approval_policy = "on-request"
+sandbox_mode = "workspace-write"
+default_permissions = "workspace"
+allow_login_shell = true
+web_search = "cached"
+
+cli_auth_credentials_store = "auto"
+mcp_oauth_credentials_store = "auto"
+
+project_doc_max_bytes = 32768
+file_opener = "none"
+service_tier = "fast"
+
+################################################################################
+# History and process environment
+################################################################################
+
+[history]
+persistence = "save-all"
+max_bytes = 52428800
+
+[shell_environment_policy]
+inherit = "core"
+ignore_default_excludes = false
+
+################################################################################
+# Workspace sandbox and sensitive-file policy
+################################################################################
+
+[sandbox_workspace_write]
+writable_roots = []
+network_access = false
+exclude_tmpdir_env_var = false
+exclude_slash_tmp = false
+
+[permissions.workspace.filesystem]
+glob_scan_max_depth = 8
+":workspace_roots" = { "." = "write", "**/.env" = "deny", "**/.env.*" = "deny", "**/*.key" = "deny", "**/*.pem" = "deny", "**/*.netrc" = "deny", "**/.netrc" = "deny", "**/.ssh/**" = "deny", "**/.gnupg/**" = "deny", "**/.kube/config" = "deny", "**/.aws/**" = "deny", "**/.azure/**" = "deny", "**/.config/gcloud/**" = "deny", "**/*credentials.json" = "deny", "**/.git-credentials" = "deny", "**/gh/hosts.yml" = "deny", "**/.npmrc" = "deny", "**/.cargo/credentials*" = "deny", "**/.docker/config.json" = "deny" }
+
+################################################################################
+# Agent runtime and stable feature selection
+################################################################################
+
+[agents]
+max_threads = 6
+max_depth = 1
+job_max_runtime_seconds = 1800
+
+[features]
+multi_agent = true
+shell_snapshot = true
+unified_exec = true
+skill_mcp_dependency_install = true
+fast_mode = true
+
+################################################################################
+# Terminal UI and telemetry
+################################################################################
+
+[tui]
+notifications = true
+animations = true
+show_tooltips = true
+status_line = [
+  "model-with-reasoning",
+  "context-remaining",
+  "git-branch",
+  "project-name",
+  "branch-changes",
+  "five-hour-limit",
+  "weekly-limit",
+  "task-progress",
+]
+terminal_title = ["spinner", "project"]
+theme = "nord"
+status_line_use_colors = true
+
+[analytics]
+enabled = false
+
+[feedback]
+enabled = false
+
+[otel]
+log_user_prompt = false
+environment = "dev"
+exporter = "none"
+trace_exporter = "none"
+metrics_exporter = "none"
+
+[windows]
+sandbox = "elevated"
+
+################################################################################
+# MCP servers
+################################################################################
+
+[mcp_servers.serena]
+command = "uvx"
+args = [
+  "serena-agent@v1.5.3",
+  "start-mcp-server",
+  "--context=codex",
+  "--project-from-cwd",
+  "--open-web-dashboard=false",
+]
+env = { PYTHONUNBUFFERED = "1" }
+startup_timeout_sec = 30
+tool_timeout_sec = 120
+enabled = true
+
+[mcp_servers.openaiDeveloperDocs]
+url = "https://developers.openai.com/mcp"
+startup_timeout_sec = 10
+tool_timeout_sec = 60
+enabled = true
