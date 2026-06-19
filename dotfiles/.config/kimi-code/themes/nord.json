@@ -1,0 +1,25 @@
+{
+  "name": "nord",
+  "displayName": "Nord",
+  "base": "dark",
+  "colors": {
+    "primary": "#88C0D0",
+    "accent": "#8FBCBB",
+    "text": "#D8DEE9",
+    "textStrong": "#ECEFF4",
+    "textDim": "#81A1C1",
+    "textMuted": "#5E81AC",
+    "border": "#4C566A",
+    "borderFocus": "#88C0D0",
+    "success": "#A3BE8C",
+    "warning": "#EBCB8B",
+    "error": "#BF616A",
+    "diffAdded": "#A3BE8C",
+    "diffRemoved": "#BF616A",
+    "diffAddedStrong": "#BFE0A8",
+    "diffRemovedStrong": "#D08770",
+    "diffGutter": "#4C566A",
+    "diffMeta": "#81A1C1",
+    "roleUser": "#D08770"
+  }
+}
