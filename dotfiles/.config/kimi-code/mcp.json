@@ -1,0 +1,28 @@
+{
+  "mcpServers": {
+    "context7": {
+      "command": "bunx",
+      "args": ["@upstash/context7-mcp"],
+      "startupTimeoutMs": 60000,
+      "toolTimeoutMs": 120000
+    },
+    "playwright": {
+      "command": "bunx",
+      "args": ["@playwright/mcp@latest"],
+      "startupTimeoutMs": 60000,
+      "toolTimeoutMs": 120000
+    },
+    "serena": {
+      "command": "uvx",
+      "args": [
+        "serena-agent@v1.5.3",
+        "start-mcp-server",
+        "--context=agent",
+        "--project-from-cwd",
+        "--open-web-dashboard=false"
+      ],
+      "startupTimeoutMs": 60000,
+      "toolTimeoutMs": 120000
+    }
+  }
+}

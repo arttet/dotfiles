@@ -1,0 +1,410 @@
+# ~/.config/kimi-code/config.toml
+# Managed by dotfiles.
+
+default_model = "kimi-code/kimi-for-coding"
+default_thinking = true
+default_permission_mode = "manual"
+default_plan_mode = true
+merge_all_available_skills = true
+extra_skill_dirs = ["~/.agents/skills"]
+telemetry = false
+
+[providers."managed:kimi-code"]
+type = "kimi"
+base_url = "https://api.kimi.com/coding/v1"
+api_key = ""
+
+[providers."managed:kimi-code".oauth]
+storage = "file"
+key = "oauth/kimi-code"
+
+[models."kimi-code/kimi-for-coding"]
+provider = "managed:kimi-code"
+model = "kimi-for-coding"
+max_context_size = 262144
+capabilities = ["thinking", "always_thinking", "image_in", "video_in", "tool_use"]
+display_name = "K2.7 Code"
+
+[services.moonshot_search]
+base_url = "https://api.kimi.com/coding/v1/search"
+api_key = ""
+
+[services.moonshot_search.oauth]
+storage = "file"
+key = "oauth/kimi-code"
+
+[services.moonshot_fetch]
+base_url = "https://api.kimi.com/coding/v1/fetch"
+api_key = ""
+
+[services.moonshot_fetch.oauth]
+storage = "file"
+key = "oauth/kimi-code"
+
+[thinking]
+mode = "on"
+effort = "high"
+
+[loop_control]
+max_steps_per_turn = 80
+max_retries_per_step = 3
+reserved_context_size = 50000
+
+[background]
+max_running_tasks = 4
+keep_alive_on_exit = false
+
+[experimental]
+micro_compaction = true
+
+# =============================================================================
+# Permission rules — matched in order, first match wins.
+# =============================================================================
+
+# 1. Sensitive files: deny before the broad Read allow below.
+[[permission.rules]]
+decision = "deny"
+pattern = "Read(*.env)"
+reason = "Block reading local env files."
+
+[[permission.rules]]
+decision = "deny"
+pattern = "Read(*.env.*)"
+reason = "Block reading local env files."
+
+[[permission.rules]]
+decision = "deny"
+pattern = "Read(**/.env)"
+reason = "Block reading local env files in subdirectories."
+
+[[permission.rules]]
+decision = "deny"
+pattern = "Read(**/.env.*)"
+reason = "Block reading local env overrides in subdirectories."
+
+[[permission.rules]]
+decision = "deny"
+pattern = "Read(*.pem)"
+reason = "Block reading private keys."
+
+[[permission.rules]]
+decision = "deny"
+pattern = "Read(**/*.pem)"
+reason = "Block reading private keys in subdirectories."
+
+[[permission.rules]]
+decision = "deny"
+pattern = "Read(*.key)"
+reason = "Block reading private keys."
+
+[[permission.rules]]
+decision = "deny"
+pattern = "Read(**/*.key)"
+reason = "Block reading private keys in subdirectories."
+
+[[permission.rules]]
+decision = "deny"
+pattern = "Read(*.netrc)"
+reason = "Block reading network credentials."
+
+[[permission.rules]]
+decision = "deny"
+pattern = "Read(**/*.netrc)"
+reason = "Block reading network credentials in subdirectories."
+
+[[permission.rules]]
+decision = "deny"
+pattern = "Read(*id_rsa*)"
+reason = "Block reading SSH private keys."
+
+[[permission.rules]]
+decision = "deny"
+pattern = "Read(**/*id_rsa*)"
+reason = "Block reading SSH private keys in subdirectories."
+
+[[permission.rules]]
+decision = "deny"
+pattern = "Read(*id_ed25519*)"
+reason = "Block reading SSH private keys."
+
+[[permission.rules]]
+decision = "deny"
+pattern = "Read(**/*id_ed25519*)"
+reason = "Block reading SSH private keys in subdirectories."
+
+[[permission.rules]]
+decision = "deny"
+pattern = "Read(*id_ecdsa*)"
+reason = "Block reading SSH private keys."
+
+[[permission.rules]]
+decision = "deny"
+pattern = "Read(**/*id_ecdsa*)"
+reason = "Block reading SSH private keys in subdirectories."
+
+[[permission.rules]]
+decision = "deny"
+pattern = "Read(*id_dsa*)"
+reason = "Block reading SSH private keys."
+
+[[permission.rules]]
+decision = "deny"
+pattern = "Read(**/*id_dsa*)"
+reason = "Block reading SSH private keys in subdirectories."
+
+[[permission.rules]]
+decision = "deny"
+pattern = "Read(**/.ssh/**)"
+reason = "Block reading SSH configuration and keys."
+
+[[permission.rules]]
+decision = "deny"
+pattern = "Read(**/.gnupg/**)"
+reason = "Block reading GnuPG data."
+
+[[permission.rules]]
+decision = "deny"
+pattern = "Read(**/.kube/config)"
+reason = "Block reading Kubernetes configuration."
+
+[[permission.rules]]
+decision = "deny"
+pattern = "Read(**/.aws/**)"
+reason = "Block reading AWS credentials."
+
+[[permission.rules]]
+decision = "deny"
+pattern = "Read(**/.azure/**)"
+reason = "Block reading Azure credentials."
+
+[[permission.rules]]
+decision = "deny"
+pattern = "Read(**/.config/gcloud/**)"
+reason = "Block reading Google Cloud credentials."
+
+[[permission.rules]]
+decision = "deny"
+pattern = "Read(**/*credentials.json)"
+reason = "Block reading credential files."
+
+[[permission.rules]]
+decision = "deny"
+pattern = "Read(**/.git-credentials)"
+reason = "Block reading Git credentials."
+
+[[permission.rules]]
+decision = "deny"
+pattern = "Read(**/gh/hosts.yml)"
+reason = "Block reading GitHub CLI credentials."
+
+[[permission.rules]]
+decision = "deny"
+pattern = "Read(**/.npmrc)"
+reason = "Block reading npm configuration and credentials."
+
+[[permission.rules]]
+decision = "deny"
+pattern = "Read(**/.cargo/credentials*)"
+reason = "Block reading Cargo credentials."
+
+[[permission.rules]]
+decision = "deny"
+pattern = "Read(**/.docker/config.json)"
+reason = "Block reading Docker configuration and credentials."
+
+# 2. Safe read-only tools.
+[[permission.rules]]
+decision = "allow"
+pattern = "Read"
+reason = "Safe read-only file access."
+
+[[permission.rules]]
+decision = "allow"
+pattern = "Grep"
+reason = "Safe read-only search."
+
+[[permission.rules]]
+decision = "allow"
+pattern = "Glob"
+reason = "Safe read-only file listing."
+
+# 3. Git / history / remote mutations.
+[[permission.rules]]
+decision = "deny"
+pattern = "Bash(*git push*)"
+reason = "Block remote repository mutations."
+
+[[permission.rules]]
+decision = "deny"
+pattern = "Bash(*git pull*)"
+reason = "Block remote repository mutations."
+
+[[permission.rules]]
+decision = "deny"
+pattern = "Bash(*git fetch*)"
+reason = "Block remote repository sync."
+
+[[permission.rules]]
+decision = "deny"
+pattern = "Bash(*git rebase*)"
+reason = "Block git history mutation."
+
+[[permission.rules]]
+decision = "deny"
+pattern = "Bash(*git reset*)"
+reason = "Block git history mutation."
+
+[[permission.rules]]
+decision = "deny"
+pattern = "Bash(*git clean*)"
+reason = "Block destructive git cleanup."
+
+[[permission.rules]]
+decision = "deny"
+pattern = "Bash(*commit*amend*)"
+reason = "Block git history rewriting."
+
+[[permission.rules]]
+decision = "deny"
+pattern = "Bash(*gut*)"
+reason = "Block typo-based git remote mutations."
+
+[[permission.rules]]
+decision = "allow"
+pattern = "Bash(git status*)"
+reason = "Allow safe read-only git status."
+
+[[permission.rules]]
+decision = "allow"
+pattern = "Bash(git log*)"
+reason = "Allow safe read-only git log."
+
+[[permission.rules]]
+decision = "allow"
+pattern = "Bash(git diff*)"
+reason = "Allow safe read-only git diff."
+
+[[permission.rules]]
+decision = "deny"
+pattern = "Bash(*git switch*)"
+reason = "Block git branch switching."
+
+[[permission.rules]]
+decision = "deny"
+pattern = "Bash(*git branch -D*)"
+reason = "Block branch deletion."
+
+[[permission.rules]]
+decision = "deny"
+pattern = "Bash(*git branch -d*)"
+reason = "Block branch deletion."
+
+[[permission.rules]]
+decision = "allow"
+pattern = "Bash(git branch*)"
+reason = "Allow safe read-only git branch."
+
+[[permission.rules]]
+decision = "allow"
+pattern = "Bash(git show*)"
+reason = "Allow safe read-only git object inspection."
+
+# 4. Network exfiltration / remote access.
+[[permission.rules]]
+decision = "deny"
+pattern = "Bash(*curl *)"
+reason = "Block network exfiltration."
+
+[[permission.rules]]
+decision = "deny"
+pattern = "Bash(*wget *)"
+reason = "Block network exfiltration."
+
+[[permission.rules]]
+decision = "deny"
+pattern = "Bash(*nc *)"
+reason = "Block network shells."
+
+[[permission.rules]]
+decision = "deny"
+pattern = "Bash(*socat*)"
+reason = "Block network relays."
+
+[[permission.rules]]
+decision = "deny"
+pattern = "Bash(*ssh*)"
+reason = "Block remote shell access."
+
+[[permission.rules]]
+decision = "deny"
+pattern = "Bash(*scp*)"
+reason = "Block remote file copy."
+
+[[permission.rules]]
+decision = "deny"
+pattern = "Bash(*rsync*)"
+reason = "Block remote filesystem sync."
+
+# 5. Privilege escalation / destructive filesystem operations.
+[[permission.rules]]
+decision = "deny"
+pattern = "Bash(sudo*)"
+reason = "Block privilege escalation."
+
+[[permission.rules]]
+decision = "deny"
+pattern = "Bash(chown -R*)"
+reason = "Block recursive ownership changes."
+
+[[permission.rules]]
+decision = "deny"
+pattern = "Bash(rm -rf *)"
+reason = "Block recursive force deletion."
+
+[[permission.rules]]
+decision = "deny"
+pattern = "Bash(dd *)"
+reason = "Block direct disk writes."
+
+[[permission.rules]]
+decision = "deny"
+pattern = "Bash(mkfs*)"
+reason = "Block filesystem formatting."
+
+[[permission.rules]]
+decision = "allow"
+pattern = "Bash(command -v*)"
+reason = "Allow safe command existence checks."
+
+[[permission.rules]]
+decision = "allow"
+pattern = "Bash(which*)"
+reason = "Allow safe command existence checks."
+
+# 6. Explicit allows.
+[[permission.rules]]
+decision = "allow"
+pattern = "Bash(just*)"
+reason = "Allow predefined local tasks."
+
+[[permission.rules]]
+decision = "allow"
+pattern = "mcp__context7__*"
+reason = "Read-only documentation lookup."
+
+# 7. State-mutating MCP tools require confirmation.
+[[permission.rules]]
+decision = "ask"
+pattern = "mcp__serena__*"
+reason = "State-mutating code operations require confirmation."
+
+[[permission.rules]]
+decision = "ask"
+pattern = "mcp__playwright__*"
+reason = "Browser automation requires confirmation."
+
+# 8. Fallback for everything else.
+[[permission.rules]]
+decision = "ask"
+pattern = "Bash"
+reason = "Ask before unclassified shell commands."
