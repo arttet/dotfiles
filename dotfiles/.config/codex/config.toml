@@ -8,8 +8,8 @@ model = "gpt-5.5"
 model_provider = "openai"
 personality = "pragmatic"
 
-model_reasoning_effort = "high"
-plan_mode_reasoning_effort = "xhigh"
+model_reasoning_effort = "medium"
+plan_mode_reasoning_effort = "high"
 model_reasoning_summary = "auto"
 model_verbosity = "medium"
 
@@ -89,6 +89,12 @@ status_line = [
   "five-hour-limit",
   "weekly-limit",
   "task-progress",
+  "used-tokens",
+  "total-input-tokens",
+  "total-output-tokens",
+  "approval-mode",
+  "context-used",
+  "context-window-size",
 ]
 terminal_title = ["spinner", "project"]
 theme = "nord"

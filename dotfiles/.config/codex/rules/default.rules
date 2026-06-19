@@ -1,4 +1,4 @@
-# ~/.codex/rules/default.rules
+# ~/.config/codex/rules/default.rules
 
 # =============================================================================
 # Allow: read-only inspection
@@ -665,3 +665,12 @@ prefix_rule(
     justification = "Deleting cloud resource groups is destructive remote mutation.",
     match = ["az group delete --name rg"],
 )
+prefix_rule(pattern=["npx", "ctx7@latest"], decision="allow")
+prefix_rule(pattern=["git", "status", "--short", "--untracked-files=all"], decision="allow")
+prefix_rule(pattern=["C:\\Program Files\\PowerShell\\7\\pwsh.exe", "-Command", "$env:GIT_TERMINAL_PROMPT=0; $env:GIT_EDITOR=':'; git --no-pager diff -- dotfiles/.config/codex/config.toml dotfiles/.config/codex/rules/default.rules"], decision="allow")
+prefix_rule(pattern=["pwsh", "-Command", "$env:GIT_TERMINAL_PROMPT=0; $env:GIT_EDITOR=':'; git --no-pager diff -- dotfiles/.config/codex/config.toml dotfiles/.config/codex/rules/default.rules"], decision="allow")
+prefix_rule(pattern=["pwsh.exe", "-Command", "$env:GIT_TERMINAL_PROMPT=0; $env:GIT_EDITOR=':'; git --no-pager diff -- dotfiles/.config/codex/config.toml dotfiles/.config/codex/rules/default.rules"], decision="allow")
+prefix_rule(pattern=["C:\\Program Files\\PowerShell\\7\\pwsh.exe", "-Command", "$env:GIT_TERMINAL_PROMPT=0; $env:GIT_EDITOR=':'; git --no-pager diff -- .gitignore"], decision="allow")
+prefix_rule(pattern=["pwsh", "-Command", "$env:GIT_TERMINAL_PROMPT=0; $env:GIT_EDITOR=':'; git --no-pager diff -- .gitignore"], decision="allow")
+prefix_rule(pattern=["pwsh.exe", "-Command", "$env:GIT_TERMINAL_PROMPT=0; $env:GIT_EDITOR=':'; git --no-pager diff -- .gitignore"], decision="allow")
+prefix_rule(pattern=["rg", "--files", "dotfiles/.config/opencode"], decision="allow")

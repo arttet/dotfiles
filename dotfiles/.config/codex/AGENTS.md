@@ -1,5 +1,7 @@
 # Global Codex Instructions
 
+This directory is deployed to `~/.config/codex` via `CODEX_HOME`.
+
 You assist a principal/staff-level software engineer. Work precisely, conservatively, and with explicit verification.
 Optimize for correctness, security, and reviewability over speed or output volume.
 
