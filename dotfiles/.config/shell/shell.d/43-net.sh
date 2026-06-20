@@ -27,7 +27,7 @@ weather() {
     printf "\033[0;31m❌ Invalid city name\033[0m\n"
     return 1
   fi
-  printf "\033[0;36m🌤️  Fetching weather for: \033[1;36m$city\033[0m\n"
+  printf "\033[0;36m🌤️  Fetching weather for: \033[1;36m%s\033[0m\n" "$city"
   curl -fsSL "https://wttr.in/$(printf '%s\n' "$city" | sed 's/ /+/g')"
 }
 
@@ -70,7 +70,7 @@ download() {
   local filename
   filename=$(basename "$url")
 
-  printf "\033[0;34m⬇️  Downloading \033[1;34m$filename\033[0m...\n"
+  printf "\033[0;34m⬇️  Downloading \033[1;34m%s\033[0m...\n" "$filename"
   if command -v curl >/dev/null 2>&1; then
     if ! curl -fsSL "$url" -o "$tmp_dir/$filename"; then
       printf "\033[0;31m❌ Download failed.\033[0m\n"
@@ -139,26 +139,26 @@ download() {
     # Look for explicit filename
     if [ -n "$wanted_name" ]; then
       found_path=$(fd --type f "^$(basename "$wanted_name")$" 2>/dev/null | head -n 1)
-      [ -n "$found_path" ] && printf "\033[0;36m   ✓ Found exact match: $found_path\033[0m\n"
+      [ -n "$found_path" ] && printf "\033[0;36m   ✓ Found exact match: %s\033[0m\n" "$found_path"
     fi
 
     # Search for .exe files
     if [ -z "$found_path" ]; then
       found_path=$(fd --type f '\.exe$' 2>/dev/null | head -n 1)
-      [ -n "$found_path" ] && printf "\033[0;36m   ✓ Found .exe: $found_path\033[0m\n"
+      [ -n "$found_path" ] && printf "\033[0;36m   ✓ Found .exe: %s\033[0m\n" "$found_path"
     fi
 
     # Search by base name
     if [ -z "$found_path" ] && [ -n "$wanted_name" ]; then
-      base_name=$(echo "$wanted_name" | sed 's/\..*//')
+      base_name="${wanted_name%%.*}"
       found_path=$(fd --type f "$base_name" 2>/dev/null | head -n 1)
-      [ -n "$found_path" ] && printf "\033[0;36m   ✓ Found by name: $found_path\033[0m\n"
+      [ -n "$found_path" ] && printf "\033[0;36m   ✓ Found by name: %s\033[0m\n" "$found_path"
     fi
 
     # Any file
     if [ -z "$found_path" ]; then
       found_path=$(fd --type f . 2>/dev/null | head -n 1)
-      [ -n "$found_path" ] && printf "\033[0;36m   ✓ Found fallback: $found_path\033[0m\n"
+      [ -n "$found_path" ] && printf "\033[0;36m   ✓ Found fallback: %s\033[0m\n" "$found_path"
     fi
   else
     printf "\033[0;36m   Using glob patterns for search...\033[0m\n"
@@ -166,7 +166,7 @@ download() {
     # Look for explicit file in current dir first
     if [ -f "$wanted_name" ] && [ -n "$wanted_name" ]; then
       found_path="$wanted_name"
-      printf "\033[0;36m   ✓ Found: $found_path\033[0m\n"
+      printf "\033[0;36m   ✓ Found: %s\033[0m\n" "$found_path"
     fi
 
     # Search for .exe files in current directory
@@ -174,7 +174,7 @@ download() {
       for file in *.exe; do
         if [ -f "$file" ]; then
           found_path="$file"
-          printf "\033[0;36m   ✓ Found .exe: $found_path\033[0m\n"
+          printf "\033[0;36m   ✓ Found .exe: %s\033[0m\n" "$found_path"
           break
         fi
       done
@@ -187,7 +187,7 @@ download() {
         for file in "$subdir"*.exe; do
           if [ -f "$file" ]; then
             found_path="$file"
-            printf "\033[0;36m   ✓ Found .exe in subdir: $found_path\033[0m\n"
+            printf "\033[0;36m   ✓ Found .exe in subdir: %s\033[0m\n" "$found_path"
             break 2
           fi
         done
@@ -196,11 +196,11 @@ download() {
 
     # Match wanted_name in current dir
     if [ -z "$found_path" ] && [ -n "$wanted_name" ]; then
-      base_name=$(echo "$wanted_name" | sed 's/\..*//')
+      base_name="${wanted_name%%.*}"
       for file in *"$base_name"*; do
         if [ -f "$file" ]; then
           found_path="$file"
-          printf "\033[0;36m   ✓ Found matching: $found_path\033[0m\n"
+          printf "\033[0;36m   ✓ Found matching: %s\033[0m\n" "$found_path"
           break
         fi
       done
@@ -208,13 +208,13 @@ download() {
 
     # Try subdirectories for matching name
     if [ -z "$found_path" ] && [ -n "$wanted_name" ]; then
-      base_name=$(echo "$wanted_name" | sed 's/\..*//')
+      base_name="${wanted_name%%.*}"
       for subdir in */; do
         [ -d "$subdir" ] || continue
         for file in "$subdir"*"$base_name"*; do
           if [ -f "$file" ]; then
             found_path="$file"
-            printf "\033[0;36m   ✓ Found in subdir: $found_path\033[0m\n"
+            printf "\033[0;36m   ✓ Found in subdir: %s\033[0m\n" "$found_path"
             break 2
           fi
         done
@@ -226,7 +226,7 @@ download() {
       for file in *; do
         if [ -f "$file" ]; then
           found_path="$file"
-          printf "\033[0;36m   ✓ Found fallback: $found_path\033[0m\n"
+          printf "\033[0;36m   ✓ Found fallback: %s\033[0m\n" "$found_path"
           break
         fi
       done
@@ -259,7 +259,7 @@ download() {
 
     mv "$found_path" "$target_dir/$final_name"
     chmod +x "$target_dir/$final_name"
-    printf "\033[0;32m✅ Installed to: \033[1;32m$target_dir/$final_name\033[0m\n"
+    printf "\033[0;32m✅ Installed to: \033[1;32m%s\033[0m\n" "$target_dir/$final_name"
   else
     printf "\033[0;31m❌ Could not find executable.\033[0m\n"
   fi
