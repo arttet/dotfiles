@@ -14,6 +14,6 @@ project architecture, commands, coding standards, verification requirements, sec
 
 - Use Claude Code's native read, search, edit, and task tools where they improve precision, while preserving the workflow
   and safety boundaries defined in `AGENTS.md`.
-- Before changing Claude configuration under `dotfiles/.claude/`, inspect the nearby files and keep machine-local settings
-  and credentials out of version control.
+- Before changing Claude configuration under `dotfiles/.config/claude/`, inspect the nearby files and keep machine-local
+  settings and credentials out of version control.
 - Report verification results and unresolved risks using the reporting requirements in `AGENTS.md`.

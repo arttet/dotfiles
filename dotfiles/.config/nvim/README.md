@@ -36,7 +36,6 @@ Debugging is handled by a suite of plugins working together, with `nvim-dap` as 
 | `<leader>tl` | Open LazyGit in a new tab            |
 | `<leader>tu` | Open GitUI in a new tab              |
 | `<leader>tc` | Open GitHub Copilot CLI in a new tab |
-| `<leader>tg` | Open Gemini CLI in a new tab         |
 
 ### UI & General Editor Enhancements
 

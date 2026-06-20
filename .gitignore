@@ -1,3 +1,6 @@
+# Local files
+*.local.md
+
 # dotter
 **/.dotter/cache
 **/.dotter/cache.toml

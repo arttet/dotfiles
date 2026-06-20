@@ -1,7 +1,7 @@
 # Dotfiles — Agent Guide
 
-This file is the canonical source of truth for repository-wide AI agent instructions. `CLAUDE.md` and `GEMINI.md` are
-tool-specific entry points that must reference this guide instead of duplicating its rules. If an adapter conflicts with
+This file is the canonical source of truth for repository-wide AI agent instructions. `CLAUDE.md` is the
+tool-specific entry point that must reference this guide instead of duplicating its rules. If an adapter conflicts with
 this file, follow `AGENTS.md`.
 
 This repository is a personal, cross-platform dotfiles configuration for Artyom Tetyukhin (`@arttet`). It manages shell, terminal, editor, window-manager, and AI-tool configurations, deploying them to `$HOME` as symlinks.
@@ -33,18 +33,17 @@ This repository is a personal, cross-platform dotfiles configuration for Artyom 
 │   ├── .bash_profile
 │   ├── .bashrc
 │   ├── .zshenv
-│   ├── .claude/          # Claude Code settings
-│   ├── .codex/           # OpenAI Codex CLI settings
-│   ├── .gemini/          # Google Gemini CLI settings
-│   ├── .kimi-code/       # Kimi Code settings
 │   ├── .config/          # XDG_CONFIG_HOME tree
 │   │   ├── alacritty/    # terminal config + vendored Catppuccin themes
 │   │   ├── bash/         # bash-specific interactive/login scripts
 │   │   ├── bat/
+│   │   ├── claude/       # Claude Code settings
+│   │   ├── codex/        # OpenAI Codex CLI settings
 │   │   ├── ghostty/      # terminal config
 │   │   ├── git/          # gitconfig, allowed_signers, ignore
 │   │   ├── helix/        # editor config
 │   │   ├── hypr/         # Hyprland (Lua) + wallpapers (vendored)
+│   │   ├── kimi-code/    # Kimi Code settings
 │   │   ├── nushell/      # modules/ + scripts/ + config.nu/env.nu
 │   │   ├── nvim/         # NvChad-based Neovim config
 │   │   ├── powershell/   # profile.ps1, config.ps1, aliases, functions
@@ -75,8 +74,7 @@ This repository is a personal, cross-platform dotfiles configuration for Artyom 
 ├── .yamllint.yml
 ├── .lychee.toml          # docs link-checker config
 ├── AGENTS.md           # this agent guide
-├── CLAUDE.md             # Claude Code specific guidance
-└── GEMINI.md             # Gemini specific guidance
+└── CLAUDE.md             # Claude Code specific guidance
 ```
 
 ## Technology Stack
@@ -117,10 +115,10 @@ All terminal emulators default to **Nushell** (`nu --login --interactive`) on su
 
 ### AI Tool Configs
 
-- `.claude/settings.json` — Claude Code permissions + statusline
-- `.codex/config.toml`
-- `.gemini/settings.json`
-- `.kimi-code/config.toml` + `tui.toml` + `mcp.json` + `themes/nord.json`
+- `.config/claude/settings.json` — Claude Code permissions + statusline
+- `.config/claude/keybindings.json` — Claude Code keybindings
+- `.config/codex/config.toml`
+- `.config/kimi-code/config.toml` + `tui.toml` + `mcp.json` + `themes/nord.json`
 - `.config/opencode/`
 
 These files contain placeholders for credentials (empty `api_key`, OAuth file storage) and must not receive literal secrets.
@@ -238,9 +236,9 @@ The GitHub Actions workflow (`.github/workflows/ci.yml`) runs the following gate
 `.dotter/global.toml` defines profile groups and per-tool file mappings:
 
 - `default` → `agent`, `editor`, `shell`, `terminal`
-- `agent` → `agents`, `opencode`, `claude`, `codex`, `gemini`, `kimi`
+- `agent` → `agents`, `opencode`, `claude`, `codex`, `kimi`
 - `editor` → `helix`, `zed`
-- `shell` → `bash`, `zsh`, `powershell`
+- `shell` → `bash`, `powershell`, `zsh`
 - `terminal` → `alacritty`, `windows-terminal`
 
 Default target type is `symbolic`. Windows-only paths use `if = "dotter.windows"`.
@@ -290,21 +288,24 @@ When modifying configs:
 
 ## Key Configuration Entry Points
 
-| Shell              | Entry point                                              | Loads                                                  |
-| ------------------ | -------------------------------------------------------- | ------------------------------------------------------ |
-| Bash (login)       | `dotfiles/.bash_profile` → `.config/bash/bash_profile`   | XDG, `profile.d/*.sh`, then `.bashrc`                  |
-| Bash (interactive) | `dotfiles/.bashrc` → `.config/bash/bashrc`               | `shell/shell.d/*.sh`, `bash/bash.d/*.bash`             |
-| Zsh (env)          | `dotfiles/.zshenv`                                       | XDG, `ZDOTDIR`                                         |
-| Zsh (login)        | `dotfiles/.config/zsh/.zprofile`                         | `shell/profile.d/*.sh`                                 |
-| Zsh (interactive)  | `dotfiles/.config/zsh/.zshrc`                            | `shell/shell.d/*.sh`, `zsh/zsh.d/*.zsh`                |
-| Nushell            | `dotfiles/.config/nushell/env.nu` + `config.nu`          | modules in `modules/`, autoload-generated tools        |
-| PowerShell         | `dotfiles/.config/powershell/profile.ps1` → `config.ps1` | XDG, PSReadLine, cached tool inits, aliases, functions |
-| Kimi Code          | `dotfiles/.kimi-code/config.toml` + `tui.toml`           | `mcp.json`, `themes/nord.json`, `~/.agents/skills`     |
+| Shell              | Entry point                                              | Loads                                                     |
+| ------------------ | -------------------------------------------------------- | --------------------------------------------------------- |
+| Bash (login)       | `dotfiles/.bash_profile` → `.config/bash/bash_profile`   | XDG, `profile.d/*.sh`, then `.bashrc`                     |
+| Bash (interactive) | `dotfiles/.bashrc` → `.config/bash/bashrc`               | `shell/shell.d/*.sh`, `bash/bash.d/*.bash`                |
+| Zsh (env)          | `dotfiles/.zshenv`                                       | XDG, `ZDOTDIR`                                            |
+| Zsh (login)        | `dotfiles/.config/zsh/.zprofile`                         | `shell/profile.d/*.sh`                                    |
+| Zsh (interactive)  | `dotfiles/.config/zsh/.zshrc`                            | `shell/shell.d/*.sh`, `zsh/zsh.d/*.zsh`                   |
+| Nushell            | `dotfiles/.config/nushell/env.nu` + `config.nu`          | modules in `modules/`, autoload-generated tools           |
+| PowerShell         | `dotfiles/.config/powershell/profile.ps1` → `config.ps1` | XDG, PSReadLine, cached tool inits, aliases, functions    |
+| Kimi Code          | `dotfiles/.config/kimi-code/config.toml` + `tui.toml`    | `mcp.json`, `themes/nord.json`, `~/.agents/skills`        |
+| Claude Code        | `dotfiles/.config/claude/settings.json`                  | `CLAUDE_CONFIG_DIR`, permissions, MCP servers, statusline |
+| Codex              | `dotfiles/.config/codex/config.toml`                     | `CODEX_HOME`, approval policy, MCP servers                |
 
 ## Agent-Specific Guidance
 
-- Read `CLAUDE.md` and `GEMINI.md` for tool-specific context when editing files in those scopes.
-- Read `dotfiles/.kimi-code/AGENTS.md` before changing Kimi Code config.
+- Read `CLAUDE.md` for tool-specific context when editing files in that scope.
+- Read `dotfiles/.config/codex/AGENTS.md` before changing Codex config.
+- Read `dotfiles/.config/kimi-code/AGENTS.md` before changing Kimi Code config.
 - Read `dotfiles/.config/nvim/AGENTS.md` before changing Neovim Lua.
 - For shell changes, update the appropriate file under `dotfiles/.config/shell/`, `bash/`, `zsh/`, `nushell/`, or `powershell/`; do not edit monolithic RC files directly.
 - After adding a new tool config, consider adding it to:

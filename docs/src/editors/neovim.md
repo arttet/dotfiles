@@ -38,7 +38,6 @@ Open tools in a new Neovim tab.
 | **GitUI**      | Open Git TUI     | `<leader>tu` |
 | **LazyDocker** | Open Docker TUI  | `<leader>td` |
 | **Copilot**    | Open Copilot CLI | `<leader>tc` |
-| **Gemini**     | Open Gemini CLI  | `<leader>tg` |
 
 ### Debugging (DAP)
 
