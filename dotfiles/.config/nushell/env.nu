@@ -90,10 +90,9 @@ if ($cargo_bin | path exists) {
 # =============================================================================
 # Editor Configuration
 # =============================================================================
-# Priority: nvim > vim > vi > nano
-# Used by git, visudo, and other CLI tools
+# Priority: helix > neovim > vim > vi > nano
 
-const EDITORS = ["nvim", "vim", "vi", "nano"]
+const EDITORS = ["hx", "nvim", "vim", "vi", "nano"]
 
 let editor = (
     $EDITORS
@@ -104,6 +103,11 @@ let editor = (
 
 $env.EDITOR = $editor
 $env.VISUAL = $editor
+
+# =============================================================================
+# Shell Identity
+# =============================================================================
+$env.SHELL = "nu"
 
 # =============================================================================
 # Pager Configuration
@@ -121,11 +125,6 @@ if (which less | is-not-empty) {
 } else if (which more | is-not-empty) {
     $env.PAGER = "more"
 }
-
-# =============================================================================
-# Shell Identity
-# =============================================================================
-$env.SHELL = "nu"
 
 # =============================================================================
 # Tool-Specific Configuration
@@ -186,6 +185,15 @@ if (which rg | is-not-empty) {
         $env.RIPGREP_CONFIG_PATH = $ripgreprc
     }
 }
+
+# Claude Code
+$env.CLAUDE_CONFIG_DIR = ($env.CLAUDE_CONFIG_DIR? | default ($env.XDG_CONFIG_HOME | path join "claude"))
+
+# Codex CLI
+$env.CODEX_HOME = ($env.CODEX_HOME? | default ($env.XDG_CONFIG_HOME | path join "codex"))
+
+# Kimi Code
+$env.KIMI_CODE_HOME = ($env.KIMI_CODE_HOME? | default ($env.XDG_CONFIG_HOME | path join "kimi-code"))
 
 # WakaTime CLI
 $env.WAKATIME_HOME = ($env.WAKATIME_HOME? | default ($env.XDG_CONFIG_HOME | path join "wakatime"))
@@ -253,7 +261,6 @@ if (($go_path | path join "bin") | path exists) {
         | uniq
     )
 }
-
 
 # =============================================================================
 # Local Overrides (not tracked in git)

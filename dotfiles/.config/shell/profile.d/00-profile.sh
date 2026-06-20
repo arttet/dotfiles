@@ -40,10 +40,13 @@ export PATH
 # =============================================================================
 # Editor Configuration
 # =============================================================================
-# Priority: nvim > vim > vi
+# Priority: helix > neovim > vim > vi
 # Used by git, visudo, and other CLI tools
 
-if command -v nvim >/dev/null 2>&1; then
+if command -v hx >/dev/null 2>&1; then
+  export EDITOR=hx
+  export VISUAL=hx
+elif command -v nvim >/dev/null 2>&1; then
   export EDITOR=nvim
   export VISUAL=nvim
 elif command -v vim >/dev/null 2>&1; then
@@ -171,6 +174,15 @@ fi
 # https://github.com/wakatime/wakatime-cli/
 # https://wakatime.com/dashboard/
 export WAKATIME_HOME="${XDG_CONFIG_HOME:-$HOME/.config}/wakatime"
+
+# Claude Code
+export CLAUDE_CONFIG_DIR="${CLAUDE_CONFIG_DIR:-${XDG_CONFIG_HOME:-$HOME/.config}/claude}"
+
+# Codex CLI
+export CODEX_HOME="${CODEX_HOME:-${XDG_CONFIG_HOME:-$HOME/.config}/codex}"
+
+# Kimi Code
+export KIMI_CODE_HOME="${KIMI_CODE_HOME:-${XDG_CONFIG_HOME:-$HOME/.config}/kimi-code}"
 
 # Yazi CLI
 if command -v yazi >/dev/null 2>&1; then
