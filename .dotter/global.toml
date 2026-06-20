@@ -1,5 +1,4 @@
 [helpers]
-
 # =============================================================================
 # Profile Groups
 # =============================================================================
@@ -9,13 +8,13 @@
 depends = ["agent", "editor", "shell", "terminal"]
 
 [agent]
-depends = ["opencode"]
+depends = ["claude", "codex", "kimi", "opencode"]
 
 [editor]
 depends = ["helix", "zed"]
 
 [shell]
-depends = ["bash", "zsh", "powershell"]
+depends = ["bash", "powershell", "zsh"]
 
 [terminal]
 depends = ["alacritty", "windows-terminal"]
@@ -70,8 +69,40 @@ depends = []
 # AI Tools
 # -----------------------------------------------------------------------------
 
+[claude]
+depends = []
+
+[claude.files]
+"dotfiles/.config/claude/CLAUDE.md" = { target = "~/.config/claude/CLAUDE.md", type = "symbolic" }
+"dotfiles/.config/claude/keybindings.json" = { target = "~/.config/claude/keybindings.json", type = "symbolic" }
+"dotfiles/.config/claude/settings.json" = { target = "~/.config/claude/settings.json", type = "symbolic" }
+"dotfiles/.config/claude/statusline.sh" = { target = "~/.config/claude/statusline.sh", type = "symbolic" }
+
+[codex]
+depends = []
+
+[codex.files]
+"dotfiles/.config/codex/config.toml" = { target = "~/.config/codex/config.toml", type = "symbolic" }
+"dotfiles/.config/codex/AGENTS.md" = { target = "~/.config/codex/AGENTS.md", type = "symbolic" }
+"dotfiles/.config/codex/rules/default.rules" = { target = "~/.config/codex/rules/default.rules", type = "symbolic" }
+
+[kimi]
+depends = []
+
+[kimi.files]
+"dotfiles/.config/kimi-code/AGENTS.md" = "~/.config/kimi-code/AGENTS.md"
+"dotfiles/.config/kimi-code/config.toml" = "~/.config/kimi-code/config.toml"
+"dotfiles/.config/kimi-code/tui.toml" = "~/.config/kimi-code/tui.toml"
+"dotfiles/.config/kimi-code/mcp.json" = "~/.config/kimi-code/mcp.json"
+"dotfiles/.config/kimi-code/themes/nord.json" = "~/.config/kimi-code/themes/nord.json"
+
 [opencode]
 depends = []
+
+[opencode.files]
+"dotfiles/.config/opencode/AGENTS.md" = "~/.config/opencode/AGENTS.md"
+"dotfiles/.config/opencode/opencode.jsonc" = "~/.config/opencode/opencode.jsonc"
+"dotfiles/.config/opencode/tui.json" = "~/.config/opencode/tui.json"
 
 # -----------------------------------------------------------------------------
 # Shells
@@ -84,17 +115,17 @@ depends = []
 "dotfiles/.bash_profile" = "~/.bash_profile"
 "dotfiles/.bashrc" = "~/.bashrc"
 
-[zsh]
-depends = []
-
-[zsh.files]
-"dotfiles/.zshenv" = "~/.zshenv"
-
 [powershell]
 depends = []
 
 [powershell.files]
 "dotfiles/.config/powershell/profile.ps1" = { target = "~\\OneDrive\\Documents\\PowerShell\\Microsoft.PowerShell_profile.ps1", type = "symbolic", if = "dotter.windows" }
+
+[zsh]
+depends = []
+
+[zsh.files]
+"dotfiles/.zshenv" = "~/.zshenv"
 
 # =============================================================================
 # Settings
