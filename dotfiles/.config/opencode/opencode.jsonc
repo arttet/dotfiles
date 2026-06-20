@@ -6,7 +6,17 @@
   "small_model": "kimi-for-coding/k2p6",
   "default_agent": "plan",
 
+  "plugin": [
+    "opencode-antigravity-auth@latest",
+  ],
+
   "autoupdate": false,
+
+  // Disable all telemetry/experiment sharing.
+  "share": "disabled",
+  "experimental": {
+    "openTelemetry": false,
+  },
 
   // OpenCode runs commands through Bash.
   "shell": "bash",
