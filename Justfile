@@ -61,19 +61,18 @@ uninstall:
 # Development
 # ==============================================================================
 
-[doc('Install dependencies')]
+[doc('Show how to enter the Nix dev shell')]
 [group('Development')]
 deps:
-    @echo "🔧 Installing tools..."
-    go install github.com/rhysd/actionlint/cmd/actionlint@v1.7.12
-    @echo "✅ Dependencies installed!"
+    @echo "🔧 All CI/dev tools are provided by the Nix flake."
+    @echo "   Run: nix develop"
 
 [doc('Format code')]
 [group('Development')]
 fmt:
     @echo "✨ Formatting code..."
     dprint fmt
-    stylua .
+    stylua --allow-hidden .
     shfmt --write {{ SHELL_TARGETS }}
     just --fmt
     @echo "✅ Code formatted!"
@@ -82,13 +81,17 @@ fmt:
 [group('Development')]
 lint:
     @echo "🔍 Running linters..."
-    selene dotfiles/.config/nvim
+    selene dotfiles/.config/nvim dotfiles/.config/wezterm
+    selene --config dotfiles/.config/hypr/selene.toml dotfiles/.config/hypr/hyprland.lua
     shellcheck -s bash $(shfmt --find {{ SHELL_TARGETS }})
     yamllint .
     markdownlint-cli2
     actionlint
-    bunx stylelint@16 --config .stylelintrc.json './dotfiles/.config/**/*.css'
+    stylelint --config .stylelintrc.json './dotfiles/.config/**/*.css'
     @echo "✅ Linting complete!"
+
+[group: 'Development']
+mod verify 'misc/justfiles/verify.just'
 
 # ==============================================================================
 # Documentation

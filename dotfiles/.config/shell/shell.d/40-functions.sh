@@ -40,7 +40,7 @@ if ! command -v take >/dev/null 2>&1; then
       esac
       mkdir -p "$dir" && cd "$dir" || return 1
     done
-    printf "\033[0;32m📂 Entered: \033[1;32m$PWD\033[0m\n"
+    printf "\033[0;32m📂 Entered: \033[1;32m%s\033[0m\n" "$PWD"
   }
 fi
 
@@ -73,7 +73,13 @@ bak() {
 # Usage: unbak <filename>
 unbak() {
   [ -z "$1" ] && return 1
-  latest=$(ls -t "${1}.bak."* 2>/dev/null | head -1)
+  latest=""
+  for f in "${1}.bak."*; do
+    [ -e "$f" ] || continue
+    if [ -z "$latest" ] || [ "$f" -nt "$latest" ]; then
+      latest="$f"
+    fi
+  done
   [ -n "$latest" ] && cp -r "$latest" "$1" && echo "♻️  Restored from: $latest"
 }
 
@@ -118,7 +124,11 @@ pconv() {
     return 1
   }
   if command -v cygpath >/dev/null 2>&1; then
-    [[ "$1" == [A-Za-z]:* ]] || [[ "$1" == *\\* ]] && cygpath -u "$1" || cygpath -w "$1"
+    if [[ "$1" == [A-Za-z]:* ]] || [[ "$1" == *\\* ]]; then
+      cygpath -u "$1"
+    else
+      cygpath -w "$1"
+    fi
   else
     case "$1" in
     [A-Za-z]:*) echo "$1" | sed -E 's|^([A-Za-z]):|/\L\1|; s|\\|/|g' ;;
@@ -182,11 +192,13 @@ note() {
     echo "" >>"$note_file"
   fi
 
-  echo "### $(date '+%H:%M:%S')" >>"$note_file"
-  echo "$*" >>"$note_file"
-  echo "" >>"$note_file"
+  {
+    echo "### $(date '+%H:%M:%S')"
+    echo "$*"
+    echo ""
+  } >>"$note_file"
 
-  printf "\033[0;32m📝 Note added to: \033[1;32m$note_file\033[0m\n"
+  printf "\033[0;32m📝 Note added to: \033[1;32m%s\033[0m\n" "$note_file"
 }
 
 # ==============================================

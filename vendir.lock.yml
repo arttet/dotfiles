@@ -2,10 +2,10 @@ apiVersion: vendir.k14s.io/v1alpha1
 directories:
 - contents:
   - git:
-      commitTitle: Add ganbaru themes
-      sha: 2749b407b597790e6f08b218c2bc2acdf66210a0
+      commitTitle: Add gruvbox-material soft dark theme
+      sha: 659d2e1d669cd5722f11e58c44fd45dc26a6ffcd
       tags:
-      - yaml-68-g2749b40
+      - yaml-69-g659d2e1
     path: .
   path: dotfiles/.config/alacritty/themes/themes
 - contents:
@@ -22,8 +22,8 @@ directories:
   path: dotfiles/.config/yazi/flavors/catppuccin-mocha.yazi
 - contents:
   - git:
-      commitTitle: 'chore: use the new `ya env` subcommand'
-      sha: 598cdb671401574ac27aeee257e2f3b0c80610a1
+      commitTitle: 'fix: use WebP as `magick` output format to keep image transparency...'
+      sha: 38efe09c270162f1b0dfb6020e021a5b64bdc735
     path: .
   path: dotfiles/.config/yazi/plugins/chmod.yazi
 - contents:
@@ -34,14 +34,14 @@ directories:
   path: dotfiles/.config/yazi/plugins/copy-file-contents.yazi
 - contents:
   - git:
-      commitTitle: 'chore: use the new `ya env` subcommand'
-      sha: 598cdb671401574ac27aeee257e2f3b0c80610a1
+      commitTitle: 'fix: use WebP as `magick` output format to keep image transparency...'
+      sha: 38efe09c270162f1b0dfb6020e021a5b64bdc735
     path: .
   path: dotfiles/.config/yazi/plugins/full-border.yazi
 - contents:
   - git:
-      commitTitle: 'chore: use the new `ya env` subcommand'
-      sha: 598cdb671401574ac27aeee257e2f3b0c80610a1
+      commitTitle: 'fix: use WebP as `magick` output format to keep image transparency...'
+      sha: 38efe09c270162f1b0dfb6020e021a5b64bdc735
     path: .
   path: dotfiles/.config/yazi/plugins/git.yazi
 - contents:
@@ -54,20 +54,20 @@ directories:
   path: dotfiles/.config/yazi/plugins/ouch.yazi
 - contents:
   - git:
-      commitTitle: 'chore: use the new `ya env` subcommand'
-      sha: 598cdb671401574ac27aeee257e2f3b0c80610a1
+      commitTitle: 'fix: use WebP as `magick` output format to keep image transparency...'
+      sha: 38efe09c270162f1b0dfb6020e021a5b64bdc735
     path: .
   path: dotfiles/.config/yazi/plugins/piper.yazi
 - contents:
   - git:
-      commitTitle: 'docs(readme): update thanks section'
-      sha: a83710153ab5625a64ef98d55e6ddad480a3756f
+      commitTitle: 'docs(readme): fix example for latest version'
+      sha: 159eaba5b5052bf78ff6cfbfe4e527b946818c82
     path: .
   path: dotfiles/.config/yazi/plugins/starship.yazi
 - contents:
   - git:
-      commitTitle: 'chore: use the new `ya env` subcommand'
-      sha: 598cdb671401574ac27aeee257e2f3b0c80610a1
+      commitTitle: 'fix: use WebP as `magick` output format to keep image transparency...'
+      sha: 38efe09c270162f1b0dfb6020e021a5b64bdc735
     path: .
   path: dotfiles/.config/yazi/plugins/toggle-pane.yazi
 - contents:
@@ -130,10 +130,10 @@ directories:
   path: dotfiles/.config/hypr/wallpapers/whitesur-nord
 - contents:
   - git:
-      commitTitle: update
-      sha: 5c9ffd312c7348400d49d686e6429271f035d751
+      commitTitle: Fixed firefox issues
+      sha: 3267b3dfd9b6c3e775ad9b1f3079f848fc076bf6
       tags:
-      - 2026-05-24-14-g5c9ffd3
+      - 2026-05-24-16-g3267b3d
     path: .
   path: dotfiles/.config/hypr/wallpapers/mactahoe
 kind: LockConfig

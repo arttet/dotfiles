@@ -116,7 +116,7 @@ apply_theme() {
     # Convert path to Unix-style for TOML (works on all platforms)
     local ALACRITTY_THEME_PATH="$ALACRITTY_THEME_DIR/themes/$ALACRITTY_THEME"
     local ALACRITTY_THEME_PATH_UNIX
-    ALACRITTY_THEME_PATH_UNIX=$(echo "$ALACRITTY_THEME_PATH" | sed 's|\\|/|g')
+    ALACRITTY_THEME_PATH_UNIX="${ALACRITTY_THEME_PATH//\\//}"
 
     # Generate theme.toml only if needed (saves IO)
     if [ ! -f "$ALACRITTY_THEME_FILE" ] || ! grep -q "$ALACRITTY_THEME" "$ALACRITTY_THEME_FILE"; then

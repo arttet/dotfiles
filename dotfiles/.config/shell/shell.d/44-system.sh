@@ -13,7 +13,7 @@ fkill() {
   else
     pid=$(ps aux | fzf --header-lines=1 --no-preview --header "🔥 SELECT PROCESS TO KILL" | awk '{print $2}')
   fi
-  [ -n "$pid" ] && kill -9 "$pid" && printf "\033[0;31m💀 Killed PID: \033[1;31m$pid\033[0m\n"
+  [ -n "$pid" ] && kill -9 "$pid" && printf "\033[0;31m💀 Killed PID: \033[1;31m%s\033[0m\n" "$pid"
 }
 
 # cleanup

@@ -1,0 +1,7 @@
+# Hyprland evaluates this config with an injected global `hl` (the Hyprland Lua
+# API), so the undefined-variable lint is disabled here. Syntax and the other
+# selene lints still apply. Used via: selene --config <this> hyprland.lua
+std = "lua51"
+
+[lints]
+undefined_variable = "allow"

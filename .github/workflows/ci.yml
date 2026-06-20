@@ -11,10 +11,13 @@ on:
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
-  cancel-in-progress: true
+  cancel-in-progress: ${{ github.ref != 'refs/heads/main' }}
 
 permissions:
   contents: read # Default read-only for all jobs
+
+env:
+  NIXPKGS: github:NixOS/nixpkgs/nixos-unstable
 
 defaults:
   run:
@@ -31,18 +34,47 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7
         with:
           persist-credentials: false
 
-      - name: Setup Just
-        uses: extractions/setup-just@53165ef7e734c5c07cb06b3c8e7b647c5aa16db3 # v4
+      - name: Install Nix
+        uses: cachix/install-nix-action@8aa03977d8d733052d78f4e008a241fd1dbf36b3 # v31
+        with:
+          extra_nix_config: |
+            experimental-features = nix-command flakes
 
-      - name: Source Format Check
-        uses: dprint/check@9cb3a2b17a8e606d37aae341e49df3654933fc23 # v2.3
+      - name: Restore and save Nix store
+        uses: nix-community/cache-nix-action@7df957e333c1e5da7721f60227dbba6d06080569 # v7
+        with:
+          primary-key: nix-${{ runner.os }}-${{ github.job }}-${{ github.run_id }}-${{ github.run_attempt }}
+          restore-prefixes-first-match: nix-${{ runner.os }}-${{ github.job }}-
+          gc-max-store-size-linux: 1G
+          purge: true
+          purge-prefixes: nix-${{ runner.os }}-${{ github.job }}-
+          purge-created: 0
+          purge-last-accessed: P1DT12H
+          purge-primary-key: never
 
-      - name: Justfile Format Check
-        run: just --fmt --check
+      - name: Download tools
+        run: nix shell "$NIXPKGS#just" "$NIXPKGS#dprint" "$NIXPKGS#stylua" "$NIXPKGS#shfmt" --command true
+
+      - name: Check Justfile formatting
+        run: nix shell "$NIXPKGS#just" --command just --fmt --check
+
+      - name: Format Check
+        run: nix shell "$NIXPKGS#dprint" --command dprint check
+
+      - name: Check Lua formatting
+        run: nix shell "$NIXPKGS#stylua" --command stylua --allow-hidden --check .
+
+      - name: Check shell formatting
+        run: |
+          # shellcheck disable=SC2016
+          nix shell "$NIXPKGS#shfmt" --command bash -euo pipefail -c '
+            shell_targets="dotfiles/.bashrc dotfiles/.bash_profile dotfiles/.config/bash dotfiles/.config/shell"
+            shfmt --diff $(shfmt --find $shell_targets)
+          '
 
   # ---------------------------------------------------------------------------
   # Stage 1: Lint Quality Gate
@@ -54,30 +86,91 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7
         with:
           persist-credentials: false
 
-      - name: YAML Lint
-        uses: ibiqlik/action-yamllint@2576378a8e339169678f9939646ee3ee325e845c # v3.1.1
-
-      - name: Setup Go
-        uses: actions/setup-go@4a3601121dd01d1626a1e23e37211e3254c1c06c # v6.4.0
+      - name: Install Nix
+        uses: cachix/install-nix-action@8aa03977d8d733052d78f4e008a241fd1dbf36b3 # v31
         with:
-          go-version: stable
-          cache: false
+          extra_nix_config: |
+            experimental-features = nix-command flakes
 
-      - name: Install actionlint
-        run: go install github.com/rhysd/actionlint/cmd/actionlint@v1.7.12
+      - name: Restore and save Nix store
+        uses: nix-community/cache-nix-action@7df957e333c1e5da7721f60227dbba6d06080569 # v7
+        with:
+          primary-key: nix-${{ runner.os }}-${{ github.job }}-${{ github.run_id }}-${{ github.run_attempt }}
+          restore-prefixes-first-match: nix-${{ runner.os }}-${{ github.job }}-
+          gc-max-store-size-linux: 1G
+          purge: true
+          purge-prefixes: nix-${{ runner.os }}-${{ github.job }}-
+          purge-created: 0
+          purge-last-accessed: P1DT12H
+          purge-primary-key: never
 
-      - name: ActionLint
-        run: actionlint
+      - name: Download tools
+        run: |
+          nix shell \
+            "$NIXPKGS#yamllint" \
+            "$NIXPKGS#actionlint" \
+            "$NIXPKGS#shellcheck" \
+            "$NIXPKGS#shfmt" \
+            "$NIXPKGS#selene" \
+            "$NIXPKGS#taplo" \
+            "$NIXPKGS#zellij" \
+            "$NIXPKGS#nushell" \
+            "$NIXPKGS#markdownlint-cli2" \
+            --command true
+
+      - name: Lint YAML
+        run: nix shell "$NIXPKGS#yamllint" --command yamllint .
+
+      - name: Lint GitHub Actions
+        run: nix shell "$NIXPKGS#actionlint" --command actionlint
+
+      - name: Lint shell scripts
+        run: |
+          # shellcheck disable=SC2016
+          nix shell "$NIXPKGS#shellcheck" "$NIXPKGS#shfmt" --command bash -euo pipefail -c '
+            shell_targets="dotfiles/.bashrc dotfiles/.bash_profile dotfiles/.config/bash dotfiles/.config/shell"
+            shellcheck -s bash $(shfmt --find $shell_targets)
+          '
+
+      - name: Lint Lua
+        run: |
+          # shellcheck disable=SC2016
+          nix shell "$NIXPKGS#selene" --command bash -euo pipefail -c '
+            selene dotfiles/.config/nvim dotfiles/.config/wezterm
+            selene --config dotfiles/.config/hypr/selene.toml dotfiles/.config/hypr/hyprland.lua
+          '
+
+      - name: Lint TOML
+        run: |
+          # shellcheck disable=SC2016
+          nix shell "$NIXPKGS#taplo" --command bash -euo pipefail -c '
+            taplo lint --no-schema \
+              $(find dotfiles/.config -type f -name "*.toml" \
+                ! -path "*/node_modules/*" \
+                ! -path "*/yazi/plugins/*" \
+                ! -path "*/alacritty/themes/*")
+          '
+
+      - name: Lint Markdown
+        run: nix shell "$NIXPKGS#markdownlint-cli2" --command markdownlint-cli2
 
       - name: Setup Bun
         uses: oven-sh/setup-bun@0c5077e51419868618aeaa5fe8019c62421857d6 # v2.2.0
 
       - name: Lint CSS
         run: bunx stylelint@16 --config .stylelintrc.json './dotfiles/.config/**/*.css'
+
+      - name: Validate Zellij config
+        run: |
+          nix shell "$NIXPKGS#zellij" --command zellij --config "$PWD/dotfiles/.config/zellij/config.kdl" setup --dump-config >/dev/null
+
+      - name: Validate Nushell config
+        run: |
+          nix shell "$NIXPKGS#nushell" --command nu --config dotfiles/.config/nushell/config.nu --env-config dotfiles/.config/nushell/env.nu -c "exit 0"
 
   # ---------------------------------------------------------------------------
   # Stage 1: Security
@@ -93,7 +186,7 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7
         with:
           fetch-depth: 0
           persist-credentials: false
@@ -144,26 +237,48 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7
         with:
           persist-credentials: false
 
-      - name: Install ClamAV
-        run: |
-          sudo apt-get update
-          sudo apt-get install --yes clamav
+      - name: Install Nix
+        uses: cachix/install-nix-action@8aa03977d8d733052d78f4e008a241fd1dbf36b3 # v31
+        with:
+          extra_nix_config: |
+            experimental-features = nix-command flakes
 
-      - name: Prepare freshclam
-        run: |
-          sudo systemctl stop clamav-freshclam 2>/dev/null || true
-          sudo pkill -f freshclam 2>/dev/null || true
-          sudo rm -f /var/log/clamav/freshclam.log
+      - name: Restore and save Nix store
+        uses: nix-community/cache-nix-action@7df957e333c1e5da7721f60227dbba6d06080569 # v7
+        with:
+          primary-key: nix-${{ runner.os }}-${{ github.job }}-${{ github.run_id }}-${{ github.run_attempt }}
+          restore-prefixes-first-match: nix-${{ runner.os }}-${{ github.job }}-
+          gc-max-store-size-linux: 1G
+          purge: true
+          purge-prefixes: nix-${{ runner.os }}-${{ github.job }}-
+          purge-created: 0
+          purge-last-accessed: P1DT12H
+          purge-primary-key: never
 
-      - name: Update virus database
-        run: sudo freshclam
+      - name: Download tools
+        run: nix shell "$NIXPKGS#clamav" --command true
+
+      - name: Download ClamAV database
+        run: |
+          db_dir="$(mktemp -d)"
+          config_file="$(mktemp)"
+          printf '%s\n' \
+            "DatabaseDirectory $db_dir" \
+            "DatabaseMirror database.clamav.net" \
+            >"$config_file"
+          echo "CLAMAV_DB_DIR=$db_dir" >> "$GITHUB_ENV"
+          nix shell "$NIXPKGS#clamav" --command freshclam --config-file="$config_file"
+        env:
+          LANG: C.UTF-8
 
       - name: Scan for malware
-        run: clamscan -r --infected .
+        run: nix shell "$NIXPKGS#clamav" --command clamscan --database="$CLAMAV_DB_DIR" -r --infected .
+        env:
+          LANG: C.UTF-8
 
   # ---------------------------------------------------------------------------
   # Stage 1: Documentation Gate
@@ -175,15 +290,33 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7
         with:
           persist-credentials: false
+
+      - name: Install Nix
+        uses: cachix/install-nix-action@8aa03977d8d733052d78f4e008a241fd1dbf36b3 # v31
+        with:
+          extra_nix_config: |
+            experimental-features = nix-command flakes
+
+      - name: Restore and save Nix store
+        uses: nix-community/cache-nix-action@7df957e333c1e5da7721f60227dbba6d06080569 # v7
+        with:
+          primary-key: nix-${{ runner.os }}-${{ github.job }}-${{ github.run_id }}-${{ github.run_attempt }}
+          restore-prefixes-first-match: nix-${{ runner.os }}-${{ github.job }}-
+          gc-max-store-size-linux: 1G
+          purge: true
+          purge-prefixes: nix-${{ runner.os }}-${{ github.job }}-
+          purge-created: 0
+          purge-last-accessed: P1DT12H
+          purge-primary-key: never
 
       - name: Setup Bun
         uses: oven-sh/setup-bun@0c5077e51419868618aeaa5fe8019c62421857d6 # v2.2.0
 
       - name: Restore Bun cache
-        uses: actions/cache@27d5ce7f107fe9357f9df03efb73ab90386fccae # v5
+        uses: actions/cache@27d5ce7f107fe9357f9df03efb73ab90386fccae # v5.0.5
         with:
           path: ~/.bun/install/cache
           key: ${{ runner.os }}-bun-${{ hashFiles('docs/bun.lock') }}
@@ -202,18 +335,15 @@ jobs:
         working-directory: docs
         run: bun run docs:build
 
-      - name: Install Lychee
-        uses: jaxxstorm/action-install-gh-release@25e24d2d23ae098373794ef1d6faecb48ee52da8 # v3.0.0
-        with:
-          repo: lycheeverse/lychee
-          tag: lychee-v0.24.2
-          digest: 1f4e0ef7f6554a6ed33dd7ac144fb2e1bbed98598e7af973042fc5cd43951c9a
-          platform: linux
-          arch: x86_64
+      - name: Download tools
+        run: nix shell "$NIXPKGS#lychee" --command true
 
       - name: Link Check
-        run: >-
-          lychee --config .lychee.toml --root-dir "$GITHUB_WORKSPACE/docs/.vitepress/dist" docs/.vitepress/dist
+        run: |
+          # shellcheck disable=SC2016
+          nix shell "$NIXPKGS#lychee" --command bash -euo pipefail -c '
+            lychee --config .lychee.toml --root-dir "$GITHUB_WORKSPACE/docs/.vitepress/dist" docs/.vitepress/dist
+          '
 
       - name: Upload GitHub Pages artifact
         uses: actions/upload-pages-artifact@fc324d3547104276b827a68afc52ff2a11cc49c9 # v5
@@ -222,363 +352,128 @@ jobs:
           path: docs/.vitepress/dist
 
   # ---------------------------------------------------------------------------
-  # Stage 2: Hyprland
+  # Stage 2: Verify application configs (one matrix entry per app)
   # ---------------------------------------------------------------------------
-  hyprland:
-    name: Hyprland
+  verify:
+    name: ${{ matrix.name }}
     runs-on: ubuntu-latest
     timeout-minutes: 5
     needs: [fmt, lint, security, antivirus, docs]
 
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          # Window manager
+          - name: Hyprland
+            app: hyprland
+            deps: 'nix profile install "$NIXPKGS#just" "$NIXPKGS#hyprland"'
+
+          # Editors
+          - name: Helix
+            app: helix
+            deps: 'nix profile install "$NIXPKGS#just" "$NIXPKGS#helix"'
+
+          - name: Neovim
+            app: neovim
+            deps: 'nix profile install "$NIXPKGS#just" "$NIXPKGS#neovim" "$NIXPKGS#lua5_1" "$NIXPKGS#git"'
+
+          # Terminals
+          - name: Alacritty
+            app: alacritty
+            deps: 'nix profile install "$NIXPKGS#just" "$NIXPKGS#alacritty" "$NIXPKGS#vendir"'
+
+          - name: Ghostty
+            app: ghostty
+            deps: 'nix profile install "$NIXPKGS#just" "$NIXPKGS#ghostty"'
+
+          - name: WezTerm
+            app: wezterm
+            deps: 'nix profile install "$NIXPKGS#just" "$NIXPKGS#wezterm"'
+
+          # Shells
+          - name: Bash
+            app: bash
+            deps: 'nix profile install "$NIXPKGS#just"'
+
+          - name: Nushell
+            app: nushell
+            deps: 'nix profile install "$NIXPKGS#just" "$NIXPKGS#nushell"'
+
+          - name: PowerShell
+            app: powershell
+            deps: 'nix profile install "$NIXPKGS#just" "$NIXPKGS#powershell"'
+
+          - name: Zsh
+            app: zsh
+            deps: 'nix profile install "$NIXPKGS#just" "$NIXPKGS#zsh"'
+
+          # Shell tooling (prompt, multiplexer, file manager)
+          - name: Starship
+            app: starship
+            deps: 'nix profile install "$NIXPKGS#just" "$NIXPKGS#starship"'
+
+          - name: Yazi
+            app: yazi
+            deps: 'nix profile install "$NIXPKGS#just" "$NIXPKGS#yazi" "$NIXPKGS#vendir"'
+
+          - name: Zellij
+            app: zellij
+            deps: 'nix profile install "$NIXPKGS#just" "$NIXPKGS#zellij"'
+
+          # Dotfiles management
+          - name: Stow
+            app: stow
+            deps: 'nix profile install "$NIXPKGS#just" "$NIXPKGS#stow" "$NIXPKGS#vendir"'
+
+          # Version control
+          - name: Git
+            app: git
+            deps: 'nix profile install "$NIXPKGS#just" "$NIXPKGS#git"'
+
+          # Coding agents
+          - name: Kimi
+            app: kimi
+            deps: 'nix profile install "$NIXPKGS#just" && npm install -g @moonshot-ai/kimi-code@latest'
+
+          - name: OpenCode
+            app: opencode
+            deps: 'nix profile install "$NIXPKGS#just" && npm install -g opencode-ai@latest'
+
     steps:
       - name: Checkout
-        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7
         with:
           persist-credentials: false
 
       - name: Install Nix
         uses: cachix/install-nix-action@8aa03977d8d733052d78f4e008a241fd1dbf36b3 # v31
-
-      - name: Verify Hyprland config
-        run: nix shell nixpkgs#hyprland --command hyprland --verify-config -c "$PWD/dotfiles/.config/hypr/hyprland.lua"
-
-  # ---------------------------------------------------------------------------
-  # Stage 2: Neovim
-  # ---------------------------------------------------------------------------
-  neovim:
-    name: Neovim
-    runs-on: ubuntu-latest
-    timeout-minutes: 5
-    needs: [fmt, lint, security, antivirus, docs]
-
-    steps:
-      - name: Checkout
-        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
         with:
-          persist-credentials: false
+          extra_nix_config: |
+            experimental-features = nix-command flakes
 
-      - name: Install Nix
-        uses: cachix/install-nix-action@8aa03977d8d733052d78f4e008a241fd1dbf36b3 # v31
-
-      - name: Validate Neovim config
-        run: |
-          tmp_home="$(mktemp -d)"
-          mkdir -p "$tmp_home/.config"
-          ln -s "$PWD/dotfiles/.config/nvim" "$tmp_home/.config/nvim"
-
-          HOME="$tmp_home" nix shell nixpkgs#lua5_1 --command \
-            luac -p "$tmp_home/.config/nvim/init.lua"
-
-          # shellcheck disable=SC2016
-          nix shell nixpkgs#neovim nixpkgs#git --command \
-            bash -euo pipefail -c '
-              export HOME="$1"
-              export XDG_CONFIG_HOME="$HOME/.config"
-              export XDG_DATA_HOME="$HOME/.local/share"
-              export XDG_STATE_HOME="$HOME/.local/state"
-              export XDG_CACHE_HOME="$HOME/.cache"
-
-              nvim --headless "+Lazy! sync" +qa
-              nvim_output="$(mktemp)"
-              nvim --headless +qa >"$nvim_output" 2>&1
-              if [ -s "$nvim_output" ]; then
-                cat "$nvim_output"
-                exit 1
-              fi
-            ' bash "$tmp_home"
-
-  # ---------------------------------------------------------------------------
-  # Stage 2: Helix
-  # ---------------------------------------------------------------------------
-  helix:
-    name: Helix
-    runs-on: ubuntu-latest
-    timeout-minutes: 5
-    needs: [fmt, lint, security, antivirus, docs]
-
-    steps:
-      - name: Checkout
-        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
+      - name: Restore and save Nix store
+        uses: nix-community/cache-nix-action@7df957e333c1e5da7721f60227dbba6d06080569 # v7
         with:
-          persist-credentials: false
+          primary-key: nix-${{ runner.os }}-${{ github.job }}-${{ matrix.app }}-${{ github.run_id }}-${{ github.run_attempt }}
+          restore-prefixes-first-match: nix-${{ runner.os }}-${{ github.job }}-${{ matrix.app }}-
+          gc-max-store-size-linux: 1G
+          purge: true
+          purge-prefixes: nix-${{ runner.os }}-${{ github.job }}-${{ matrix.app }}-
+          purge-created: 0
+          purge-last-accessed: P1DT12H
+          purge-primary-key: never
 
-      - name: Install Nix
-        uses: cachix/install-nix-action@8aa03977d8d733052d78f4e008a241fd1dbf36b3 # v31
-
-      - name: Validate Helix config
-        run: |
-          tmp_home="$(mktemp -d)"
-          mkdir -p "$tmp_home/.config"
-          ln -s "$PWD/dotfiles/.config/helix" "$tmp_home/.config/helix"
-
-          HOME="$tmp_home" XDG_CONFIG_HOME="$tmp_home/.config" \
-            nix shell nixpkgs#helix --command hx --health all
-
-  # ---------------------------------------------------------------------------
-  # Stage 2: Ghostty
-  # ---------------------------------------------------------------------------
-  ghostty:
-    name: Ghostty
-    runs-on: ubuntu-latest
-    timeout-minutes: 5
-    needs: [fmt, lint, security, antivirus, docs]
-
-    steps:
-      - name: Checkout
-        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
+      - name: Setup Node.js
+        uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e # v6.4.0
         with:
-          persist-credentials: false
+          node-version: 22
 
-      - name: Install Nix
-        uses: cachix/install-nix-action@8aa03977d8d733052d78f4e008a241fd1dbf36b3 # v31
+      - name: Install ${{ matrix.name }} dependencies
+        run: ${{ matrix.deps }}
 
-      - name: Validate Ghostty config
-        run: nix shell nixpkgs#ghostty --command ghostty +validate-config --config-file="$PWD/dotfiles/.config/ghostty/config"
-
-  # ---------------------------------------------------------------------------
-  # Stage 2: Alacritty
-  # ---------------------------------------------------------------------------
-  alacritty:
-    name: Alacritty
-    runs-on: ubuntu-latest
-    timeout-minutes: 5
-    needs: [fmt, lint, security, antivirus, docs]
-
-    steps:
-      - name: Checkout
-        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
-        with:
-          persist-credentials: false
-
-      - name: Install Nix
-        uses: cachix/install-nix-action@8aa03977d8d733052d78f4e008a241fd1dbf36b3 # v31
-
-      - name: Setup Vendir
-        uses: carvel-dev/setup-action@efbf2625e8469080d87175c02690634d4b0ad476 # v2.2.0
-        with:
-          only: vendir
-          token: ${{ github.token }}
-
-      - name: Sync dependencies
-        run: vendir sync
-
-      - name: Validate Alacritty config
-        run: |
-          tmp_home="$(mktemp -d)"
-          mkdir -p "$tmp_home/.config"
-          ln -s "$PWD/dotfiles/.config/alacritty" "$tmp_home/.config/alacritty"
-
-          HOME="$tmp_home" nix shell nixpkgs#alacritty --command \
-            alacritty migrate --dry-run --config-file "$tmp_home/.config/alacritty/alacritty.toml" >/dev/null
-
-  # ---------------------------------------------------------------------------
-  # Stage 2: Nushell
-  # ---------------------------------------------------------------------------
-  nushell:
-    name: Nushell
-    runs-on: ubuntu-latest
-    timeout-minutes: 5
-    needs: [fmt, lint, security, antivirus, docs]
-
-    steps:
-      - name: Checkout
-        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
-        with:
-          persist-credentials: false
-
-      - name: Install Nix
-        uses: cachix/install-nix-action@8aa03977d8d733052d78f4e008a241fd1dbf36b3 # v31
-
-      - name: Validate Nushell config
-        run: |
-          nix shell nixpkgs#nushell --command \
-            nu --config dotfiles/.config/nushell/config.nu \
-              --env-config dotfiles/.config/nushell/env.nu \
-              -c "exit 0"
-
-  # ---------------------------------------------------------------------------
-  # Stage 2: Yazi
-  # ---------------------------------------------------------------------------
-  yazi:
-    name: Yazi
-    runs-on: ubuntu-latest
-    timeout-minutes: 5
-    needs: [fmt, lint, security, antivirus, docs]
-
-    steps:
-      - name: Checkout
-        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
-        with:
-          persist-credentials: false
-
-      - name: Install Yazi
-        env:
-          GH_TOKEN: ${{ github.token }}
-        run: |
-          gh release download --repo sxyazi/yazi --pattern 'yazi-x86_64-unknown-linux-gnu.zip'
-          unzip -q yazi-x86_64-unknown-linux-gnu.zip
-          sudo mv yazi-x86_64-unknown-linux-gnu/yazi /usr/local/bin/
-          sudo mv yazi-x86_64-unknown-linux-gnu/ya /usr/local/bin/
-
-      - name: Setup Vendir
-        uses: carvel-dev/setup-action@efbf2625e8469080d87175c02690634d4b0ad476 # v2.2.0
-        with:
-          only: vendir
-          token: ${{ github.token }}
-
-      - name: Sync dependencies
-        run: vendir sync
-
-      - name: Validate Yazi config
-        run: YAZI_CONFIG_HOME="$PWD/dotfiles/.config/yazi" yazi --debug
-
-  # ---------------------------------------------------------------------------
-  # Stage 2: Starship
-  # ---------------------------------------------------------------------------
-  starship:
-    name: Starship
-    runs-on: ubuntu-latest
-    timeout-minutes: 5
-    needs: [fmt, lint, security, antivirus, docs]
-
-    steps:
-      - name: Checkout
-        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
-        with:
-          persist-credentials: false
-
-      - name: Install Starship
-        env:
-          GH_TOKEN: ${{ github.token }}
-        run: |
-          gh release download --repo starship/starship --pattern 'starship-x86_64-unknown-linux-gnu.tar.gz'
-          tar -xzf starship-x86_64-unknown-linux-gnu.tar.gz
-          sudo mv starship /usr/local/bin/
-
-      - name: Validate Starship configs
-        run: |
-          STARSHIP_CONFIG="$PWD/dotfiles/.config/starship/starship.toml" starship print-config >/dev/null
-          STARSHIP_CONFIG="$PWD/dotfiles/.config/starship/starship.tmux.toml" starship print-config >/dev/null
-          STARSHIP_CONFIG="$PWD/dotfiles/.config/starship/starship.zellij.toml" starship print-config >/dev/null
-
-  # ---------------------------------------------------------------------------
-  # Stage 2: Zellij
-  # ---------------------------------------------------------------------------
-  zellij:
-    name: Zellij
-    runs-on: ubuntu-latest
-    timeout-minutes: 5
-    needs: [fmt, lint, security, antivirus, docs]
-
-    steps:
-      - name: Checkout
-        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
-        with:
-          persist-credentials: false
-
-      - name: Install Zellij
-        env:
-          GH_TOKEN: ${{ github.token }}
-        run: |
-          gh release download --repo zellij-org/zellij --pattern 'zellij-x86_64-unknown-linux-musl.tar.gz'
-          tar -xzf zellij-x86_64-unknown-linux-musl.tar.gz
-          sudo mv zellij /usr/local/bin/
-
-      - name: Validate Zellij config
-        run: zellij --config "$PWD/dotfiles/.config/zellij/config.kdl" setup --dump-config >/dev/null
-
-  # ---------------------------------------------------------------------------
-  # Stage 2: Bash
-  # ---------------------------------------------------------------------------
-  bash:
-    name: Bash
-    runs-on: ubuntu-latest
-    timeout-minutes: 5
-    needs: [fmt, lint, security, antivirus, docs]
-
-    steps:
-      - name: Checkout
-        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
-        with:
-          persist-credentials: false
-
-      - name: Validate Bash config
-        run: |
-          bash -n dotfiles/.bashrc dotfiles/.bash_profile
-          bash -n dotfiles/.config/bash/bashrc dotfiles/.config/bash/bash_profile
-          bash -n dotfiles/.config/bash/bash.d/*.bash
-          bash -n dotfiles/.config/shell/shell.d/*.sh dotfiles/.config/shell/profile.d/*.sh
-
-  # ---------------------------------------------------------------------------
-  # Stage 2: Zsh
-  # ---------------------------------------------------------------------------
-  zsh:
-    name: Zsh
-    runs-on: ubuntu-latest
-    timeout-minutes: 5
-    needs: [fmt, lint, security, antivirus, docs]
-
-    steps:
-      - name: Checkout
-        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
-        with:
-          persist-credentials: false
-
-      - name: Validate Zsh config
-        shell: bash
-        run: |
-          sudo apt-get update
-          sudo apt-get install --yes zsh
-
-          zsh -n dotfiles/.config/zsh/.zshrc
-          zsh -n dotfiles/.config/zsh/.zprofile
-          zsh -n dotfiles/.config/zsh/zsh.d/*.zsh
-
-  # ---------------------------------------------------------------------------
-  # Stage 2: Stow
-  # ---------------------------------------------------------------------------
-  stow:
-    name: Stow
-    runs-on: ubuntu-latest
-    timeout-minutes: 5
-    needs: [fmt, lint, security, antivirus, docs]
-
-    steps:
-      - name: Checkout
-        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
-        with:
-          persist-credentials: false
-
-      - name: Install stow
-        run: |
-          sudo apt-get update
-          sudo apt-get install --yes stow
-
-      - name: Setup Vendir
-        uses: carvel-dev/setup-action@efbf2625e8469080d87175c02690634d4b0ad476 # v2.2.0
-        with:
-          only: vendir
-          token: ${{ github.token }}
-
-      - name: Sync dependencies
-        run: vendir sync
-
-      - name: Link dotfiles
-        run: |
-          rm -f "$HOME/.bashrc" "$HOME/.bash_profile"
-          stow -v --target="${HOME}" dotfiles
-
-      - name: Verify symlinks
-        run: |
-          test -L "$HOME/.bashrc"
-          test -L "$HOME/.config/nvim"
-          test -L "$HOME/.config/helix"
-          test -L "$HOME/.config/nushell"
-          test -L "$HOME/.config/starship"
-          test -L "$HOME/.config/zellij"
-          test -L "$HOME/.config/yazi"
-          test -L "$HOME/.config/ghostty"
-          test -L "$HOME/.config/zsh"
+      - name: Verify ${{ matrix.name }} config
+        run: just verify ${{ matrix.app }}
 
   # ---------------------------------------------------------------------------
   # Stage 3: Deploy to GitHub Pages (main only)
@@ -594,20 +489,8 @@ jobs:
       - lint
       - antivirus
       - security
-
-      - alacritty
-      - bash
       - docs
-      - ghostty
-      - helix
-      - hyprland
-      - neovim
-      - nushell
-      - starship
-      - stow
-      - yazi
-      - zellij
-      - zsh
+      - verify
 
     permissions:
       pages: write

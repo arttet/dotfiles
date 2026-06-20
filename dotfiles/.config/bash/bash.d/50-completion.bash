@@ -24,7 +24,9 @@ fi
 # Load System Completion
 # -------------------------------------------------------------------
 if [[ -f /usr/share/bash-completion/bash_completion ]]; then
+  # shellcheck source=/dev/null
   source /usr/share/bash-completion/bash_completion
 elif [[ -f /etc/bash_completion ]]; then
+  # shellcheck source=/dev/null
   source /etc/bash_completion
 fi

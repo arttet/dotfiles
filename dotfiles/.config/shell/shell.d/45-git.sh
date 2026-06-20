@@ -13,12 +13,12 @@ command -v git >/dev/null 2>&1 || return 0
 # gcm
 # Description: Git add, commit with message.
 # Usage: gcm "message"
-gcm() { [ -n "$1" ] && git add -A && git commit -m "$1" && printf "\033[0;32m✅ Committed: \033[1;32m$1\033[0m\n"; }
+gcm() { [ -n "$1" ] && git add -A && git commit -m "$1" && printf "\033[0;32m✅ Committed: \033[1;32m%s\033[0m\n" "$1"; }
 
 # gcp
 # Description: Git add, commit, and push.
 # Usage: gcp "message"
-gcp() { [ -n "$1" ] && git add -A && git commit -m "$1" && git push && printf "\033[0;32m🚀 Pushed: \033[1;32m$1\033[0m\n"; }
+gcp() { [ -n "$1" ] && git add -A && git commit -m "$1" && git push && printf "\033[0;32m🚀 Pushed: \033[1;32m%s\033[0m\n" "$1"; }
 
 # gundo
 # Description: Soft reset (undo last commit, keep changes staged).
@@ -79,7 +79,7 @@ gcob() {
       --header "🌿 CHECKOUT BRANCH")
   if [ -n "$branch" ]; then
     git checkout "${branch#origin/}"
-    printf "\033[0;32m🌿 Switched to: \033[1;32m${branch#origin/}\033[0m\n"
+    printf "\033[0;32m🌿 Switched to: \033[1;32m%s\033[0m\n" "${branch#origin/}"
   fi
 }
 
@@ -98,7 +98,7 @@ fco() {
   local commits commit
   commits=$(git log --pretty=oneline --abbrev-commit --reverse) &&
     commit=$(echo "$commits" | fzf --tac +s +m -e --header "🕰️  CHECKOUT COMMIT" --preview 'git show --color=always {1}') &&
-    git checkout "$(echo "$commit" | sed "s/ .*//")"
+    git checkout "${commit%% *}"
 }
 
 # fshow - Git commit browser
@@ -124,7 +124,7 @@ gdf() {
     fzf --preview 'git diff --color=always -- {}' \
       --preview-window=right:70% \
       --header "Select file to open" |
-    xargs -r ${EDITOR:-vim}
+    xargs -r "${EDITOR:-vim}"
 }
 
 # gll

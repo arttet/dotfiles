@@ -30,6 +30,7 @@ _bash_eval_cache() {
   if [ ! -f "$cache_file" ] || [ "$bin_path" -nt "$cache_file" ]; then
     eval "$cmd_exec" >"$cache_file"
   fi
+  # shellcheck source=/dev/null
   source "$cache_file"
 }
 
