@@ -352,9 +352,9 @@ jobs:
           path: docs/.vitepress/dist
 
   # ---------------------------------------------------------------------------
-  # Stage 2: Verify application configs (one matrix entry per app)
+  # Stage 2: Validate application configs (one matrix entry per app)
   # ---------------------------------------------------------------------------
-  verify:
+  validate:
     name: ${{ matrix.name }}
     runs-on: ubuntu-latest
     timeout-minutes: 5
@@ -473,7 +473,7 @@ jobs:
         run: ${{ matrix.deps }}
 
       - name: Verify ${{ matrix.name }} config
-        run: just verify ${{ matrix.app }}
+        run: just validate ${{ matrix.app }}
 
   # ---------------------------------------------------------------------------
   # Stage 3: Deploy to GitHub Pages (main only)
@@ -490,7 +490,7 @@ jobs:
       - antivirus
       - security
       - docs
-      - verify
+      - validate
 
     permissions:
       pages: write
