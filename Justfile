@@ -90,8 +90,12 @@ lint:
     stylelint --config .stylelintrc.json './dotfiles/.config/**/*.css'
     @echo "✅ Linting complete!"
 
-[group: 'Development']
-mod verify 'misc/justfiles/verify.just'
+# ==============================================================================
+# Validators
+# ==============================================================================
+
+[group: 'Validators']
+mod validate 'misc/justfiles/validate.just'
 
 # ==============================================================================
 # Documentation

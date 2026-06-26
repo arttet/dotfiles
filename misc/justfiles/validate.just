@@ -5,10 +5,25 @@
 # `[no-cd]` keeps the working directory at the invocation root (repo root) so
 # `$PWD`, relative paths, and `vendir sync` resolve correctly from a submodule.
 
+# Window manager
+
 [no-cd]
-[doc('Verify Hyprland config')]
+[doc('Validate Hyprland config')]
 hyprland:
     hyprland --verify-config -c "$PWD/dotfiles/.config/hypr/hyprland.lua"
+
+# Editors
+
+[no-cd]
+[doc('Validate Helix config')]
+helix:
+    #!/usr/bin/env bash
+    set -euo pipefail
+    tmp_home="$(mktemp -d)"
+    trap 'rm -rf -- "$tmp_home"' EXIT
+    mkdir -p "$tmp_home/.config"
+    ln -s "$PWD/dotfiles/.config/helix" "$tmp_home/.config/helix"
+    HOME="$tmp_home" XDG_CONFIG_HOME="$tmp_home/.config" hx --health all
 
 [no-cd]
 [doc('Validate Neovim config')]
@@ -35,26 +50,7 @@ neovim:
         exit 1
     fi
 
-[no-cd]
-[doc('Validate Helix config')]
-helix:
-    #!/usr/bin/env bash
-    set -euo pipefail
-    tmp_home="$(mktemp -d)"
-    trap 'rm -rf -- "$tmp_home"' EXIT
-    mkdir -p "$tmp_home/.config"
-    ln -s "$PWD/dotfiles/.config/helix" "$tmp_home/.config/helix"
-    HOME="$tmp_home" XDG_CONFIG_HOME="$tmp_home/.config" hx --health all
-
-[no-cd]
-[doc('Validate Ghostty config')]
-ghostty:
-    ghostty +validate-config --config-file="$PWD/dotfiles/.config/ghostty/config"
-
-[no-cd]
-[doc('Validate WezTerm config')]
-wezterm:
-    wezterm --config-file "$PWD/dotfiles/.config/wezterm/wezterm.lua" show-keys >/dev/null
+# Terminals
 
 [no-cd]
 [doc('Validate Alacritty config')]
@@ -69,27 +65,16 @@ alacritty:
     HOME="$tmp_home" alacritty migrate --dry-run --config-file "$tmp_home/.config/alacritty/alacritty.toml" >/dev/null
 
 [no-cd]
-[doc('Validate Nushell config')]
-nushell:
-    nu --config dotfiles/.config/nushell/config.nu --env-config dotfiles/.config/nushell/env.nu -c "exit 0"
+[doc('Validate Ghostty config')]
+ghostty:
+    ghostty +validate-config --config-file="$PWD/dotfiles/.config/ghostty/config"
 
 [no-cd]
-[doc('Validate Yazi config')]
-yazi:
-    vendir sync --locked
-    YAZI_CONFIG_HOME="$PWD/dotfiles/.config/yazi" yazi --debug
+[doc('Validate WezTerm config')]
+wezterm:
+    wezterm --config-file "$PWD/dotfiles/.config/wezterm/wezterm.lua" show-keys >/dev/null
 
-[no-cd]
-[doc('Validate Starship configs')]
-starship:
-    STARSHIP_CONFIG="$PWD/dotfiles/.config/starship/starship.toml" starship print-config >/dev/null
-    STARSHIP_CONFIG="$PWD/dotfiles/.config/starship/starship.tmux.toml" starship print-config >/dev/null
-    STARSHIP_CONFIG="$PWD/dotfiles/.config/starship/starship.zellij.toml" starship print-config >/dev/null
-
-[no-cd]
-[doc('Validate Zellij config')]
-zellij:
-    zellij --config "$PWD/dotfiles/.config/zellij/config.kdl" setup --dump-config >/dev/null
+# Shells
 
 [no-cd]
 [doc('Validate Bash config')]
@@ -100,11 +85,44 @@ bash:
     bash -n dotfiles/.config/shell/shell.d/*.sh dotfiles/.config/shell/profile.d/*.sh
 
 [no-cd]
+[doc('Validate Nushell config')]
+nushell:
+    nu --config dotfiles/.config/nushell/config.nu --env-config dotfiles/.config/nushell/env.nu -c "exit 0"
+
+[no-cd]
+[doc('Validate PowerShell config')]
+powershell:
+    pwsh -NoProfile -NonInteractive -Command "Get-ChildItem '$PWD/dotfiles/.config/powershell/*.ps1' | ForEach-Object { \$t = \$null; \$e = \$null; [System.Management.Automation.Language.Parser]::ParseFile(\$_.FullName, [ref]\$t, [ref]\$e); if (\$e) { throw \$e } }"
+
+[no-cd]
 [doc('Validate Zsh config')]
 zsh:
+    zsh -n dotfiles/.zshenv
     zsh -n dotfiles/.config/zsh/.zshrc
     zsh -n dotfiles/.config/zsh/.zprofile
     zsh -n dotfiles/.config/zsh/zsh.d/*.zsh
+
+# Shell tooling
+
+[no-cd]
+[doc('Validate Starship configs')]
+starship:
+    STARSHIP_CONFIG="$PWD/dotfiles/.config/starship/starship.toml" starship print-config >/dev/null
+    STARSHIP_CONFIG="$PWD/dotfiles/.config/starship/starship.tmux.toml" starship print-config >/dev/null
+    STARSHIP_CONFIG="$PWD/dotfiles/.config/starship/starship.zellij.toml" starship print-config >/dev/null
+
+[no-cd]
+[doc('Validate Yazi config')]
+yazi:
+    vendir sync --locked
+    YAZI_CONFIG_HOME="$PWD/dotfiles/.config/yazi" yazi --debug
+
+[no-cd]
+[doc('Validate Zellij config')]
+zellij:
+    zellij --config "$PWD/dotfiles/.config/zellij/config.kdl" setup --dump-config >/dev/null
+
+# Dotfiles management
 
 [no-cd]
 [doc('Validate Stow links')]
@@ -127,15 +145,24 @@ stow:
     test -L "$tmp_home/.config/ghostty"
     test -L "$tmp_home/.config/zsh"
 
+# Version control
+
 [no-cd]
 [doc('Validate Git config')]
 git:
     git config --file "$PWD/dotfiles/.config/git/config" --list >/dev/null
 
+# Coding agents
+
 [no-cd]
-[doc('Validate PowerShell config')]
-powershell:
-    pwsh -NoProfile -NonInteractive -Command "Get-ChildItem '$PWD/dotfiles/.config/powershell/*.ps1' | ForEach-Object { \$t = \$null; \$e = \$null; [System.Management.Automation.Language.Parser]::ParseFile(\$_.FullName, [ref]\$t, [ref]\$e); if (\$e) { throw \$e } }"
+[doc('Validate Kimi config')]
+kimi:
+    KIMI_CODE_HOME="$PWD/dotfiles/.config/kimi-code" kimi doctor
+
+[no-cd]
+[doc('Validate OpenCode config')]
+opencode:
+    OPENCODE_CONFIG_DIR="$PWD/dotfiles/.config/opencode" opencode debug config --pure >/dev/null
 
 [no-cd]
 [doc('Validate Claude config')]
@@ -146,13 +173,3 @@ claude:
 [doc('Validate Codex config')]
 codex:
     CODEX_HOME="$PWD/dotfiles/.config/codex" codex doctor
-
-[no-cd]
-[doc('Validate OpenCode config')]
-opencode:
-    OPENCODE_CONFIG_DIR="$PWD/dotfiles/.config/opencode" opencode debug config --pure >/dev/null
-
-[no-cd]
-[doc('Validate Kimi config')]
-kimi:
-    KIMI_CODE_HOME="$PWD/dotfiles/.config/kimi-code" kimi doctor
