@@ -15,7 +15,9 @@
     "docs/.vitepress/dist",
     "vendir.lock.yml",
     ".dotter",
-    "dotfiles/.config/alacritty/themes/themes",
+    "dotfiles/.config/alacritty/themes",
+    "dotfiles/.config/hypr/wallpapers",
+    "dotfiles/.config/tmux/plugins",
     "dotfiles/.config/yazi/flavors",
     "dotfiles/.config/yazi/plugins"
   ],

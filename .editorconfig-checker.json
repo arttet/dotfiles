@@ -1,0 +1,15 @@
+{
+  "Exclude": [
+    "^\\.ai/",
+    "^\\.claude/",
+    "^\\.serena/",
+    "\\.local\\.md$",
+    "^docs/\\.vitepress/cache/",
+    "^docs/\\.vitepress/dist/",
+    "^dotfiles/\\.config/alacritty/themes/",
+    "^dotfiles/\\.config/hypr/wallpapers/",
+    "^dotfiles/\\.config/tmux/plugins/",
+    "^dotfiles/\\.config/yazi/flavors/",
+    "^dotfiles/\\.config/yazi/plugins/"
+  ]
+}

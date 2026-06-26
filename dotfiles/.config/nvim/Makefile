@@ -14,4 +14,3 @@ help:			## Display the help message
 .PHONY: fmt
 fmt:			## Format the project
 	@stylua ${CURDIR}
-

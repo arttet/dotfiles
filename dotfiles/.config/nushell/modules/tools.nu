@@ -39,13 +39,13 @@ export def "init" [] {
                 # Fallback: check if binary exists directly in local_bin
                 let explicit_path = ($local_bin | path join $tool.name)
                 if ($explicit_path | path exists) {
-                     print $"✓ Found at ($explicit_path). Generating ($tool.file)..."
-                     try {
+                    print $"✓ Found at ($explicit_path). Generating ($tool.file)..."
+                    try {
                         run-external $explicit_path ...$tool.args | save -f $file_path
                         print $"  → ($tool.file) created successfully"
-                     } catch { |e|
+                    } catch { |e|
                         print $"  ✗ Failed to generate ($tool.file): ($e.msg)"
-                     }
+                    }
                 } else {
                     print $"✗ ($tool.name) not found in PATH or .local/bin"
                     print $"  Install with: cargo install ($tool.name)"
