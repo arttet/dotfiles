@@ -19,20 +19,22 @@ All terminals are configured with shared parameters:
 
 ## Unified Hotkeys
 
-The following shortcuts are consistent across Alacritty, Ghostty, and WezTerm. We prioritize `Ctrl+Shift` for terminal actions to avoid conflicts with shell and TUI tools.
+The following shortcuts are consistent across Alacritty, Ghostty, and WezTerm. We prioritize `Ctrl + Shift` for terminal actions to avoid conflicts with shell and TUI tools.
 
 | Category      | Action             | Shortcut                |
 | :------------ | :----------------- | :---------------------- |
-| **Windows**   | New Window         | `Ctrl + Shift + N`      |
-| **Windows**   | Close Window       | `Ctrl + Shift + Q`      |
-| **Tabs**      | New Tab            | `Ctrl + Shift + T`      |
-| **Tabs**      | Close Tab          | `Ctrl + Shift + W`      |
-| **View**      | Toggle Fullscreen  | `F11` or `Ctrl + Enter` |
+| **Windows**   | New window         | `Ctrl + Shift + N`      |
+| **Windows**   | Close window       | `Ctrl + Shift + Q`      |
+| **Tabs**      | New tab            | `Ctrl + Shift + T`      |
+| **Tabs**      | Close tab          | `Ctrl + Shift + W`      |
+| **View**      | Toggle fullscreen  | `F11` or `Ctrl + Enter` |
 | **Clipboard** | Copy               | `Ctrl + Shift + C`      |
 | **Clipboard** | Paste              | `Ctrl + Shift + V`      |
-| **Zoom**      | Increase Font Size | `Ctrl + Shift + +`      |
-| **Zoom**      | Decrease Font Size | `Ctrl + Shift + -`      |
-| **Zoom**      | Reset Font Size    | `Ctrl + Shift + 0`      |
+| **Zoom**      | Increase font size | `Ctrl + Shift + +`      |
+| **Zoom**      | Decrease font size | `Ctrl + Shift + -`      |
+| **Zoom**      | Reset font size    | `Ctrl + Shift + 0`      |
+
+> **Note:** Terminal shortcuts sit at the top of the input stack. If a shortcut is also bound in your multiplexer or editor, the terminal usually intercepts it first. See the [Hotkey Conflict Map](/cheatsheet#conflict-map) for a full breakdown.
 
 ## Configuration Paths
 

@@ -4,6 +4,8 @@ import llmstxt, { copyOrDownloadAsMarkdownButtons } from "vitepress-plugin-llms"
 const nav = [
   { text: "Home", link: "/" },
   { text: "Guide", link: "/guide/" },
+  { text: "Cheatsheet", link: "/cheatsheet" },
+  { text: "Architecture", link: "/architecture" },
   {
     text: "Tools",
     items: [
@@ -11,6 +13,7 @@ const nav = [
       { text: "Editors", link: "/editors/neovim" },
       { text: "Multiplexers", link: "/multiplexers/zellij" },
       { text: "CLI", link: "/cli/yazi" },
+      { text: "AI Agents", link: "/ai/" },
       { text: "WM", link: "/wm/hyprland" },
     ],
   },
@@ -20,7 +23,15 @@ const sidebar = [
   {
     text: "Introduction",
     collapsed: false,
-    items: [{ text: "Getting Started", link: "/guide/" }],
+    items: [
+      { text: "Getting Started", link: "/guide/" },
+      { text: "Architecture", link: "/architecture" },
+    ],
+  },
+  {
+    text: "Hotkeys",
+    collapsed: false,
+    items: [{ text: "Cheatsheet", link: "/cheatsheet" }],
   },
   {
     text: "Terminals",
@@ -50,6 +61,11 @@ const sidebar = [
       { text: "Nushell", link: "/cli/nushell" },
       { text: "Yazi", link: "/cli/yazi" },
     ],
+  },
+  {
+    text: "AI Agents",
+    collapsed: false,
+    items: [{ text: "Overview", link: "/ai/" }],
   },
   {
     text: "Window Management",

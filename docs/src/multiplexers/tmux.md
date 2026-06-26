@@ -6,52 +6,54 @@ The classic terminal multiplexer, optimized for workflow with Vim-style navigati
 
 - Config: `dotfiles/.config/tmux/tmux.conf`
 
-## Keybindings
+## Prefix
 
-The **Prefix** is `Ctrl + A`.
+The **prefix** is `Ctrl + A`.
 
-### General
+## General
 
-| Action               | Shortcut         |
-| :------------------- | :--------------- |
-| Reload Configuration | `Prefix + R`     |
-| Session Tree         | `Prefix + S`     |
-| Last Active Window   | `Prefix + Space` |
-| Toggle Zoom          | `Prefix + M`     |
+| Action               | Shortcut                 |
+| :------------------- | :----------------------- |
+| Reload configuration | `Ctrl + A`, then `R`     |
+| Session tree         | `Ctrl + A`, then `S`     |
+| Last active window   | `Ctrl + A`, then `Space` |
+| Toggle zoom          | `Ctrl + A`, then `M`     |
 
-### Window & Pane Management
+## Window & Pane Management
 
-| Action                | Shortcut      |
-| :-------------------- | :------------ |
-| New Window            | `Prefix + C`  |
-| Split Horizontal      | `Prefix + \|` |
-| Split Horizontal Full | `Prefix + \`  |
-| Split Vertical        | `Prefix + -`  |
-| Split Vertical Full   | `Prefix + _`  |
-| Close Focus           | `Prefix + X`  |
+| Action                | Shortcut              |
+| :-------------------- | :-------------------- |
+| New window            | `Ctrl + A`, then `C`  |
+| Split horizontal      | `Ctrl + A`, then `    |
+| Split horizontal full | `Ctrl + A`, then `\\` |
+| Split vertical        | `Ctrl + A`, then `-`  |
+| Split vertical full   | `Ctrl + A`, then `_`  |
+| Close focus           | `Ctrl + A`, then `X`  |
 
-### Navigation & Resizing
+## Navigation & Resizing
 
-| Action                | Shortcut     |
-| :-------------------- | :----------- |
-| Focus Pane (Vim Keys) | `H/J/K/L`    |
-| Resize Down (5 lines) | `Prefix + J` |
-| Resize Up (5 lines)   | `Prefix + K` |
-| Resize Right (5 cols) | `Prefix + L` |
-| Resize Left (5 cols)  | `Prefix + H` |
+| Action                | Shortcut                     |
+| :-------------------- | :--------------------------- |
+| Focus pane            | `Ctrl + H` / `J` / `K` / `L` |
+| Resize down (5 lines) | `Ctrl + A`, then `J`         |
+| Resize up (5 lines)   | `Ctrl + A`, then `K`         |
+| Resize right (5 cols) | `Ctrl + A`, then `L`         |
+| Resize left (5 cols)  | `Ctrl + A`, then `H`         |
 
-### Copy Mode (`Prefix + [`)
+> **Note:** `Ctrl + H/J/K/L` is provided by `vim-tmux-navigator` and works across both Tmux panes and Vim/Neovim splits. It conflicts with Helix's view-jump keys when Helix runs inside Tmux.
 
-| Action          | Shortcut     |
-| :-------------- | :----------- |
-| Start Selection | `V`          |
-| Yank (Copy)     | `Y`          |
-| Paste           | `Prefix + ]` |
+## Copy Mode (`Ctrl + A`, then `[`)
 
-### TPM Plugin Keys
+| Action          | Shortcut             |
+| :-------------- | :------------------- |
+| Start selection | `V`                  |
+| Yank (copy)     | `Y`                  |
+| Paste           | `Ctrl + A`, then `]` |
 
-| Action            | Shortcut           |
-| :---------------- | :----------------- |
-| Install Plugins   | `Prefix + I`       |
-| Update Plugins    | `Prefix + U`       |
-| Uninstall Plugins | `Prefix + Alt + U` |
+## TPM Plugin Keys
+
+| Action            | Shortcut                   |
+| :---------------- | :------------------------- |
+| Install plugins   | `Ctrl + A`, then `I`       |
+| Update plugins    | `Ctrl + A`, then `U`       |
+| Uninstall plugins | `Ctrl + A`, then `Alt + U` |

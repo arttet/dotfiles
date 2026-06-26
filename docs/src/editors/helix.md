@@ -7,59 +7,65 @@ A post-modern modal text editor with built-in LSP support and a focus on termina
 - Config: `dotfiles/.config/helix/config.toml`
 - Languages: `dotfiles/.config/helix/languages.toml`
 
-## Keybindings
+## Leader Key
 
-### Navigation & Views
+The **leader** key is `Space`.
+
+## Navigation & Views
 
 | Action            | Mode   | Shortcut      |
 | :---------------- | :----- | :------------ |
-| Jump View Left    | Normal | `Ctrl + H`    |
-| Jump View Down    | Normal | `Ctrl + J`    |
-| Jump View Up      | Normal | `Ctrl + K`    |
-| Jump View Right   | Normal | `Ctrl + L`    |
-| Next Buffer       | Normal | `Tab`         |
-| Previous Buffer   | Normal | `Shift + Tab` |
-| Move Parent Node  | Insert | `Shift + Tab` |
-| Extend Node End   | Select | `Tab`         |
-| Extend Node Start | Select | `Shift + Tab` |
+| Jump view left    | Normal | `Ctrl + H`    |
+| Jump view down    | Normal | `Ctrl + J`    |
+| Jump view up      | Normal | `Ctrl + K`    |
+| Jump view right   | Normal | `Ctrl + L`    |
+| Next buffer       | Normal | `Tab`         |
+| Previous buffer   | Normal | `Shift + Tab` |
+| Move parent node  | Insert | `Shift + Tab` |
+| Extend node end   | Select | `Tab`         |
+| Extend node start | Select | `Shift + Tab` |
 
-### Space Menu (Leader)
+## Space Menu (Leader)
 
-| Category     | Action                      | Shortcut            |
-| :----------- | :-------------------------- | :------------------ |
-| **Pickers**  | File Picker                 | `Space + F`         |
-| **Pickers**  | Buffer Picker               | `Space + B`         |
-| **Pickers**  | Symbol Picker               | `Space + S`         |
-| **Pickers**  | Workspace Symbol Picker     | `Space + Shift + S` |
-| **Pickers**  | Diagnostics                 | `Space + D`         |
-| **Pickers**  | Workspace Diagnostics       | `Space + Shift + D` |
-| **Pickers**  | Changed Files               | `Space + Shift + C` |
-| **Pickers**  | Jumplist                    | `Space + J`         |
-| **Explorer** | File Explorer (current dir) | `Space + E`         |
-| **Explorer** | File Explorer               | `Space + Shift + E` |
-| **Search**   | Global Search               | `Space + /`         |
-| **System**   | Command Palette             | `Space + ?`         |
-| **System**   | Reload Config               | `Space + C`         |
-| **System**   | Write File                  | `Space + W`         |
-| **System**   | Format                      | `Space + Shift + F` |
-| **System**   | Quit                        | `Space + Q`         |
+| Category     | Action                      | Shortcut                  |
+| :----------- | :-------------------------- | :------------------------ |
+| **Pickers**  | File picker                 | `Space`, then `F`         |
+| **Pickers**  | Buffer picker               | `Space`, then `B`         |
+| **Pickers**  | Symbol picker               | `Space`, then `S`         |
+| **Pickers**  | Workspace symbol picker     | `Space`, then `Shift + S` |
+| **Pickers**  | Diagnostics                 | `Space`, then `D`         |
+| **Pickers**  | Workspace diagnostics       | `Space`, then `Shift + D` |
+| **Pickers**  | Changed files               | `Space`, then `Shift + C` |
+| **Pickers**  | Jumplist                    | `Space`, then `J`         |
+| **Explorer** | File explorer (current dir) | `Space`, then `E`         |
+| **Explorer** | File explorer               | `Space`, then `Shift + E` |
+| **Search**   | Global search               | `Space`, then `/`         |
+| **System**   | Command palette             | `Space`, then `?`         |
+| **System**   | Reload config               | `Space`, then `C`         |
+| **System**   | Write file                  | `Space`, then `W`         |
+| **System**   | Format                      | `Space`, then `Shift + F` |
+| **System**   | Quit                        | `Space`, then `Q`         |
 
-### Integrations — Floating Panes
+## Floating Pane Integrations
 
-Launches in floating pane (Zellij/Tmux) or standalone.
+Launches in a floating pane (Zellij/Tmux) or standalone.
 
-| Tool         | Action                | Shortcut    |
-| :----------- | :-------------------- | :---------- |
-| **Yazi**     | Floating File Manager | `Space + Y` |
-| **LazyGit**  | Floating Git TUI      | `Space + G` |
-| **Terminal** | Floating NuShell      | `Space + T` |
+| Tool         | Action                | Shortcut          |
+| :----------- | :-------------------- | :---------------- |
+| **Yazi**     | Floating file manager | `Space`, then `Y` |
+| **LazyGit**  | Floating Git TUI      | `Space`, then `G` |
+| **Terminal** | Floating Nushell      | `Space`, then `T` |
 
-### Integrations — Split Panes
+## Split Pane Integrations
 
 Opens in a new split pane below or to the right.
 
-| Tool         | Action             | Shortcut            |
-| :----------- | :----------------- | :------------------ |
-| **Yazi**     | Split Pane (Down)  | `Space + Shift + Y` |
-| **LazyGit**  | Split Pane (Right) | `Space + Shift + G` |
-| **Terminal** | Split Pane (Right) | `Space + Shift + T` |
+| Tool         | Action             | Shortcut                  |
+| :----------- | :----------------- | :------------------------ |
+| **Yazi**     | Split pane (down)  | `Space`, then `Shift + Y` |
+| **LazyGit**  | Split pane (right) | `Space`, then `Shift + G` |
+| **Terminal** | Split pane (right) | `Space`, then `Shift + T` |
+
+## Discoverability
+
+Helix shows contextual hints automatically. After pressing `Space`, the menu lists every bound command and its shortcut. Press `Space`, then `?` at any time for the command palette.
