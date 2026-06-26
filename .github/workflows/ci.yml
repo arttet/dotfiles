@@ -422,6 +422,10 @@ jobs:
             app: zellij
             deps: 'nix profile install "$NIXPKGS#just" "$NIXPKGS#zellij"'
 
+          - name: Tmux
+            app: tmux
+            deps: 'nix profile install "$NIXPKGS#just" "$NIXPKGS#tmux"'
+
           # Dotfiles management
           - name: Stow
             app: stow
