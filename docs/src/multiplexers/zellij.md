@@ -41,130 +41,132 @@ Zellij uses modal input. Each mode is entered via a prefix and has its own keyma
 | Action                    | Shortcut                                      |
 | :------------------------ | :-------------------------------------------- |
 | Lock UI                   | `Ctrl + G`                                    |
-| Focus Left/Down/Up/Right  | `Alt + H` / `Alt + J` / `Alt + K` / `Alt + L` |
-| Focus with Arrows         | `Alt + Arrow Keys`                            |
-| New Pane                  | `Alt + N`                                     |
-| Toggle Floating Panes     | `Alt + F`                                     |
-| Previous/Next Swap Layout | `Alt + [` / `Alt + ]`                         |
-| Resize Increase/Decrease  | `Alt + +` / `Alt + -`                         |
-| Move Tab Left/Right       | `Alt + I` / `Alt + O`                         |
-| Toggle Pane in Group      | `Alt + P`                                     |
-| Toggle Group Marking      | `Alt + Shift + P`                             |
+| Focus left/down/up/right  | `Alt + H` / `Alt + J` / `Alt + K` / `Alt + L` |
+| Focus with arrows         | `Alt + Arrow Keys`                            |
+| New pane                  | `Alt + N`                                     |
+| Toggle floating panes     | `Alt + F`                                     |
+| Previous/next swap layout | `Alt + [` / `Alt + ]`                         |
+| Resize increase/decrease  | `Alt + +` / `Alt + -`                         |
+| Move tab left/right       | `Alt + I` / `Alt + O`                         |
+| Toggle pane in group      | `Alt + P`                                     |
+| Toggle group marking      | `Alt + Shift + P`                             |
 | Quit Zellij               | `Ctrl + Q`                                    |
+
+> **Note:** `Ctrl + H` enters Move mode in Zellij, which conflicts with Helix's `Ctrl + H` (jump view left). Run Zellij in Locked mode (`Ctrl + G`) or use `Alt + H` for focus when editing inside Zellij.
 
 ### Locked Mode (`Ctrl + G`)
 
-| Action                | Shortcut    |
-| :-------------------- | :---------- |
-| Switch Focus / Normal | `Space`     |
-| Rename Tab            | `,` or `.`  |
-| New Pane (Down)       | `-`         |
-| New Pane (Right)      | `\` or `\|` |
-| Previous Tab          | `B`         |
-| About Plugin          | `?`         |
-| Layout Manager        | `L`         |
-| Go to Tab 1-9         | `1-9`       |
-| New Tab               | `C`         |
-| Plugin Manager        | `I` or `U`  |
-| Toggle Fullscreen     | `M` or `Z`  |
-| Detach Session        | `D`         |
-| Close Focus           | `X`         |
+| Action                | Shortcut   |
+| :-------------------- | :--------- |
+| Switch focus / normal | `Space`    |
+| Rename tab            | `,` or `.` |
+| New pane (down)       | `-`        |
+| New pane (right)      | `\\` or `  |
+| Previous tab          | `B`        |
+| About plugin          | `?`        |
+| Layout manager        | `L`        |
+| Go to tab 1-9         | `1`–`9`    |
+| New tab               | `C`        |
+| Plugin manager        | `I` or `U` |
+| Toggle fullscreen     | `M` or `Z` |
+| Detach session        | `D`        |
+| Close focus           | `X`        |
 
 ### Pane Mode (`Ctrl + P`)
 
 | Action                     | Shortcut            |
 | :------------------------- | :------------------ |
-| Move Focus (HJKL / Arrows) | `H/J/K/L` or arrows |
-| New Pane                   | `N`                 |
-| New Pane (Down)            | `D`                 |
-| New Pane (Right)           | `R`                 |
-| New Pane (Stacked)         | `S`                 |
-| Toggle Floating            | `W`                 |
-| Toggle Embed/Float         | `E`                 |
-| Toggle Fullscreen          | `F`                 |
-| Toggle Pinned              | `I`                 |
-| Rename Pane                | `C`                 |
-| Switch Focus               | `P`                 |
-| Toggle Pane Frames         | `Z`                 |
-| Close Focus                | `X`                 |
+| Move focus (HJKL / arrows) | `H/J/K/L` or arrows |
+| New pane                   | `N`                 |
+| New pane (down)            | `D`                 |
+| New pane (right)           | `R`                 |
+| New pane (stacked)         | `S`                 |
+| Toggle floating            | `W`                 |
+| Toggle embed/float         | `E`                 |
+| Toggle fullscreen          | `F`                 |
+| Toggle pinned              | `I`                 |
+| Rename pane                | `C`                 |
+| Switch focus               | `P`                 |
+| Toggle pane frames         | `Z`                 |
+| Close focus                | `X`                 |
 
 ### Tab Mode (`Ctrl + T`)
 
 | Action                 | Shortcut            |
 | :--------------------- | :------------------ |
-| New Tab                | `N`                 |
-| Close Tab              | `X`                 |
-| Next/Previous Tab      | `L` / `H` or arrows |
-| Toggle Tab             | `Tab`               |
-| Rename Tab             | `R`                 |
-| Break Pane             | `B`                 |
-| Break Pane Left/Right  | `[` / `]`           |
-| Toggle Active Sync Tab | `S`                 |
-| Go to Tab 1-9          | `1-9`               |
+| New tab                | `N`                 |
+| Close tab              | `X`                 |
+| Next/previous tab      | `L` / `H` or arrows |
+| Toggle tab             | `Tab`               |
+| Rename tab             | `R`                 |
+| Break pane             | `B`                 |
+| Break pane left/right  | `[` / `]`           |
+| Toggle active sync tab | `S`                 |
+| Go to tab 1-9          | `1`–`9`             |
 
 ### Resize Mode (`Ctrl + N`)
 
 | Action                     | Shortcut          |
 | :------------------------- | :---------------- |
-| Resize (Increase/Decrease) | `+` / `-` or `=`  |
-| Resize Increase (HJKL)     | `H/J/K/L`         |
-| Resize Decrease (HJKL)     | `Shift + H/J/K/L` |
-| Resize with Arrows         | Arrow keys        |
+| Resize (increase/decrease) | `+` / `-` or `=`  |
+| Resize increase (HJKL)     | `H/J/K/L`         |
+| Resize decrease (HJKL)     | `Shift + H/J/K/L` |
+| Resize with arrows         | Arrow keys        |
 
 ### Move Mode (`Ctrl + H`)
 
 | Action                    | Shortcut            |
 | :------------------------ | :------------------ |
-| Move Pane (HJKL / Arrows) | `H/J/K/L` or arrows |
-| Move Pane                 | `N` or `Tab`        |
-| Move Pane Backwards       | `P`                 |
+| Move pane (HJKL / arrows) | `H/J/K/L` or arrows |
+| Move pane                 | `N` or `Tab`        |
+| Move pane backwards       | `P`                 |
 
 ### Scroll Mode (`Ctrl + S`)
 
-| Action              | Shortcut                           |
-| :------------------ | :--------------------------------- |
-| Scroll Up/Down      | `K` / `J` or arrows                |
-| Page Scroll Up/Down | `PageUp` / `PageDown` or `H` / `L` |
-| Half Page Up/Down   | `U` / `D`                          |
-| Scroll to Bottom    | `Ctrl + C`                         |
-| Enter Search        | `S`                                |
-| Edit Scrollback     | `E`                                |
+| Action              | Shortcut                             |
+| :------------------ | :----------------------------------- |
+| Scroll up/down      | `K` / `J` or arrows                  |
+| Page scroll up/down | `Page Up` / `Page Down` or `H` / `L` |
+| Half page up/down   | `U` / `D`                            |
+| Scroll to bottom    | `Ctrl + C`                           |
+| Enter search        | `S`                                  |
+| Edit scrollback     | `E`                                  |
 
 ### Search Mode (from Scroll)
 
 | Action                  | Shortcut  |
 | :---------------------- | :-------- |
-| Search Down/Up          | `N` / `P` |
-| Toggle Case Sensitivity | `C`       |
-| Toggle Whole Word       | `O`       |
-| Toggle Wrap             | `W`       |
+| Search down/up          | `N` / `P` |
+| Toggle case sensitivity | `C`       |
+| Toggle whole word       | `O`       |
+| Toggle wrap             | `W`       |
 
 ### Session Mode (`Ctrl + O`)
 
 | Action               | Shortcut |
 | :------------------- | :------- |
-| About Plugin         | `A`      |
-| Configuration Plugin | `C`      |
-| Layout Manager       | `L`      |
-| Plugin Manager       | `P`      |
-| Share Plugin         | `S`      |
-| Session Manager      | `W`      |
+| About plugin         | `A`      |
+| Configuration plugin | `C`      |
+| Layout manager       | `L`      |
+| Plugin manager       | `P`      |
+| Share plugin         | `S`      |
+| Session manager      | `W`      |
 | Detach               | `D`      |
 
 ### Tmux Mode (`Ctrl + B` / `Ctrl + A`)
 
 | Action                     | Shortcut            |
 | :------------------------- | :------------------ |
-| Move Focus (HJKL / Arrows) | `H/J/K/L` or arrows |
-| New Pane (Right)           | `\|` or `\` or `%`  |
-| New Pane (Down)            | `-` or `_` or `"`   |
-| Next/Previous Tab          | `N` / `P`           |
-| Focus Next Pane            | `O`                 |
-| Rename Tab                 | `,`                 |
-| Enter Scroll               | `[`                 |
-| Send Ctrl+B                | `Ctrl + B`          |
-| Session Manager            | `S`                 |
-| New Tab                    | `C`                 |
-| Plugin Manager             | `I` / `U`           |
-| Toggle Fullscreen          | `M` / `Z`           |
+| Move focus (HJKL / arrows) | `H/J/K/L` or arrows |
+| New pane (right)           | `                   |
+| New pane (down)            | `-` or `_` or `"`   |
+| Next/previous tab          | `N` / `P`           |
+| Focus next pane            | `O`                 |
+| Rename tab                 | `,`                 |
+| Enter scroll               | `[`                 |
+| Send Ctrl + B              | `Ctrl + B`          |
+| Session manager            | `S`                 |
+| New tab                    | `C`                 |
+| Plugin manager             | `I` / `U`           |
+| Toggle fullscreen          | `M` / `Z`           |
 | Detach                     | `D`                 |

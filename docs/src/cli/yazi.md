@@ -10,13 +10,30 @@ A blazing fast terminal file manager written in Rust, based on async I/O.
 
 ## Custom Keybindings
 
-| Action                     | Shortcut    |
-| :------------------------- | :---------- |
-| Chmod on selected files    | `C` `M`     |
-| Copy file contents         | `C` `Y`     |
-| Toggle preview pane        | `F3`        |
-| Maximize / restore preview | `F4`        |
-| Compress with `ouch`       | `Shift + C` |
+| Action                     | Shortcut      |
+| :------------------------- | :------------ |
+| Chmod on selected files    | `C`, then `M` |
+| Copy file contents         | `C`, then `Y` |
+| Toggle preview pane        | `F3`          |
+| Maximize / restore preview | `F4`          |
+| Compress with `ouch`       | `Shift + C`   |
+
+## Common Defaults
+
+| Action        | Shortcut |
+| :------------ | :------- |
+| Quit          | `Q`      |
+| Open file     | `Enter`  |
+| Select item   | `Space`  |
+| Yank/copy     | `Y`      |
+| Paste         | `P`      |
+| Cancel task   | `Esc`    |
+| Toggle hidden | `.`      |
+| Shell         | `;`      |
+| Command       | `:`      |
+| Help          | `?`      |
+
+For the full default keymap, see the upstream Yazi documentation or press `?` inside Yazi.
 
 ## Plugins
 
