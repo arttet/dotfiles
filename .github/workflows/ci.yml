@@ -57,10 +57,13 @@ jobs:
           purge-primary-key: never
 
       - name: Download tools
-        run: nix shell "$NIXPKGS#just" "$NIXPKGS#dprint" "$NIXPKGS#stylua" "$NIXPKGS#shfmt" --command true
+        run: nix shell "$NIXPKGS#just" "$NIXPKGS#editorconfig-checker" "$NIXPKGS#dprint" "$NIXPKGS#stylua" "$NIXPKGS#shfmt" --command true
 
       - name: Check Justfile formatting
         run: nix shell "$NIXPKGS#just" --command just --fmt --check
+
+      - name: Check EditorConfig formatting
+        run: nix shell "$NIXPKGS#editorconfig-checker" --command editorconfig-checker
 
       - name: Format Check
         run: nix shell "$NIXPKGS#dprint" --command dprint check
