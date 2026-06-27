@@ -125,6 +125,23 @@ zellij:
 # Dotfiles management
 
 [no-cd]
+[doc('Validate Tmux config')]
+tmux:
+    #!/usr/bin/env bash
+    set -euo pipefail
+    trap 'tmux -L tmux-ci-verify kill-server 2>/dev/null || true' EXIT
+    output=$(tmux -f "$PWD/dotfiles/.config/tmux/tmux.conf" -L tmux-ci-verify start-server 2>&1) || {
+        echo "Failed to start tmux server:" >&2
+        echo "$output" >&2
+        exit 1
+    }
+    if [ -n "$output" ]; then
+        echo "Tmux configuration errors detected:" >&2
+        echo "$output" >&2
+        exit 1
+    fi
+
+[no-cd]
 [doc('Validate Stow links')]
 stow:
     #!/usr/bin/env bash
