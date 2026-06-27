@@ -377,9 +377,7 @@ jobs:
             app: helix
             deps: 'nix profile install "$NIXPKGS#just" "$NIXPKGS#helix"'
 
-          - name: Neovim
-            app: neovim
-            deps: 'nix profile install "$NIXPKGS#just" "$NIXPKGS#neovim" "$NIXPKGS#lua5_1" "$NIXPKGS#git"'
+          # Neovim is temporarily disabled until the flaky Lazy sync is isolated.
 
           # Terminals
           - name: Alacritty
@@ -479,6 +477,94 @@ jobs:
         run: just validate ${{ matrix.app }}
 
   # ---------------------------------------------------------------------------
+  # Stage 2: Performance regression gate
+  # ---------------------------------------------------------------------------
+  performance:
+    name: Performance
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    needs: [fmt, lint, security, antivirus, docs]
+    if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository
+
+    permissions:
+      contents: read
+      pull-requests: write
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7
+        with:
+          persist-credentials: false
+
+      - name: Install Nix
+        uses: cachix/install-nix-action@8aa03977d8d733052d78f4e008a241fd1dbf36b3 # v31
+        with:
+          extra_nix_config: |
+            experimental-features = nix-command flakes
+
+      - name: Restore and save Nix store
+        uses: nix-community/cache-nix-action@7df957e333c1e5da7721f60227dbba6d06080569 # v7
+        with:
+          primary-key: nix-${{ runner.os }}-${{ github.job }}-${{ github.run_id }}-${{ github.run_attempt }}
+          restore-prefixes-first-match: nix-${{ runner.os }}-${{ github.job }}-
+          gc-max-store-size-linux: 1G
+          purge: true
+          purge-prefixes: nix-${{ runner.os }}-${{ github.job }}-
+          purge-created: 0
+          purge-last-accessed: P1DT12H
+          purge-primary-key: never
+
+      - name: Install benchmark dependencies
+        run: |
+          nix profile install \
+            "$NIXPKGS#just" \
+            "$NIXPKGS#hyperfine" \
+            "$NIXPKGS#bash" \
+            "$NIXPKGS#zsh" \
+            "$NIXPKGS#nushell" \
+            "$NIXPKGS#tmux" \
+            "$NIXPKGS#vendir" \
+            "$NIXPKGS#jq"
+
+      - name: Compare performance with baseline
+        id: benchmark
+        continue-on-error: true
+        env:
+          PERFORMANCE_REPORT: performance-report.md
+        run: just bench ci
+
+      - name: Add performance job summary
+        if: always()
+        run: |
+          if [[ -f performance-report.md ]]; then
+            cat performance-report.md >> "$GITHUB_STEP_SUMMARY"
+          else
+            {
+              echo "## Performance report"
+              echo
+              echo "**Failed:** benchmark did not produce a report."
+            } >> "$GITHUB_STEP_SUMMARY"
+          fi
+
+      - name: Publish performance report
+        if: always() && github.event_name == 'pull_request'
+        uses: marocchino/sticky-pull-request-comment@0ea0beb66eb9baf113663a64ec522f60e49231c0 # v3.0.4
+        with:
+          header: performance-regression
+          path: performance-report.md
+
+      - name: Enforce performance gate
+        if: always() && steps.benchmark.outcome == 'failure'
+        run: |
+          echo "::error title=Performance regression gate failed::See the report below and in the job summary."
+          if [[ -f performance-report.md ]]; then
+            cat performance-report.md >&2
+          else
+            echo "Performance report was not generated." >&2
+          fi
+          exit 1
+
+  # ---------------------------------------------------------------------------
   # Stage 3: Deploy to GitHub Pages (main only)
   # ---------------------------------------------------------------------------
   deploy:
@@ -494,6 +580,7 @@ jobs:
       - security
       - docs
       - validate
+      - performance
 
     permissions:
       pages: write

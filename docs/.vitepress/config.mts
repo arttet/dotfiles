@@ -26,6 +26,7 @@ const sidebar = [
     items: [
       { text: "Getting Started", link: "/guide/" },
       { text: "Architecture", link: "/architecture" },
+      { text: "Performance", link: "/performance" },
     ],
   },
   {
