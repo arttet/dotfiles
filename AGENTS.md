@@ -12,7 +12,7 @@ This repository is a personal, cross-platform dotfiles configuration for Artyom 
 - **Maintainer**: `@arttet` (see `.github/CODEOWNERS`)
 - **Primary language of documentation and comments**: English
 - **Deployment model**: Symlink-based dotfiles deployed with **dotter** (`just deploy`) or GNU **stow** (`just install`/`uninstall`)
-- **External assets**: Plugins, themes, and wallpapers are vendored with **vendir** (`vendir.yml` + `vendir.lock.yml`)
+- **External assets**: Plugins, themes, and wallpapers are vendored with **vendir** (`vendir.yml` + `vendir.lock.yml`, plus `vendir.lock.windows.yml` for Windows path handling)
 - **Task runner**: `just` (`Justfile`)
 - **Documentation site**: VitePress under `docs/`, served via Bun (`just docs dev`)
 - **NixOS integration**: `nixos/home.nix` links selected dotfiles into a Home Manager generation
@@ -66,6 +66,7 @@ This repository is a personal, cross-platform dotfiles configuration for Artyom 
 ├── Justfile              # primary task definitions
 ├── vendir.yml            # external dependency specifications
 ├── vendir.lock.yml       # pinned external dependency versions
+├── vendir.lock.windows.yml # Windows-specific lock file (backslash paths)
 ├── dprint.json           # formatter config
 ├── .stylua.toml          # Lua formatter config
 ├── selene.toml           # Lua linter config
@@ -260,7 +261,9 @@ Default target type is `symbolic`. Windows-only paths use `if = "dotter.windows"
 - Yazi flavors and plugins (catppuccin, chmod, copy-file-contents, full-border, git, ouch, piper, starship, toggle-pane, torrent-preview, yaziline)
 - Hyprland wallpapers (catppuccin, graphite, nord, whitesur, mactahoe)
 
-**Rule**: update these with `just sync` / `just update`, not by hand. `just sync` uses `--locked` for reproducibility; `just update` re-resolves refs and rewrites `vendir.lock.yml`. Vendored paths are excluded from formatting and linting.
+**Rule**: update these with `just sync` / `just update`, not by hand. `just sync` uses `--locked` for reproducibility; `just update` re-resolves refs and rewrites `vendir.lock.yml` (and `vendir.lock.windows.yml` on Windows). Vendored paths are excluded from formatting and linting.
+
+> `vendir.lock.windows.yml` is kept because `vendir` on Windows normalizes paths to backslashes while the committed `vendir.lock.yml` uses forward slashes. `just sync` selects the appropriate lock file automatically.
 
 > Known issue (see `TODO.md`): `vendir sync` can fail on Windows with access-denied errors on its temp clone.
 
@@ -314,7 +317,7 @@ When modifying configs:
   - `Justfile` (if a new validation recipe is needed)
   - `.github/workflows/ci.yml` (validation job)
 - Run `just fmt` and `just lint` before committing.
-- If adding an external plugin/theme, declare it in `vendir.yml`, run `just sync`, and commit both `vendir.yml` and `vendir.lock.yml`.
+- If adding an external plugin/theme, declare it in `vendir.yml`, run `just sync`, and commit `vendir.yml`, `vendir.lock.yml`, and `vendir.lock.windows.yml`.
 - The `dotfiles/.config/nvim` configuration is currently noted as broken in `TODO.md`; treat it as a known issue requiring a dedicated fix session.
 
 ## Useful Links

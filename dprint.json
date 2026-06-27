@@ -14,6 +14,8 @@
     "docs/.vitepress/cache",
     "docs/.vitepress/dist",
     "vendir.lock.yml",
+    "vendir.lock.windows.yml",
+    ".serena",
     ".dotter",
     "dotfiles/.config/alacritty/themes",
     "dotfiles/.config/hypr/wallpapers",

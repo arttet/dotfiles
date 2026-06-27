@@ -1,168 +1,140 @@
 apiVersion: vendir.k14s.io/v1alpha1
 kind: Config
+
 directories:
-  - path: dotfiles/.config/alacritty/themes/themes
+  # ===========================================================================
+  # Alacritty
+  # ===========================================================================
+  - path: dotfiles/.config/alacritty/themes
     contents:
-      - path: .
+      - path: themes
         git:
           url: https://github.com/alacritty/alacritty-theme
-          ref: master
+          ref: origin/master
+          depth: 1
+          lfsSkipSmudge: true
+          skipInitSubmodules: true
         includePaths:
           - themes/catppuccin_frappe.toml
           - themes/catppuccin_latte.toml
           - themes/catppuccin_macchiato.toml
           - themes/catppuccin_mocha.toml
+
+          - themes/gruvbox_dark.toml
+          - themes/gruvbox_light.toml
+
+          - themes/nord.toml
+          - themes/nord_light.toml
         newRootPath: themes
 
-  # - path: dotfiles/.config/tmux/plugins/tpm
+  # ===========================================================================
+  # Tmux
+  # ===========================================================================
+
+  # ---------------------------------------------------------------------------
+  # Tmux plugins
+  # ---------------------------------------------------------------------------
+
+  # - path: dotfiles/.config/tmux/plugins/tmux-sensible
   #   contents:
   #     - path: .
   #       git:
-  #         url: https://github.com/tmux-plugins/tpm
-  #         ref: master
+  #         url: https://github.com/tmux-plugins/tmux-sensible
+  #         ref: origin/master
+  #         depth: 1
+  #         lfsSkipSmudge: true
+  #         skipInitSubmodules: true
 
-  - path: dotfiles/.config/yazi/flavors/catppuccin-latte.yazi
+  # - path: dotfiles/.config/tmux/plugins/tmux-resurrect
+  #   contents:
+  #     - path: .
+  #       git:
+  #         url: https://github.com/tmux-plugins/tmux-resurrect
+  #         ref: origin/master
+  #         depth: 1
+  #         lfsSkipSmudge: true
+  #         skipInitSubmodules: true
+
+  # - path: dotfiles/.config/tmux/plugins/tmux-continuum
+  #   contents:
+  #     - path: .
+  #       git:
+  #         url: https://github.com/tmux-plugins/tmux-continuum
+  #         ref: origin/master
+  #         depth: 1
+  #         lfsSkipSmudge: true
+  #         skipInitSubmodules: true
+
+  # - path: dotfiles/.config/tmux/plugins/tmux-sessionist
+  #   contents:
+  #     - path: .
+  #       git:
+  #         url: https://github.com/tmux-plugins/tmux-sessionist
+  #         ref: origin/master
+  #         depth: 1
+  #         lfsSkipSmudge: true
+  #         skipInitSubmodules: true
+
+  # - path: dotfiles/.config/tmux/plugins/tmux-yank
+  #   contents:
+  #     - path: .
+  #       git:
+  #         url: https://github.com/tmux-plugins/tmux-yank
+  #         ref: origin/master
+  #         depth: 1
+  #         lfsSkipSmudge: true
+  #         skipInitSubmodules: true
+
+  # ---------------------------------------------------------------------------
+  # Tmux themes
+  # ---------------------------------------------------------------------------
+
+  - path: dotfiles/.config/tmux/plugins/nord-tmux
     contents:
       - path: .
         git:
-          url: https://github.com/yazi-rs/flavors.git
-          ref: main
+          url: https://github.com/Wabri/tmux-nord-plusplus
+          ref: origin/develop
+          depth: 1
+          lfsSkipSmudge: true
+          skipInitSubmodules: true
         includePaths:
-          - "catppuccin-latte.yazi/flavor.toml"
-          - "catppuccin-latte.yazi/README.md"
-        newRootPath: catppuccin-latte.yazi
+          - src/**/*
+          - nord.tmux
 
-  - path: dotfiles/.config/yazi/flavors/catppuccin-mocha.yazi
-    contents:
-      - path: .
-        git:
-          url: https://github.com/yazi-rs/flavors.git
-          ref: main
-        includePaths:
-          - "catppuccin-mocha.yazi/flavor.toml"
-          - "catppuccin-mocha.yazi/README.md"
-        newRootPath: catppuccin-mocha.yazi
+  # ===========================================================================
+  # Wallpapers
+  # ===========================================================================
 
-  - path: dotfiles/.config/yazi/plugins/chmod.yazi
-    contents:
-      - path: .
-        git:
-          url: https://github.com/yazi-rs/plugins.git
-          ref: main
-        includePaths:
-          - "chmod.yazi/main.lua"
-          - "chmod.yazi/README.md"
-        newRootPath: chmod.yazi
-
-  - path: dotfiles/.config/yazi/plugins/copy-file-contents.yazi
-    contents:
-      - path: .
-        git:
-          url: https://github.com/AnirudhG07/plugins-yazi.git
-          ref: main
-        includePaths:
-          - "copy-file-contents.yazi/main.lua"
-          - "copy-file-contents.yazi/README.md"
-        newRootPath: copy-file-contents.yazi
-
-  - path: dotfiles/.config/yazi/plugins/full-border.yazi
-    contents:
-      - path: .
-        git:
-          url: https://github.com/yazi-rs/plugins.git
-          ref: main
-        includePaths:
-          - "full-border.yazi/main.lua"
-          - "full-border.yazi/README.md"
-        newRootPath: full-border.yazi
-
-  - path: dotfiles/.config/yazi/plugins/git.yazi
-    contents:
-      - path: .
-        git:
-          url: https://github.com/yazi-rs/plugins.git
-          ref: main
-        includePaths:
-          - "git.yazi/main.lua"
-          - "git.yazi/README.md"
-        newRootPath: git.yazi
-
-  - path: dotfiles/.config/yazi/plugins/ouch.yazi
-    contents:
-      - path: .
-        git:
-          url: https://github.com/ndtoan96/ouch.yazi.git
-          ref: main
-        includePaths:
-          - "main.lua"
-          - "README.md"
-
-  - path: dotfiles/.config/yazi/plugins/piper.yazi
-    contents:
-      - path: .
-        git:
-          url: https://github.com/yazi-rs/plugins.git
-          ref: main
-        includePaths:
-          - "piper.yazi/main.lua"
-          - "piper.yazi/README.md"
-        newRootPath: piper.yazi
-
-  - path: dotfiles/.config/yazi/plugins/starship.yazi
-    contents:
-      - path: .
-        git:
-          url: https://github.com/Rolv-Apneseth/starship.yazi.git
-          ref: main
-        includePaths:
-          - "main.lua"
-          - "README.md"
-
-  - path: dotfiles/.config/yazi/plugins/toggle-pane.yazi
-    contents:
-      - path: .
-        git:
-          url: https://github.com/yazi-rs/plugins.git
-          ref: main
-        includePaths:
-          - "toggle-pane.yazi/main.lua"
-          - "toggle-pane.yazi/README.md"
-        newRootPath: toggle-pane.yazi
-
-  - path: dotfiles/.config/yazi/plugins/torrent-preview.yazi
-    contents:
-      - path: .
-        git:
-          url: https://github.com/kirasok/torrent-preview.yazi.git
-          ref: main
-        includePaths:
-          - "main.lua"
-          - "README.md"
-
-  - path: dotfiles/.config/yazi/plugins/yaziline.yazi
-    contents:
-      - path: .
-        git:
-          url: https://github.com/llanosrocas/yaziline.yazi.git
-          ref: main
-        includePaths:
-          - "main.lua"
-          - "README.md"
-
+  # ---------------------------------------------------------------------------
+  # Wallpapers / Catppuccin
+  # ---------------------------------------------------------------------------
   - path: dotfiles/.config/hypr/wallpapers/catppuccin
     contents:
       - path: .
         git:
-          url: https://github.com/white-spaced/catppuccin-wallpapers.git
-          ref: main
-        newRootPath: wallpapers
+          url: https://github.com/orangci/walls-catppuccin-mocha
+          ref: origin/master
+          depth: 1
+          lfsSkipSmudge: true
+          skipInitSubmodules: false
+        includePaths:
+          - "**/*.png"
+          - "**/*.jpg"
+          - "**/*.jpeg"
 
+  # ---------------------------------------------------------------------------
+  # Wallpapers / Graphite
+  # ---------------------------------------------------------------------------
   - path: dotfiles/.config/hypr/wallpapers/graphite
     contents:
       - path: .
         git:
-          url: https://github.com/vinceliuice/Graphite-gtk-theme.git
-          ref: main
+          url: https://github.com/vinceliuice/Graphite-gtk-theme
+          ref: origin/main
+          depth: 1
+          lfsSkipSmudge: true
+          skipInitSubmodules: true
         includePaths:
           - wallpaper/wallpapers/wave-color.jpg
           - wallpaper/wallpapers/wave-Dark.jpg
@@ -173,45 +145,255 @@ directories:
     contents:
       - path: .
         git:
-          url: https://github.com/vinceliuice/Graphite-gtk-theme.git
-          ref: main
+          url: https://github.com/vinceliuice/Graphite-gtk-theme
+          ref: origin/main
+          depth: 1
+          lfsSkipSmudge: true
+          skipInitSubmodules: true
         includePaths:
           - wallpaper/wallpapers-nord/wave-color-nord.jpg
           - wallpaper/wallpapers-nord/wave-Dark-nord.jpg
           - wallpaper/wallpapers-nord/wave-Light-nord.jpg
         newRootPath: wallpaper/wallpapers-nord
 
+  # ---------------------------------------------------------------------------
+  # Wallpapers / Nord
+  # ---------------------------------------------------------------------------
   - path: dotfiles/.config/hypr/wallpapers/nord
     contents:
       - path: .
         git:
-          url: https://github.com/linuxdotexe/nordic-wallpapers.git
-          ref: master
-        newRootPath: wallpapers
+          url: https://github.com/linuxdotexe/nordic-wallpapers
+          ref: origin/master
+          depth: 1
+          lfsSkipSmudge: true
+          skipInitSubmodules: true
+        includePaths:
+          - "**/*.png"
+          - "**/*.jpg"
+          - "**/*.jpeg"
 
+  # ---------------------------------------------------------------------------
+  # Wallpapers / WhiteSur
+  # ---------------------------------------------------------------------------
   - path: dotfiles/.config/hypr/wallpapers/whitesur
     contents:
       - path: .
         git:
-          url: https://github.com/vinceliuice/WhiteSur-wallpapers.git
-          ref: main
-        newRootPath: 4k
+          url: https://github.com/vinceliuice/WhiteSur-wallpapers
+          ref: origin/main
+          depth: 1
+          lfsSkipSmudge: true
+          skipInitSubmodules: true
+        includePaths:
+          - "1080p/*.jpg"
+          - "2k/*.jpg"
+          - "4k/*.jpg"
 
   - path: dotfiles/.config/hypr/wallpapers/whitesur-nord
     contents:
       - path: .
         git:
-          url: https://github.com/vinceliuice/WhiteSur-wallpapers.git
-          ref: main
+          url: https://github.com/vinceliuice/WhiteSur-wallpapers
+          ref: origin/main
+          depth: 1
+          lfsSkipSmudge: true
+          skipInitSubmodules: true
+        includePaths:
+          - "Wallpaper-nord/*.png"
         newRootPath: Wallpaper-nord
 
+  # ---------------------------------------------------------------------------
+  # Wallpapers / MacTahoe
+  # ---------------------------------------------------------------------------
   - path: dotfiles/.config/hypr/wallpapers/mactahoe
     contents:
       - path: .
         git:
-          url: https://github.com/vinceliuice/MacTahoe-gtk-theme.git
-          ref: main
+          url: https://github.com/vinceliuice/MacTahoe-gtk-theme
+          ref: origin/main
+          depth: 1
+          lfsSkipSmudge: true
+          skipInitSubmodules: true
         includePaths:
           - wallpaper/MacTahoe-day.jpeg
           - wallpaper/MacTahoe-night.jpeg
         newRootPath: wallpaper
+
+  # ===========================================================================
+  # Yazi
+  # ===========================================================================
+
+  # ---------------------------------------------------------------------------
+  # Yazi flavors
+  # ---------------------------------------------------------------------------
+  - path: dotfiles/.config/yazi/flavors/catppuccin-latte.yazi
+    contents:
+      - path: .
+        git:
+          url: https://github.com/yazi-rs/flavors.git
+          ref: origin/main
+          depth: 1
+          lfsSkipSmudge: true
+          skipInitSubmodules: true
+        includePaths:
+          - catppuccin-latte.yazi/flavor.toml
+          - catppuccin-latte.yazi/README.md
+        newRootPath: catppuccin-latte.yazi
+
+  - path: dotfiles/.config/yazi/flavors/catppuccin-mocha.yazi
+    contents:
+      - path: .
+        git:
+          url: https://github.com/yazi-rs/flavors.git
+          ref: origin/main
+          depth: 1
+          lfsSkipSmudge: true
+          skipInitSubmodules: true
+        includePaths:
+          - catppuccin-mocha.yazi/flavor.toml
+          - catppuccin-mocha.yazi/README.md
+        newRootPath: catppuccin-mocha.yazi
+
+  # ---------------------------------------------------------------------------
+  # Yazi plugins / official
+  # ---------------------------------------------------------------------------
+
+  - path: dotfiles/.config/yazi/plugins/chmod.yazi
+    contents:
+      - path: .
+        git:
+          url: https://github.com/yazi-rs/plugins.git
+          ref: origin/main
+          depth: 1
+          lfsSkipSmudge: true
+          skipInitSubmodules: true
+        includePaths:
+          - chmod.yazi/main.lua
+          - chmod.yazi/README.md
+        newRootPath: chmod.yazi
+
+  - path: dotfiles/.config/yazi/plugins/full-border.yazi
+    contents:
+      - path: .
+        git:
+          url: https://github.com/yazi-rs/plugins.git
+          ref: origin/main
+          depth: 1
+          lfsSkipSmudge: true
+          skipInitSubmodules: true
+        includePaths:
+          - full-border.yazi/main.lua
+          - full-border.yazi/README.md
+        newRootPath: full-border.yazi
+
+  - path: dotfiles/.config/yazi/plugins/git.yazi
+    contents:
+      - path: .
+        git:
+          url: https://github.com/yazi-rs/plugins.git
+          ref: origin/main
+          depth: 1
+          lfsSkipSmudge: true
+          skipInitSubmodules: true
+        includePaths:
+          - git.yazi/main.lua
+          - git.yazi/README.md
+        newRootPath: git.yazi
+
+  - path: dotfiles/.config/yazi/plugins/piper.yazi
+    contents:
+      - path: .
+        git:
+          url: https://github.com/yazi-rs/plugins.git
+          ref: origin/main
+          depth: 1
+          lfsSkipSmudge: true
+          skipInitSubmodules: true
+        includePaths:
+          - piper.yazi/main.lua
+          - piper.yazi/README.md
+        newRootPath: piper.yazi
+
+  - path: dotfiles/.config/yazi/plugins/toggle-pane.yazi
+    contents:
+      - path: .
+        git:
+          url: https://github.com/yazi-rs/plugins.git
+          ref: origin/main
+          depth: 1
+          lfsSkipSmudge: true
+          skipInitSubmodules: true
+        includePaths:
+          - toggle-pane.yazi/main.lua
+          - toggle-pane.yazi/README.md
+        newRootPath: toggle-pane.yazi
+
+  # ---------------------------------------------------------------------------
+  # Yazi Community Plugins
+  # ---------------------------------------------------------------------------
+  - path: dotfiles/.config/yazi/plugins/copy-file-contents.yazi
+    contents:
+      - path: .
+        git:
+          url: https://github.com/AnirudhG07/plugins-yazi.git
+          ref: origin/main
+          depth: 1
+          lfsSkipSmudge: true
+          skipInitSubmodules: true
+        includePaths:
+          - copy-file-contents.yazi/main.lua
+          - copy-file-contents.yazi/README.md
+        newRootPath: copy-file-contents.yazi
+
+  - path: dotfiles/.config/yazi/plugins/ouch.yazi
+    contents:
+      - path: .
+        git:
+          url: https://github.com/ndtoan96/ouch.yazi.git
+          ref: origin/main
+          depth: 1
+          lfsSkipSmudge: true
+          skipInitSubmodules: true
+        includePaths:
+          - main.lua
+          - README.md
+
+  - path: dotfiles/.config/yazi/plugins/starship.yazi
+    contents:
+      - path: .
+        git:
+          url: https://github.com/Rolv-Apneseth/starship.yazi.git
+          ref: origin/main
+          depth: 1
+          lfsSkipSmudge: true
+          skipInitSubmodules: true
+        includePaths:
+          - main.lua
+          - README.md
+
+  - path: dotfiles/.config/yazi/plugins/torrent-preview.yazi
+    contents:
+      - path: .
+        git:
+          url: https://github.com/kirasok/torrent-preview.yazi.git
+          ref: origin/main
+          depth: 1
+          lfsSkipSmudge: true
+          skipInitSubmodules: true
+        includePaths:
+          - main.lua
+          - README.md
+
+  - path: dotfiles/.config/yazi/plugins/yaziline.yazi
+    contents:
+      - path: .
+        git:
+          url: https://github.com/llanosrocas/yaziline.yazi.git
+          ref: origin/main
+          depth: 1
+          lfsSkipSmudge: true
+          skipInitSubmodules: true
+        includePaths:
+          - main.lua
+          - README.md
