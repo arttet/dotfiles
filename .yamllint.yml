@@ -14,6 +14,8 @@ rules:
 
 ignore: |
   vendir.lock.yml
+  vendir.lock.windows.yml
+  .serena/
   node_modules/
   docs/.vitepress/cache/
   docs/.vitepress/dist/

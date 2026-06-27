@@ -5,123 +5,123 @@ directories:
       commitTitle: Add gruvbox-material soft dark theme
       sha: 659d2e1d669cd5722f11e58c44fd45dc26a6ffcd
     path: themes
-  path: dotfiles/.config/alacritty/themes
+  path: dotfiles\.config\alacritty\themes
 - contents:
   - git:
       commitTitle: 'doc(readme): update with more infos'
       sha: eaca4cc3a4977ed157285bc1dcda9e18b2224a72
     path: .
-  path: dotfiles/.config/tmux/plugins/nord-tmux
+  path: dotfiles\.config\tmux\plugins\nord-tmux
 - contents:
   - git:
       commitTitle: 'Merge pull request #6 from KrisAphalon/master'
       sha: 7bfdf10d16ad3a689f9f0cf3a0930da3d1a245a8
     path: .
-  path: dotfiles/.config/hypr/wallpapers/catppuccin
+  path: dotfiles\.config\hypr\wallpapers\catppuccin
 - contents:
   - git:
       commitTitle: update
       sha: 57028b0bfcc0cfee1ba42273c545e4e269973433
     path: .
-  path: dotfiles/.config/hypr/wallpapers/graphite
+  path: dotfiles\.config\hypr\wallpapers\graphite
 - contents:
   - git:
       commitTitle: update
       sha: 57028b0bfcc0cfee1ba42273c545e4e269973433
     path: .
-  path: dotfiles/.config/hypr/wallpapers/graphite-nord
+  path: dotfiles\.config\hypr\wallpapers\graphite-nord
 - contents:
   - git:
       commitTitle: 'upd: change links to ign'
       sha: 7a8e3bcabafbefd1c5b19229841b9bf377a4b765
     path: .
-  path: dotfiles/.config/hypr/wallpapers/nord
+  path: dotfiles\.config\hypr\wallpapers\nord
 - contents:
   - git:
       commitTitle: 'Merge pull request #11 from sam-itt/patch-1...'
       sha: 5c1d7ca20b8de0a7efe443792c19e49277262e02
     path: .
-  path: dotfiles/.config/hypr/wallpapers/whitesur
+  path: dotfiles\.config\hypr\wallpapers\whitesur
 - contents:
   - git:
       commitTitle: 'Merge pull request #11 from sam-itt/patch-1...'
       sha: 5c1d7ca20b8de0a7efe443792c19e49277262e02
     path: .
-  path: dotfiles/.config/hypr/wallpapers/whitesur-nord
+  path: dotfiles\.config\hypr\wallpapers\whitesur-nord
 - contents:
   - git:
       commitTitle: Fixed firefox issues
       sha: 3267b3dfd9b6c3e775ad9b1f3079f848fc076bf6
     path: .
-  path: dotfiles/.config/hypr/wallpapers/mactahoe
+  path: dotfiles\.config\hypr\wallpapers\mactahoe
 - contents:
   - git:
       commitTitle: Added aurora-dawn.yazi & aurora-storm.yazi to community flavors
         (#79)
       sha: 4770a3467169bfdb0a3b11601921aaf27c100630
     path: .
-  path: dotfiles/.config/yazi/flavors/catppuccin-latte.yazi
+  path: dotfiles\.config\yazi\flavors\catppuccin-latte.yazi
 - contents:
   - git:
       commitTitle: Added aurora-dawn.yazi & aurora-storm.yazi to community flavors
         (#79)
       sha: 4770a3467169bfdb0a3b11601921aaf27c100630
     path: .
-  path: dotfiles/.config/yazi/flavors/catppuccin-mocha.yazi
+  path: dotfiles\.config\yazi\flavors\catppuccin-mocha.yazi
 - contents:
   - git:
       commitTitle: 'feat: support nightly `rt.mgr.ratio`'
       sha: 39aaf6dc77e546fe7f7836f102a6c57f96d15365
     path: .
-  path: dotfiles/.config/yazi/plugins/chmod.yazi
+  path: dotfiles\.config\yazi\plugins\chmod.yazi
 - contents:
   - git:
       commitTitle: 'feat: support nightly `rt.mgr.ratio`'
       sha: 39aaf6dc77e546fe7f7836f102a6c57f96d15365
     path: .
-  path: dotfiles/.config/yazi/plugins/full-border.yazi
+  path: dotfiles\.config\yazi\plugins\full-border.yazi
 - contents:
   - git:
       commitTitle: 'feat: support nightly `rt.mgr.ratio`'
       sha: 39aaf6dc77e546fe7f7836f102a6c57f96d15365
     path: .
-  path: dotfiles/.config/yazi/plugins/git.yazi
+  path: dotfiles\.config\yazi\plugins\git.yazi
 - contents:
   - git:
       commitTitle: 'feat: support nightly `rt.mgr.ratio`'
       sha: 39aaf6dc77e546fe7f7836f102a6c57f96d15365
     path: .
-  path: dotfiles/.config/yazi/plugins/piper.yazi
+  path: dotfiles\.config\yazi\plugins\piper.yazi
 - contents:
   - git:
       commitTitle: 'feat: support nightly `rt.mgr.ratio`'
       sha: 39aaf6dc77e546fe7f7836f102a6c57f96d15365
     path: .
-  path: dotfiles/.config/yazi/plugins/toggle-pane.yazi
+  path: dotfiles\.config\yazi\plugins\toggle-pane.yazi
 - contents:
   - git:
       commitTitle: manager -> mgr api fix
       sha: 71545f4ee1a0896c555b3118dc3d2b0a1b92fad9
     path: .
-  path: dotfiles/.config/yazi/plugins/copy-file-contents.yazi
+  path: dotfiles\.config\yazi\plugins\copy-file-contents.yazi
 - contents:
   - git:
       commitTitle: 'Merge pull request #35 from openaitx-system/Auto_translate_README_and_Wiki...'
       sha: 406ce6c13ec3a18d4872b8f64b62f4a530759b2c
     path: .
-  path: dotfiles/.config/yazi/plugins/ouch.yazi
+  path: dotfiles\.config\yazi\plugins\ouch.yazi
 - contents:
   - git:
       commitTitle: 'docs(readme): fix example for latest version'
       sha: 159eaba5b5052bf78ff6cfbfe4e527b946818c82
     path: .
-  path: dotfiles/.config/yazi/plugins/starship.yazi
+  path: dotfiles\.config\yazi\plugins\starship.yazi
 - contents:
   - git:
       commitTitle: 'fix(deprecated): use Command:arg() instead of Command:args()'
       sha: f46528243c458de3ffce38c44607d5a0cde67559
     path: .
-  path: dotfiles/.config/yazi/plugins/torrent-preview.yazi
+  path: dotfiles\.config\yazi\plugins\torrent-preview.yazi
 - contents:
   - git:
       commitTitle: 'chore(v26.5.6): `size` => `length`'
@@ -129,5 +129,5 @@ directories:
       tags:
       - v2.5.4
     path: .
-  path: dotfiles/.config/yazi/plugins/yaziline.yazi
+  path: dotfiles\.config\yazi\plugins\yaziline.yazi
 kind: LockConfig

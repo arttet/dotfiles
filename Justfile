@@ -4,6 +4,7 @@
 
 HYPERFINE := "hyperfine --warmup 2 --runs 10 --shell=none"
 SHELL_TARGETS := "dotfiles/.bashrc dotfiles/.bash_profile dotfiles/.config/bash dotfiles/.config/shell"
+VENDIR_LOCK_FILE := if os_family() == "windows" { "vendir.lock.windows.yml" } else { "vendir.lock.yml" }
 
 # ==============================================================================
 # Help
@@ -23,12 +24,7 @@ help:
 [doc('Synchronize external plugins and dependencies')]
 [group('Dotfiles')]
 sync:
-    vendir sync --locked
-
-[doc('Update vendored dependencies to latest')]
-[group('Dotfiles')]
-update *args:
-    vendir sync {{ args }}
+    vendir sync --locked --lock-file {{ VENDIR_LOCK_FILE }}
 
 [doc('Preview dotfiles deployment')]
 [group('Dotfiles')]
@@ -89,6 +85,17 @@ lint:
     actionlint
     stylelint --config .stylelintrc.json './dotfiles/.config/**/*.css'
     @echo "✅ Linting complete!"
+
+[doc('Remove vendir dependencies')]
+[group('Development')]
+clean:
+    @echo "🧹 Removing vendir dependencies..."
+    rm -rf dotfiles/.config/alacritty/themes
+    rm -rf dotfiles/.config/tmux/plugins
+    rm -rf dotfiles/.config/hypr/wallpapers
+    rm -rf dotfiles/.config/yazi/flavors
+    rm -rf dotfiles/.config/yazi/plugins
+    @echo "✅ Cleanup complete!"
 
 # ==============================================================================
 # Validators
