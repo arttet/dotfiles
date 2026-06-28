@@ -1,336 +1,109 @@
 # AI Agent Guidelines for Neovim Lua Configuration
 
-This document provides expert guidance for AI agents working with this Neovim configuration written in Lua.
+Expert guidance for AI agents working with this Neovim configuration (Lua).
 
 ## Requirements
 
-- **Minimum Neovim Version**: 0.11+
+- **Minimum Neovim Version**: 0.12 (latest stable; this config uses 0.12-only APIs)
 - **Language**: Lua
-- **Plugin Manager**: lazy.nvim
+- **Plugin Manager**: built-in `vim.pack` (no NvChad, no lazy.nvim)
+- **Toolchain on PATH**: `git`, a C compiler (`cc`/`gcc`/`clang`), `tree-sitter` CLI
+  (for treesitter parsers), plus `ripgrep` + `fd` (telescope). Run `just nvim doctor`
+  to verify the environment before debugging anything else.
 
 ## Compatibility Notes
 
-- Use only APIs available in Neovim 0.11+
-- Avoid deprecated functions (e.g., vim.loop → vim.uv, lspconfig → vim.lsp)
-- Test solutions on Neovim 0.11 before suggesting them
+- Use only APIs available in Neovim 0.12+ (`vim.pack`, `vim.lsp.config`/`enable`,
+  `vim.diagnostic.config{ signs = { text = {} } }`, `vim.treesitter.start`,
+  `vim.text.diff`). Do not reintroduce `vim.loop` (use `vim.uv`) or `nvim-lspconfig`
+  wrappers.
+- The diagnostic `sign_define` path was removed in 0.12 — configure signs via
+  `vim.diagnostic.config`. (DAP still uses `vim.fn.sign_define`, which is fine.)
+- `vim.treesitter.get_parser()` returns `nil` instead of throwing — guard callers.
 
 ## Configuration Structure
 
-This is a **NvChad-based Neovim configuration** using lazy.nvim as the plugin manager. The configuration follows a modular structure:
-
-- `init.lua` - Main entry point, bootstraps lazy.nvim and loads core modules
-- `lua/options.lua` - Vim options and settings
-- `lua/mappings.lua` - Keybindings and mappings
-- `lua/autocmds.lua` - Autocommands and event handlers
-- `lua/chadrc.lua` - NvChad-specific configuration
-- `lua/configs/` - Plugin and feature configurations
-- `lua/plugins/` - Plugin specifications for lazy.nvim
-
-## Lua Language Expertise
-
-### Neovim Lua API Fundamentals
-
-**Keymapping:**
-
-```lua
--- Modern way (Neovim 0.7+)
-vim.keymap.set('n', '<leader>ff', '<cmd>Telescope find_files<cr>', {
-  desc = 'Find files',
-  silent = true,
-  noremap = true
-})
-
--- Mode can be string or table
-vim.keymap.set({'n', 'v'}, '<leader>y', '"+y', { desc = 'Yank to clipboard' })
+```text
+init.lua                  # vim.loader.enable(); leader; netrw off; require("core")
+nvim-pack-lock.json       # vim.pack lockfile (committed; never hand-edit)
+lua/core/                 # plugin-independent setup (pure 0.12 APIs)
+  init.lua                #   loads options/diagnostics/autocmds/keymaps + configs.lsp
+  options.lua, diagnostics.lua, autocmds.lua, keymaps.lua
+  dap.lua                 #   on-demand DAP loader (installs the debug stack on first use)
+lua/configs/              # reused plugin option modules (lsp/, dap/, conform, treesitter, ...)
+plugin/NN-name.lua        # one plugin per file, AUTO-SOURCED ALPHABETICALLY at startup
+ftplugin/                 # (optional) per-filetype tweaks
 ```
 
-**Autocommands:**
+**Load model:** `plugin/*.lua` files are sourced alphabetically after `init.lua`, so the
+numeric filename prefix (`00`, `10`, …) _is_ the load order. Each file is one
+`vim.pack.add { ... }` followed by the plugin's `setup`. There is no event/ft/cmd lazy
+loading built into `vim.pack`; lazy loading here means deferring `require(...).setup()`
+with `vim.schedule(...)` or a `once`-autocmd (see `plugin/50-completion.lua`,
+`lua/core/dap.lua`).
+
+## vim.pack essentials
 
 ```lua
--- Create autocommand group
-local augroup = vim.api.nvim_create_augroup('MyGroup', { clear = true })
-
--- Create autocommand
-vim.api.nvim_create_autocmd('BufWritePre', {
-  group = augroup,
-  pattern = '*.lua',
-  callback = function()
-    vim.lsp.buf.format({ async = false })
-  end,
-})
-```
-
-**User Commands:**
-
-```lua
-vim.api.nvim_create_user_command('FormatFile', function(opts)
-  vim.lsp.buf.format({ async = false })
-end, {
-  desc = 'Format current file',
-  bang = true,  -- Allow ! modifier
-})
-```
-
-### Lazy.nvim Plugin Management
-
-Plugins are specified as Lua tables with the following structure:
-
-```lua
-{
-  "author/plugin-name",
-  lazy = true,              -- Load on-demand
-  event = "VeryLazy",       -- Load on event
-  cmd = "CommandName",      -- Load on command
-  ft = "lua",              -- Load on filetype
-  keys = {                 -- Load on keypress
-    { "<leader>ff", "<cmd>SomeCommand<cr>", desc = "Description" }
-  },
-  dependencies = {         -- Plugin dependencies
-    "other/plugin",
-  },
-  config = function()      -- Setup function
-    require('plugin').setup({
-      -- options
-    })
-  end,
-  opts = {                 -- Shorthand for config with setup()
-    -- options passed to setup()
-  },
-  init = function()        -- Runs before plugin loads
-    vim.g.plugin_setting = true
-  end,
+vim.pack.add {
+  "https://github.com/owner/plugin",                              -- string spec
+  { src = "https://github.com/owner/plugin", version = "main" },  -- branch/tag/commit
+  { src = "https://github.com/owner/plugin", name = "alias" },    -- install-dir override
 }
+require("plugin").setup(opts) -- vim.pack does NOT auto-call setup(); you do.
 ```
 
-### NvChad Conventions
+- Lifecycle: `vim.pack.get()`, `vim.pack.update([names],{force=true})`, `vim.pack.del{}`.
+- Install hooks are `PackChanged` autocmds (`ev.data = {spec, kind, active, path}`,
+  `kind ∈ {install, update, delete}`). **Register a hook BEFORE the `add()` it must fire
+  for** (so it also runs on fresh-machine lockfile bootstrap). See
+  `plugin/20-treesitter.lua` (TSUpdate) and `lua/core/dap.lua` (lua-json5 build).
+- Plugins needed before first redraw (colorscheme, icons, statusline/tabline,
+  treesitter) are eager; everything else defers.
 
-**Base46 Theming:**
+## LSP
 
-- Themes are loaded via `dofile(vim.g.base46_cache .. "filename")`
-- Cache directory: `vim.fn.stdpath "data" .. "/base46/"`
-- Custom highlights go in `lua/configs/` or via `require "nvchad.configs.theme"`
+Native only. Per-server presets live in `lua/configs/lsp/<name>.lua` and call
+`vim.lsp.config(name, {...})`. `lua/configs/lsp/init.lua` sets shared capabilities +
+on-attach keymaps (`LspAttach`) and `vim.lsp.enable(servers)`. Mason is kept purely as a
+tool installer (`plugin/45-mason.lua`, list in `lua/configs/meson.lua`). Native maps
+`grn/gra/grr/gri/grt/gO` and `<C-S>` already exist; add only deltas.
 
-**Module Loading:**
+## Treesitter
 
-- Use `require "module"` for lua/ directory files (no .lua extension)
-- Use `require "configs.name"` for lua/configs/name.lua
-- Use `require "plugins.name"` for lua/plugins/name.lua
+`nvim-treesitter` **`main`** branch (the `master` API `configs.setup()` is gone). Parsers
+are installed via `require("nvim-treesitter").install(list)` and compiled locally; the
+list is in `lua/configs/treesitter.lua`. Highlight/fold are enabled per-filetype with
+`vim.treesitter.start()` in `plugin/20-treesitter.lua`.
 
-**NvChad Plugin Imports:**
+## Diagnostics & commands
 
-- Core plugins: `import = "nvchad.plugins"`
-- Custom plugins: `import = "plugins"`
-
-### Best Practices
-
-**1. Module Pattern:**
-
-```lua
-local M = {}
-
-M.setup = function()
-  -- Setup code
-end
-
-M.some_function = function(args)
-  -- Function code
-end
-
-return M
-```
-
-**2. Safe Requires:**
-
-```lua
-local ok, module = pcall(require, 'module-name')
-if not ok then
-  vim.notify('Module not found: module-name', vim.log.levels.ERROR)
-  return
-end
-```
-
-**3. Conditional Loading:**
-
-```lua
-vim.schedule(function()
-  -- Deferred execution (runs after startup)
-end)
-
-vim.defer_fn(function()
-  -- Delayed execution
-end, 100)  -- milliseconds
-```
-
-**4. Path Handling:**
-
-```lua
-local path = vim.fn.stdpath "data"      -- Data directory
-local config = vim.fn.stdpath "config"  -- Config directory
-local cache = vim.fn.stdpath "cache"    -- Cache directory
-
--- Join paths safely
-local full_path = vim.fn.fnamemodify(path .. "/subdir", ":p")
-```
-
-**5. Table Operations:**
-
-```lua
--- Extend tables
-local tbl = vim.tbl_extend('force', default_opts, user_opts)
-
--- Deep copy
-local copy = vim.deepcopy(original)
-
--- Check if table contains value
-vim.tbl_contains({'a', 'b', 'c'}, 'b')  -- true
-```
-
-**6. Buffer and Window Operations:**
-
-```lua
--- Get current buffer/window
-local buf = vim.api.nvim_get_current_buf()
-local win = vim.api.nvim_get_current_win()
-
--- Set buffer options
-vim.api.nvim_buf_set_option(buf, 'filetype', 'lua')
-
--- Buffer-local keymap
-vim.api.nvim_buf_set_keymap(buf, 'n', '<leader>r', ':lua print("hi")<cr>', {})
-```
-
-## Common Tasks
-
-### Adding a New Plugin
-
-1. Create file in `lua/plugins/` (e.g., `lua/plugins/myplugin.lua`)
-2. Return plugin spec:
-
-```lua
-return {
-  "author/plugin-name",
-  event = "VeryLazy",
-  opts = {
-    -- configuration
-  },
-}
-```
-
-### Adding Keymaps
-
-Edit `lua/mappings.lua`:
-
-```lua
-local map = vim.keymap.set
-
-map("n", "<leader>cc", function()
-  -- Custom function
-end, { desc = "Custom command" })
-```
-
-### Adding Autocommands
-
-Edit `lua/autocmds.lua`:
-
-```lua
-local autocmd = vim.api.nvim_create_autocmd
-
-autocmd("FileType", {
-  pattern = "lua",
-  callback = function()
-    vim.bo.tabstop = 2
-    vim.bo.shiftwidth = 2
-  end,
-})
-```
-
-### Configuring LSP
-
-Typically in `lua/configs/lspconfig.lua`:
-
-```lua
-local on_attach = function(client, bufnr)
-  -- Keymaps and settings
-end
-
-local capabilities = vim.lsp.protocol.make_client_capabilities()
-
-require('lspconfig').lua_ls.setup({
-  on_attach = on_attach,
-  capabilities = capabilities,
-  settings = {
-    Lua = {
-      diagnostics = {
-        globals = { 'vim' }
-      }
-    }
-  }
-})
-```
-
-## Troubleshooting
-
-**Check if plugin is loaded:**
-
-```lua
-:lua print(vim.inspect(require('lazy').plugins()))
-```
-
-**Reload module:**
-
-```lua
-:lua package.loaded['module.name'] = nil
-:lua require('module.name')
-```
-
-**Debug plugin loading:**
-
-```lua
-:Lazy profile  -- See plugin load times
-:Lazy health   -- Check plugin health
-```
-
-**Check Neovim Lua path:**
-
-```lua
-:lua print(vim.inspect(vim.api.nvim_list_runtime_paths()))
-```
+- `just nvim doctor` — environment sanity (run first).
+- `just nvim verify` — syntax + load + lsp gate.
+- `just nvim sandbox` — launch the sandboxed instance against this config.
+- `just nvim pack-status|pack-update|pack-restore` — lockfile state / update / undo.
+- `just nvim ts-check|ts-install`, `just nvim lsp-check`, `just nvim startuptime`.
+- `just nvim clean|bootstrap-test` — repair / prove fresh-machine reproduction.
+- `just nvim fmt|lint` — stylua + selene.
 
 ## Code Style
 
-- **Indentation:** 2 spaces
-- **Quotes:** Prefer double quotes for strings
-- **Tables:** Trailing commas on multi-line tables
-- **Functions:** Use `function()` not `function ()`
-- **Naming:** snake_case for functions and variables
-- **Comments:** Use `--` for single line, `--[[ ]]` for blocks
-
-## Important Notes
-
-1. **Load Order:** init.lua → lazy.nvim → plugins → options → autocmds → mappings
-2. **Session Options:** Configured with `vim.o.sessionoptions` for session persistence
-3. **Leader Key:** Set to space (`" "`) via `vim.g.mapleader`
-4. **UV vs Loop:** Modern Neovim uses `vim.uv` (previously `vim.loop`) for libuv bindings
-5. **Scheduled Functions:** Use `vim.schedule()` for mappings to ensure proper loading order
-6. **Windows Paths:** Use forward slashes in Lua strings; Neovim handles conversion
-
-## Resources
-
-- Neovim Lua Guide: `:h lua-guide`
-- Neovim API: `:h api`
-- Lazy.nvim: `:h lazy.nvim`
-- NvChad Docs: <https://nvchad.com/docs/quickstart/install>
-- Lua 5.1 Reference: <https://www.lua.org/manual/5.1/>
+- 2-space indent; prefer double quotes; trailing commas on multi-line tables.
+- `function()` not `function ()`; snake_case names; `--` / `--[[ ]]` comments.
+- Format with `stylua` (`.stylua.toml`); lint with `selene` (`selene.toml`, `std = "vim"`).
+- Use `vim.keymap.set`, `vim.uv`, and guard fallible plugin requires with `pcall`.
 
 ## Agent Instructions
 
-When modifying this configuration:
+1. **Preserve structure:** one plugin per `plugin/*.lua`; keep `core/` plugin-free.
+2. **Never hand-edit `nvim-pack-lock.json`.**
+3. **`vim.loader.enable()` stays the first line of `init.lua`.**
+4. Register install hooks before the `add()` they target.
+5. Verify changes: `just nvim verify` (or `stylua --check` + `selene` + `luac -p`).
+6. Minimal diffs; match existing patterns; use modern 0.12 APIs.
 
-1. **Preserve Structure:** Keep the modular organization intact
-2. **Follow Patterns:** Match existing code style and conventions
-3. **Test Changes:** Verify syntax with `:luafile %` or restart Neovim
-4. **Minimal Changes:** Edit only what's necessary
-5. **Document:** Add descriptive comments for complex logic
-6. **Check Dependencies:** Ensure required plugins are specified
-7. **Respect NvChad:** Don't override NvChad core without good reason
-8. **Use Modern APIs:** Prefer `vim.keymap.set` over `vim.api.nvim_set_keymap`
+## Resources
+
+- `:h vim.pack` · `:h vim.pack-examples` · `:h news-0.12` · `:h deprecated-0.12`
+- `:h lsp` · `:h diagnostic-signs` · `:h vim.treesitter`
+- nvim-treesitter `main`: <https://github.com/nvim-treesitter/nvim-treesitter/tree/main>

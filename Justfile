@@ -116,3 +116,10 @@ mod docs 'misc/justfiles/docs.just'
 
 [group: 'Performance']
 mod bench 'misc/justfiles/bench.just'
+
+# ==============================================================================
+# Neovim
+# ==============================================================================
+
+[group: 'Neovim']
+mod nvim 'misc/justfiles/nvim.just'
