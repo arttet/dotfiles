@@ -359,8 +359,11 @@ jobs:
         working-directory: docs
         run: bun audit
 
-      - name: Build docs
+      # Root-base build: served as-is by Cloudflare Pages and attestation.
+      - name: Build docs (Cloudflare Pages)
         working-directory: docs
+        env:
+          CI_BASE_URL: /
         run: bun run docs:build
 
       - name: Download tools
@@ -373,10 +376,26 @@ jobs:
             lychee --config .lychee.toml --root-dir "$GITHUB_WORKSPACE/docs/.vitepress/dist" docs/.vitepress/dist
           '
 
+      # Cloudflare Pages + attestation consume the raw build directory.
       - name: Upload docs artifact
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: docs-cloudflare-pages
+          path: docs/.vitepress/dist
+
+      # Prefixed build: GitHub Pages serves from /dotfiles/, so assets/links
+      # need the base path. Rebuilds into the same dist directory.
+      - name: Build docs (GitHub Pages)
+        working-directory: docs
+        env:
+          CI_BASE_URL: /dotfiles/
+        run: bun run docs:build
+
+      # GitHub Pages requires the dedicated Pages artifact format.
+      - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@fc324d3547104276b827a68afc52ff2a11cc49c9 # v5
         with:
-          name: docs-build
+          name: docs-github-pages
           path: docs/.vitepress/dist
 
   # ---------------------------------------------------------------------------
@@ -627,7 +646,7 @@ jobs:
       - name: Download docs artifact
         uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
         with:
-          name: docs-build
+          name: docs-cloudflare-pages
           path: docs/.vitepress/dist
 
       - name: Package docs output
@@ -706,7 +725,7 @@ jobs:
       - name: Download docs artifact
         uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
         with:
-          name: docs-build
+          name: docs-cloudflare-pages
           path: docs/.vitepress/dist
 
       - name: Deploy preview (pull request)
@@ -769,4 +788,4 @@ jobs:
         id: deployment
         uses: actions/deploy-pages@cd2ce8fcbc39b97be8ca5fce6e763baed58fa128 # v5
         with:
-          artifact_name: docs-build
+          artifact_name: docs-github-pages
