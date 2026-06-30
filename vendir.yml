@@ -75,32 +75,39 @@ directories:
   #         lfsSkipSmudge: true
   #         skipInitSubmodules: true
 
-  # - path: dotfiles/.config/tmux/plugins/tmux-yank
-  #   contents:
-  #     - path: .
-  #       git:
-  #         url: https://github.com/tmux-plugins/tmux-yank
-  #         ref: origin/master
-  #         depth: 1
-  #         lfsSkipSmudge: true
-  #         skipInitSubmodules: true
-
-  # ---------------------------------------------------------------------------
-  # Tmux themes
-  # ---------------------------------------------------------------------------
-
-  - path: dotfiles/.config/tmux/plugins/nord-tmux
+  - path: dotfiles/.config/tmux/plugins/tmux-yank
     contents:
       - path: .
         git:
-          url: https://github.com/Wabri/tmux-nord-plusplus
-          ref: origin/develop
+          url: https://github.com/tmux-plugins/tmux-yank
+          ref: origin/master
           depth: 1
           lfsSkipSmudge: true
           skipInitSubmodules: true
-        includePaths:
-          - src/**/*
-          - nord.tmux
+
+  - path: dotfiles/.config/tmux/plugins/tmux-fzf
+    contents:
+      - path: .
+        git:
+          url: https://github.com/sainnhe/tmux-fzf
+          ref: origin/master
+          depth: 1
+          lfsSkipSmudge: true
+          skipInitSubmodules: true
+
+  - path: dotfiles/.config/tmux/plugins/tmux2k
+    contents:
+      - path: .
+        git:
+          url: https://github.com/2KAbhishek/tmux2k
+          ref: origin/main
+          depth: 1
+          lfsSkipSmudge: true
+          skipInitSubmodules: true
+
+  # ---------------------------------------------------------------------------
+  # Tmux status line framework
+  # ---------------------------------------------------------------------------
 
   # ===========================================================================
   # Wallpapers
