@@ -77,7 +77,7 @@ const sidebar = [
 
 // https://vitepress.dev/reference/site-config
 export default defineConfig({
-  // base: "/dotfiles/",
+  base: process.env.CI_BASE_URL || "/",
   srcDir: "src",
 
   title: "Dotfiles",
