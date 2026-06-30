@@ -170,15 +170,73 @@ zellij:
 tmux:
     #!/usr/bin/env bash
     set -euo pipefail
-    trap 'tmux -L tmux-ci-verify kill-server 2>/dev/null || true' EXIT
-    output=$(tmux -f "$PWD/dotfiles/.config/tmux/tmux.conf" -L tmux-ci-verify start-server 2>&1) || {
+    socket="tmux-ci-verify-$$"
+    output_file="$(mktemp)"
+    trap 'tmux -L "$socket" kill-server 2>/dev/null || true; rm -f -- "$output_file"' EXIT
+
+    if [ "${TMUX_VALIDATE_SKIP_SYNC:-0}" != 1 ]; then
+        vendir sync --locked
+    fi
+
+    plugin_root="$PWD/dotfiles/.config/tmux/plugins"
+    test -f "$plugin_root/tmux-yank/yank.tmux"
+    test -f "$plugin_root/tmux-fzf/main.sh"
+    test -f "$plugin_root/tmux2k/2k.tmux"
+    test ! -e "$plugin_root/tmux-harpoon"
+
+    if ! HOME="$PWD/dotfiles" tmux -L "$socket" -f "$PWD/dotfiles/.config/tmux/tmux.conf" \
+        new-session -d -s tmux-ci >"$output_file" 2>&1; then
         echo "Failed to start tmux server:" >&2
-        echo "$output" >&2
+        cat "$output_file" >&2
         exit 1
-    }
-    if [ -n "$output" ]; then
+    fi
+    if [ -s "$output_file" ]; then
         echo "Tmux configuration errors detected:" >&2
-        echo "$output" >&2
+        cat "$output_file" >&2
+        exit 1
+    fi
+
+    tmux_cmd() {
+        HOME="$PWD/dotfiles" tmux -L "$socket" "$@"
+    }
+
+    tmux_cmd show-options -gsqv set-clipboard | grep -Fx on >/dev/null
+    tmux_cmd show-options -gqv @yank_selection | grep -Fx clipboard >/dev/null
+    tmux_cmd show-options -gqv @yank_selection_mouse | grep -Fx clipboard >/dev/null
+    tmux_cmd show-options -gqv @yank_with_mouse | grep -Fx on >/dev/null
+    tmux_cmd show-options -gqv @yank_action | grep -Fx copy-pipe-and-cancel >/dev/null
+    tmux_cmd show-options -gqv @tmux2k-theme | grep -Fx gruvbox >/dev/null
+    tmux_cmd show-options -gqv @tmux2k-icons-only | grep -Fx false >/dev/null
+    tmux_cmd show-options -gqv @tmux2k-left-plugins | grep -Fx 'session git cwd' >/dev/null
+    tmux_cmd show-options -gqv @tmux2k-right-plugins | grep -Fx 'battery time' >/dev/null
+    tmux_cmd show-options -gqv @tmux2k-refresh-rate | grep -Fx 5 >/dev/null
+    tmux_cmd show-options -gqv status | grep -Fx 2 >/dev/null
+    test -z "$(tmux_cmd show-options -gqv 'status-format[0]')"
+    test -n "$(tmux_cmd show-options -gqv 'status-format[1]')"
+
+    tmux_cmd show-options -gsqv escape-time | grep -Fx 0 >/dev/null
+    tmux_cmd show-options -gqv detach-on-destroy | grep -Fx off >/dev/null
+    tmux_cmd list-keys -T copy-mode-vi y | grep -F copy-selection-and-cancel >/dev/null
+    tmux_cmd list-keys -T copy-mode-vi Enter | grep -F copy-selection-and-cancel >/dev/null
+    tmux_cmd list-keys -T copy-mode-vi MouseDragEnd1Pane | grep -F copy-pipe-and-cancel >/dev/null
+    tmux_cmd list-keys -T root M-Left | grep -F 'select-pane -L' >/dev/null
+    tmux_cmd list-keys -T root M-Down | grep -F 'select-pane -D' >/dev/null
+    tmux_cmd list-keys -T root M-Up | grep -F 'select-pane -U' >/dev/null
+    tmux_cmd list-keys -T root M-Right | grep -F 'select-pane -R' >/dev/null
+    tmux_cmd list-keys -T prefix v | grep -F 'copy-mode' >/dev/null
+    tmux_cmd list-keys -T prefix P | grep -F 'paste-buffer' >/dev/null
+    tmux_cmd list-keys -T prefix F | grep -F 'tmux-fzf/main.sh' >/dev/null
+    tmux_cmd list-keys -T prefix C-y | grep -F 'display-popup -E -d "#{pane_current_path}" -h "90%" -w "90%" yazi' >/dev/null
+    tmux_cmd list-keys -T prefix C-t | grep -F 'display-popup -E -d "#{pane_current_path}" -h "80%" -w "80%" "nu --login --interactive"' >/dev/null
+    tmux_cmd list-keys -T prefix C-g | grep -F 'display-popup -E -d "#{pane_current_path}" -h "90%" -w "90%" lazygit' >/dev/null
+    tmux_cmd list-keys -T prefix e | grep -F 'display-menu -T "#[align=centre]Config"' >/dev/null
+    tmux_cmd list-keys -T prefix d | grep -F 'detach-client' >/dev/null
+    tmux_cmd list-keys -T root M-y | grep -F 'display-popup -E -d "#{pane_current_path}" -h "90%" -w "90%" yazi' >/dev/null
+    tmux_cmd list-keys -T root M-t | grep -F 'display-popup -E -d "#{pane_current_path}" -h "80%" -w "80%" "nu --login --interactive"' >/dev/null
+    tmux_cmd list-keys -T root M-g | grep -F 'display-popup -E -d "#{pane_current_path}" -h "90%" -w "90%" lazygit' >/dev/null
+    tmux_cmd list-keys -T root M-e | grep -F 'display-menu -T "#[align=centre]Config"' >/dev/null
+    if tmux_cmd list-keys -T prefix H >/dev/null 2>&1 || tmux_cmd list-keys -T harpoon >/dev/null 2>&1; then
+        echo "Harpoon bindings must not be present." >&2
         exit 1
     fi
 

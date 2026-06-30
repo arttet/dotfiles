@@ -466,7 +466,7 @@ jobs:
 
           - name: Tmux
             app: tmux
-            deps: 'nix profile install "$NIXPKGS#just" "$NIXPKGS#tmux"'
+            deps: 'nix profile install "$NIXPKGS#just" "$NIXPKGS#tmux" "$NIXPKGS#vendir"'
 
           # Dotfiles management
           - name: Stow
