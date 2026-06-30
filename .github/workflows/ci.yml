@@ -417,7 +417,9 @@ jobs:
             app: helix
             deps: 'nix profile install "$NIXPKGS#just" "$NIXPKGS#helix"'
 
-          # Neovim is temporarily disabled until the flaky Lazy sync is isolated.
+          - name: Neovim
+            app: neovim
+            deps: 'nix profile install "$NIXPKGS#just" "$NIXPKGS#neovim" "$NIXPKGS#lua5_1" "$NIXPKGS#tree-sitter" "$NIXPKGS#gcc" "$NIXPKGS#ripgrep" "$NIXPKGS#fd"'
 
           # Terminals
           - name: Alacritty

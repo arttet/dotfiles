@@ -1,6 +1,6 @@
 # My Neovim Config
 
-This is a personalized Neovim configuration based on NvChad, tailored for development with a focus on debugging and a smooth user experience.
+This is a personalized Neovim configuration for development with a focus on debugging and a smooth user experience. It targets **Neovim 0.12+**, uses the built-in **`vim.pack`** plugin manager (no NvChad, no lazy.nvim), native LSP/diagnostics/treesitter, and a fast `mini.nvim`-based UI. See [AGENTS.md](./AGENTS.md) for architecture and the `just nvim *` diagnostics commands.
 
 ## 🔌 Plugins & Keybindings
 
@@ -53,12 +53,12 @@ Debugging is handled by a suite of plugins working together, with `nvim-dap` as 
 
 ### Core Functionality Plugins
 
-These plugins provide essential functionality but do not have custom keybindings assigned in the main `mappings.lua` file. They are configured to work automatically or via commands.
+These plugins provide essential functionality but do not have custom keybindings assigned in `lua/core/keymaps.lua`. They are configured to work automatically or via commands.
 
 - **[WhoIsSethDaniel/mason-tool-installer.nvim](https://github.com/WhoIsSethDaniel/mason-tool-installer.nvim)**: Automatically installs LSP servers, DAPs, linters, and formatters.
-- **[nvim-treesitter/nvim-treesitter](https://github.com/nvim-treesitter/nvim-treesitter)**: Provides advanced syntax highlighting and code parsing.
+- **[nvim-treesitter/nvim-treesitter](https://github.com/nvim-treesitter/nvim-treesitter)** (`main` branch): Advanced syntax highlighting and code parsing; parsers compiled locally.
 - **[stevearc/conform.nvim](https://github.com/stevearc/conform.nvim)**: Code formatting, configured to run on save.
-- **[neovim/nvim-lspconfig](https://github.com/neovim/nvim-lspconfig)**: Configurations for the Language Server Protocol.
+- **Native LSP** (`vim.lsp.config` / `vim.lsp.enable`): Language Server configs live in `lua/configs/lsp/`.
 - **[folke/todo-comments.nvim](https://github.com/folke/todo-comments.nvim)**: Highlights TODO, FIXME, etc.
 - **[wakatime/vim-wakatime](https://github.com/wakatime/vim-wakatime)**: Automatic time tracking for projects.
 
@@ -76,16 +76,20 @@ These plugins provide essential functionality but do not have custom keybindings
 :checkhealth
 ```
 
-- Verify plugin loading:
+- Verify plugin state / startup:
 
 ```vim
-:Lazy profile
+:checkhealth vim.pack
+```
+
+```sh
+just nvim startuptime
 ```
 
 - Check LSP status:
 
 ```vim
-:LspInfo
+:checkhealth vim.lsp
 ```
 
 - Test DAP configuration:

@@ -31,7 +31,6 @@ local options = {
     "javascript",
     "json",
     "json5",
-    "jsonc",
     "julia",
     "lua",
     "luadoc",

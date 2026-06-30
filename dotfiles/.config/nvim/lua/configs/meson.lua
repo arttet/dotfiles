@@ -5,23 +5,23 @@ local function setup_mason_tools()
   local mason_installer = require "mason-tool-installer"
 
   local tools = {
-    -- LSP Servers
-    "ansiblels",
-    "asm_lsp",
-    "bashls",
-    "buf_ls",
+    -- LSP Servers (Mason package names, not vim.lsp.config server names).
+    "ansible-language-server",
+    "asm-lsp",
+    "bash-language-server",
+    "buf",
     "clangd",
-    "cssls",
+    "css-lsp",
     "docker-compose-language-service",
     "dockerfile-language-server",
-    "eslint",
+    "eslint-lsp",
     "gh-actions-language-server",
     "gitlab-ci-ls",
     "glsl_analyzer",
     "gopls",
-    "graphql",
+    "graphql-language-service-cli",
     "helm-ls",
-    "html",
+    "html-lsp",
     "hyprls",
     "json-lsp",
     "julia-lsp",
@@ -29,8 +29,7 @@ local function setup_mason_tools()
     "ltex-ls",
     "lua-language-server",
     "marksman",
-    "neocmake",
-    "postgres-lsp",
+    "neocmakelsp",
     "pyright",
     "ruff",
     "rust-analyzer",
@@ -47,22 +46,20 @@ local function setup_mason_tools()
     "debugpy",
     "codelldb",
 
-    -- Formatters
+    -- Formatters (only tools available in Mason; gofmt/rustfmt come with their
+    -- toolchains and are expected to be on PATH when needed).
     "bibtex-tidy",
     "buf",
     "clang-format",
-    "gofmt",
     "goimports",
     "markdownlint-cli2",
     "nixfmt",
     "prettier",
     "ruff",
-    "rustfmt",
     "shfmt",
     "sql-formatter",
     "stylua",
     "taplo",
-    "terraform-fmt",
     "tex-fmt",
     "xmlformatter",
     "yamlfmt",
@@ -76,7 +73,9 @@ local function setup_mason_tools()
   local config = {
     ensure_installed = tools,
     auto_update = true,
-    run_on_start = true,
+    -- Defer installation to avoid blocking startup or failing when a package
+    -- name changes; run :MasonToolsInstall manually when needed.
+    run_on_start = false,
     start_delay = 3000,
   }
 

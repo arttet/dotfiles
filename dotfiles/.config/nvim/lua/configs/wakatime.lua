@@ -8,7 +8,7 @@ local function trim(str)
 end
 
 local function wakatime_status()
-  if vim.g.loaded_wakatime ~= 1 then
+  if vim.g.loaded_wakatime ~= 1 or vim.fn.exists "*WakaTimeToday" ~= 1 then
     return " WakaTime Error"
   end
 
