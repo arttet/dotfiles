@@ -8,6 +8,7 @@
     "docs:preview": "vitepress preview"
   },
   "devDependencies": {
+    "@types/node": "latest",
     "oxc-minify": "^0.138.0",
     "vitepress": "^2.0.0-alpha.17",
     "vitepress-plugin-llms": "^1.13.2"

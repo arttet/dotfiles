@@ -1,8 +1,6 @@
 import { defineConfig } from "vitepress";
 import llmstxt, { copyOrDownloadAsMarkdownButtons } from "vitepress-plugin-llms";
 
-declare const process: { env: Record<string, string | undefined> };
-
 const nav = [
   { text: "Home", link: "/" },
   { text: "Guide", link: "/guide/" },
