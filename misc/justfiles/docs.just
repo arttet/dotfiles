@@ -40,3 +40,9 @@ build:
 preview:
     @echo "👀 Starting preview server on port {{ docs_port }}..."
     bun run docs:preview --port {{ docs_port }}
+
+[doc('Clean build artifacts and cache')]
+[working-directory(docs_dir)]
+clean:
+    @echo "🧹 Sweeping documentation artifacts..."
+    rm -rf node_modules .vitepress/cache .vitepress/dist
