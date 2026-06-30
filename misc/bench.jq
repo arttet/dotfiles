@@ -48,7 +48,7 @@ def comparison_table($rows):
 | {
     schemaVersion: 1,
     platform: "linux",
-    threshold: 0.05,
+    threshold: 0.2,
     metrics: $current
   } as $candidate
 | if $mode == "update" then

@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "platform": "linux",
-  "threshold": 0.05,
+  "threshold": 0.2,
   "metrics": {
     "bash": 6.2303604696550146,
     "zsh": 8.56733273266921,

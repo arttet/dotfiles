@@ -125,7 +125,6 @@ export default defineConfig({
     build: {
       minify: "oxc",
       target: "es2022",
-      cssCodeSplit: true,
       rollupOptions: {
         onLog(level, log, handler) {
           if (
