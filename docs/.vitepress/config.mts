@@ -1,6 +1,8 @@
 import { defineConfig } from "vitepress";
 import llmstxt, { copyOrDownloadAsMarkdownButtons } from "vitepress-plugin-llms";
 
+declare const process: { env: Record<string, string | undefined> };
+
 const nav = [
   { text: "Home", link: "/" },
   { text: "Guide", link: "/guide/" },
@@ -125,7 +127,6 @@ export default defineConfig({
     build: {
       minify: "oxc",
       target: "es2022",
-      cssCodeSplit: true,
       rollupOptions: {
         onLog(level, log, handler) {
           if (
