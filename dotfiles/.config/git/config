@@ -28,7 +28,7 @@
 [user]
     name = Artyom Tetyukhin
     email = 51746822+arttet@users.noreply.github.com
-    signingkey = ~/.ssh/id_ed25519_sk_rk_github.pub
+    signingkey = ~/.ssh/id_ed25519_sk_rk_github.com.pub
 
 [gpg]
     format = ssh
