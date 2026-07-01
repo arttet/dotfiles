@@ -10,6 +10,8 @@
     "^dotfiles/\\.config/hypr/wallpapers/",
     "^dotfiles/\\.config/tmux/plugins/",
     "^dotfiles/\\.config/yazi/flavors/",
-    "^dotfiles/\\.config/yazi/plugins/"
+    "^dotfiles/\\.config/yazi/plugins/",
+    "\\.lock$",
+    "-lock\\.json$"
   ]
 }

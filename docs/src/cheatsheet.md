@@ -11,6 +11,7 @@ This page is the single source of truth for every hotkey configured in these dot
 - [Multiplexers](#multiplexers)
   - [Zellij](#zellij)
   - [Tmux](#tmux)
+  - [Herdr](#herdr)
 - [CLI & Shell](#cli--shell)
   - [Nushell](#nushell)
   - [Yazi](#yazi)
@@ -191,6 +192,20 @@ Prefix: `Ctrl + A`
 | Update plugins        | `Ctrl + A`, then `U`       |
 | Uninstall plugins     | `Ctrl + A`, then `Alt + U` |
 
+### Herdr
+
+Prefix: `Ctrl + B` (upstream defaults; not customized in these dotfiles yet)
+
+| Action                  | Shortcut                     |
+| :---------------------- | :--------------------------- |
+| New workspace           | `Ctrl + B`, then `Shift + N` |
+| Split pane (vertical)   | `Ctrl + B`, then `V`         |
+| Split pane (horizontal) | `Ctrl + B`, then `-`         |
+| New tab                 | `Ctrl + B`, then `C`         |
+| Switch workspaces       | `Ctrl + B`, then `W`         |
+| Detach                  | `Ctrl + B`, then `Q`         |
+| Help / all bindings     | `Ctrl + B`, then `?`         |
+
 ## CLI & Shell
 
 ### Nushell
@@ -329,7 +344,7 @@ Hyprland (Wayland compositor)
     ↓
 Terminal emulator (Alacritty / Ghostty / WezTerm)
     ↓
-Terminal multiplexer (Zellij / Tmux) — only when running
+Terminal multiplexer (Zellij / Tmux / Herdr) — only when running
     ↓
 Shell (Nushell)
     ↓
@@ -353,6 +368,7 @@ Known collisions to watch for:
 | Helix    | Press `Space` to open the command menu            |
 | Zellij   | Press `Ctrl + P`/`Ctrl + T`/etc. to see mode keys |
 | Tmux     | Press `Ctrl + A`, then `?` for a key list         |
+| Herdr    | Press `Ctrl + B`, then `?` for a key list         |
 | Yazi     | Press `?` inside Yazi for the full keymap         |
 | OpenCode | Press `Ctrl + X` and wait for the leader menu     |
 
