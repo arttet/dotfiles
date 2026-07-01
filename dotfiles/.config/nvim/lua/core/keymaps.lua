@@ -19,11 +19,8 @@ map("n", ";", ":", { desc = "enter command mode" })
 map("i", "jk", "<Esc>", { desc = "escape insert mode" })
 map("n", "<C-q>", "<cmd>q<cr>", { silent = true, desc = "close window" })
 
--- Window navigation
-map("n", "<C-h>", "<C-w>h", { desc = "window left" })
-map("n", "<C-j>", "<C-w>j", { desc = "window down" })
-map("n", "<C-k>", "<C-w>k", { desc = "window up" })
-map("n", "<C-l>", "<C-w>l", { desc = "window right" })
+-- Window navigation: <C-h/j/k/l> is handled by vim-tmux-navigator
+-- (plugin/30-tmux-navigator.lua), which also crosses into tmux panes.
 
 -- Buffer navigation
 map("n", "<Tab>", "<cmd>bnext<cr>", { desc = "next buffer" })

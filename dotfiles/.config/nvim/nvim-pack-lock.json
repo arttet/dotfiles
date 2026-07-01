@@ -86,6 +86,10 @@
       "rev": "31e3c38ce9b29781e4422fc0322eb0a21f4e8668",
       "src": "https://github.com/folke/todo-comments.nvim"
     },
+    "vim-tmux-navigator": {
+      "rev": "e41c431a0c7b7388ae7ba341f01a0d217eb3a432",
+      "src": "https://github.com/christoomey/vim-tmux-navigator"
+    },
     "vim-visual-multi": {
       "rev": "a6975e7c1ee157615bbc80fc25e4392f71c344d4",
       "src": "https://github.com/mg979/vim-visual-multi"
