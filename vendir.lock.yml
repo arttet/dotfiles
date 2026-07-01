@@ -8,17 +8,31 @@ directories:
   path: dotfiles/.config/alacritty/themes
 - contents:
   - git:
+      commitTitle: 'Merge pull request #474 from georgeanderson/master...'
+      sha: cff343cf9e81983d3da0c8562b01616f12e8d548
+    path: .
+  path: dotfiles/.config/tmux/plugins/tmux-resurrect
+- contents:
+  - git:
+      commitTitle: 'Merge pull request #132 from rmartine-ias/osx-added-plist...'
+      sha: 0698e8f4b17d6454c71bf5212895ec055c578da0
+    path: .
+  path: dotfiles/.config/tmux/plugins/tmux-continuum
+- contents:
+  - git:
       commitTitle: 'Merge pull request #167 from iloveitaly/put-with-bracketed-paste...'
       sha: acfd36e4fcba99f8310a7dfb432111c242fe7392
     path: .
   path: dotfiles/.config/tmux/plugins/tmux-yank
 - contents:
   - git:
+      commitTitle: 'fix: cannot preview windows and panes...'
       sha: 05af76daa2487575b93a4f604693b00969f19c2f
     path: .
   path: dotfiles/.config/tmux/plugins/tmux-fzf
 - contents:
   - git:
+      commitTitle: Adding a new condition to the script (#89)...
       sha: c542cd52e87ac0691e83f58b64d4d1cabc48bc17
     path: .
   path: dotfiles/.config/tmux/plugins/tmux2k

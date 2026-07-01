@@ -45,25 +45,36 @@ directories:
   #         lfsSkipSmudge: true
   #         skipInitSubmodules: true
 
-  # - path: dotfiles/.config/tmux/plugins/tmux-resurrect
-  #   contents:
-  #     - path: .
-  #       git:
-  #         url: https://github.com/tmux-plugins/tmux-resurrect
-  #         ref: origin/master
-  #         depth: 1
-  #         lfsSkipSmudge: true
-  #         skipInitSubmodules: true
+  - path: dotfiles/.config/tmux/plugins/tmux-resurrect
+    contents:
+      - path: .
+        git:
+          url: https://github.com/tmux-plugins/tmux-resurrect
+          ref: origin/master
+          depth: 1
+          lfsSkipSmudge: true
+          skipInitSubmodules: true
+        includePaths:
+          - resurrect.tmux
+          - scripts/**
+          - save_command_strategies/**
+          - strategies/**
 
-  # - path: dotfiles/.config/tmux/plugins/tmux-continuum
-  #   contents:
-  #     - path: .
-  #       git:
-  #         url: https://github.com/tmux-plugins/tmux-continuum
-  #         ref: origin/master
-  #         depth: 1
-  #         lfsSkipSmudge: true
-  #         skipInitSubmodules: true
+  - path: dotfiles/.config/tmux/plugins/tmux-continuum
+    contents:
+      - path: .
+        git:
+          url: https://github.com/tmux-plugins/tmux-continuum
+          ref: origin/master
+          depth: 1
+          lfsSkipSmudge: true
+          skipInitSubmodules: true
+        includePaths:
+          - continuum.tmux
+          - scripts/**
+        excludePaths:
+          # Symlink into the (excluded) docs/ tree; not needed at runtime.
+          - scripts/handle_tmux_automatic_start/README.md
 
   # - path: dotfiles/.config/tmux/plugins/tmux-sessionist
   #   contents:
@@ -84,6 +95,9 @@ directories:
           depth: 1
           lfsSkipSmudge: true
           skipInitSubmodules: true
+        includePaths:
+          - yank.tmux
+          - scripts/**
 
   - path: dotfiles/.config/tmux/plugins/tmux-fzf
     contents:
@@ -94,6 +108,9 @@ directories:
           depth: 1
           lfsSkipSmudge: true
           skipInitSubmodules: true
+        includePaths:
+          - main.sh
+          - scripts/**
 
   - path: dotfiles/.config/tmux/plugins/tmux2k
     contents:
@@ -104,6 +121,11 @@ directories:
           depth: 1
           lfsSkipSmudge: true
           skipInitSubmodules: true
+        includePaths:
+          - 2k.tmux
+          - main.sh
+          - lib/**
+          - plugins/**
 
   # ---------------------------------------------------------------------------
   # Tmux status line framework

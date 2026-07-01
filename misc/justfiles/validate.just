@@ -182,6 +182,8 @@ tmux:
     test -f "$plugin_root/tmux-yank/yank.tmux"
     test -f "$plugin_root/tmux-fzf/main.sh"
     test -f "$plugin_root/tmux2k/2k.tmux"
+    test -f "$plugin_root/tmux-resurrect/resurrect.tmux"
+    test -f "$plugin_root/tmux-continuum/continuum.tmux"
     test ! -e "$plugin_root/tmux-harpoon"
 
     if ! HOME="$PWD/dotfiles" tmux -L "$socket" -f "$PWD/dotfiles/.config/tmux/tmux.conf" \
@@ -210,12 +212,17 @@ tmux:
     tmux_cmd show-options -gqv @tmux2k-left-plugins | grep -Fx 'session git cwd' >/dev/null
     tmux_cmd show-options -gqv @tmux2k-right-plugins | grep -Fx 'battery time' >/dev/null
     tmux_cmd show-options -gqv @tmux2k-refresh-rate | grep -Fx 5 >/dev/null
+    tmux_cmd show-options -gqv @resurrect-capture-pane-contents | grep -Fx on >/dev/null
+    tmux_cmd show-options -gqv @continuum-restore | grep -Fx on >/dev/null
+    tmux_cmd show-options -gqv @continuum-save-interval | grep -Fx 15 >/dev/null
     tmux_cmd show-options -gqv status | grep -Fx 2 >/dev/null
     test -z "$(tmux_cmd show-options -gqv 'status-format[0]')"
     test -n "$(tmux_cmd show-options -gqv 'status-format[1]')"
 
     tmux_cmd show-options -gsqv escape-time | grep -Fx 0 >/dev/null
     tmux_cmd show-options -gqv detach-on-destroy | grep -Fx off >/dev/null
+    tmux_cmd show-options -sqv extended-keys | grep -Fx on >/dev/null
+    tmux_cmd show-options -sqv terminal-features | grep -F 'extkeys' >/dev/null
     tmux_cmd list-keys -T copy-mode-vi y | grep -F copy-selection-and-cancel >/dev/null
     tmux_cmd list-keys -T copy-mode-vi Enter | grep -F copy-selection-and-cancel >/dev/null
     tmux_cmd list-keys -T copy-mode-vi MouseDragEnd1Pane | grep -F copy-pipe-and-cancel >/dev/null
@@ -223,6 +230,16 @@ tmux:
     tmux_cmd list-keys -T root M-Down | grep -F 'select-pane -D' >/dev/null
     tmux_cmd list-keys -T root M-Up | grep -F 'select-pane -U' >/dev/null
     tmux_cmd list-keys -T root M-Right | grep -F 'select-pane -R' >/dev/null
+    tmux_cmd list-keys -T root C-h | grep -F 'select-pane -L' >/dev/null
+    tmux_cmd list-keys -T root C-j | grep -F 'select-pane -D' >/dev/null
+    tmux_cmd list-keys -T root C-k | grep -F 'select-pane -U' >/dev/null
+    tmux_cmd list-keys -T root C-l | grep -F 'select-pane -R' >/dev/null
+    tmux_cmd list-keys -T root 'C-\' | grep -F 'select-pane -l' >/dev/null
+    tmux_cmd list-keys -T copy-mode-vi C-h | grep -F 'select-pane -L' >/dev/null
+    tmux_cmd list-keys -T copy-mode-vi C-j | grep -F 'select-pane -D' >/dev/null
+    tmux_cmd list-keys -T copy-mode-vi C-k | grep -F 'select-pane -U' >/dev/null
+    tmux_cmd list-keys -T copy-mode-vi C-l | grep -F 'select-pane -R' >/dev/null
+    tmux_cmd list-keys -T copy-mode-vi 'C-\' | grep -F 'select-pane -l' >/dev/null
     tmux_cmd list-keys -T prefix v | grep -F 'copy-mode' >/dev/null
     tmux_cmd list-keys -T prefix P | grep -F 'paste-buffer' >/dev/null
     tmux_cmd list-keys -T prefix F | grep -F 'tmux-fzf/main.sh' >/dev/null
