@@ -87,6 +87,24 @@ if ($cargo_bin | path exists) {
     }
 }
 
+$env.BUN_INSTALL = ($env.XDG_DATA_HOME | path join "bun")
+let bun_bin = ($env.BUN_INSTALL | path join "bin")
+if ($bun_bin | path exists) {
+    let current_path = (
+        if ($env.PATH | describe) == "string" {
+            $env.PATH | split row (char esep)
+        } else {
+            $env.PATH
+        }
+    )
+
+    let already_in_path = ($current_path | any {|p| $p == $bun_bin})
+
+    if not $already_in_path {
+        $env.PATH = ($current_path | prepend $bun_bin)
+    }
+}
+
 # =============================================================================
 # Editor Configuration
 # =============================================================================
