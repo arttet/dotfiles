@@ -261,7 +261,7 @@ Default target type is `symbolic`. Windows-only paths use `if = "dotter.windows"
 - Yazi flavors and plugins (catppuccin, chmod, copy-file-contents, full-border, git, ouch, piper, starship, toggle-pane, torrent-preview, yaziline)
 - Hyprland wallpapers (catppuccin, graphite, nord, whitesur, mactahoe)
 
-**Rule**: update these with `just sync` / `just update`, not by hand. `just sync` uses `--locked` for reproducibility; `just update` re-resolves refs and rewrites `vendir.lock.yml` (and `vendir.lock.windows.yml` on Windows). Vendored paths are excluded from formatting and linting.
+**Rule**: update these with `just sync` / `just vendir update`, not by hand. `just sync` uses `--locked` for reproducibility; `just vendir update` re-resolves refs and rewrites `vendir.lock.yml` (and `vendir.lock.windows.yml` on Windows). Run `just vendir outdated` to see which pinned commits are behind their upstream HEAD. Vendored paths are excluded from formatting and linting.
 
 > `vendir.lock.windows.yml` is kept because `vendir` on Windows normalizes paths to backslashes while the committed `vendir.lock.yml` uses forward slashes. `just sync` selects the appropriate lock file automatically.
 

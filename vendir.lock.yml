@@ -10,6 +10,8 @@ directories:
   - git:
       commitTitle: 'Merge pull request #474 from georgeanderson/master...'
       sha: cff343cf9e81983d3da0c8562b01616f12e8d548
+      tags:
+      - v4.0.0-18-gcff343c
     path: .
   path: dotfiles/.config/tmux/plugins/tmux-resurrect
 - contents:
@@ -22,6 +24,8 @@ directories:
   - git:
       commitTitle: 'Merge pull request #167 from iloveitaly/put-with-bracketed-paste...'
       sha: acfd36e4fcba99f8310a7dfb432111c242fe7392
+      tags:
+      - v2.3.0-28-gacfd36e
     path: .
   path: dotfiles/.config/tmux/plugins/tmux-yank
 - contents:
@@ -32,8 +36,10 @@ directories:
   path: dotfiles/.config/tmux/plugins/tmux-fzf
 - contents:
   - git:
-      commitTitle: Adding a new condition to the script (#89)...
-      sha: c542cd52e87ac0691e83f58b64d4d1cabc48bc17
+      commitTitle: 'feat: add packer icon to mise plugin (#91)'
+      sha: 2b2a66dc0d6313d59f14249d70d374ae27b5cdc7
+      tags:
+      - 2.0-10-g2b2a66d
     path: .
   path: dotfiles/.config/tmux/plugins/tmux2k
 - contents:
@@ -46,12 +52,16 @@ directories:
   - git:
       commitTitle: update
       sha: 57028b0bfcc0cfee1ba42273c545e4e269973433
+      tags:
+      - 2025-07-06-10-g57028b0
     path: .
   path: dotfiles/.config/hypr/wallpapers/graphite
 - contents:
   - git:
       commitTitle: update
       sha: 57028b0bfcc0cfee1ba42273c545e4e269973433
+      tags:
+      - 2025-07-06-10-g57028b0
     path: .
   path: dotfiles/.config/hypr/wallpapers/graphite-nord
 - contents:
@@ -64,18 +74,24 @@ directories:
   - git:
       commitTitle: 'Merge pull request #11 from sam-itt/patch-1...'
       sha: 5c1d7ca20b8de0a7efe443792c19e49277262e02
+      tags:
+      - 2023-06-11-4-g5c1d7ca
     path: .
   path: dotfiles/.config/hypr/wallpapers/whitesur
 - contents:
   - git:
       commitTitle: 'Merge pull request #11 from sam-itt/patch-1...'
       sha: 5c1d7ca20b8de0a7efe443792c19e49277262e02
+      tags:
+      - 2023-06-11-4-g5c1d7ca
     path: .
   path: dotfiles/.config/hypr/wallpapers/whitesur-nord
 - contents:
   - git:
       commitTitle: Fixed firefox issues
       sha: 3267b3dfd9b6c3e775ad9b1f3079f848fc076bf6
+      tags:
+      - 2026-05-24-16-g3267b3d
     path: .
   path: dotfiles/.config/hypr/wallpapers/mactahoe
 - contents:
@@ -94,32 +110,32 @@ directories:
   path: dotfiles/.config/yazi/flavors/catppuccin-mocha.yazi
 - contents:
   - git:
-      commitTitle: 'feat: support nightly `rt.mgr.ratio`'
-      sha: 39aaf6dc77e546fe7f7836f102a6c57f96d15365
+      commitTitle: 'fix: adapt for https://github.com/sxyazi/yazi/pull/4096'
+      sha: 65559fd3edc33cb0fd24ec92874c763fa5f68e3e
     path: .
   path: dotfiles/.config/yazi/plugins/chmod.yazi
 - contents:
   - git:
-      commitTitle: 'feat: support nightly `rt.mgr.ratio`'
-      sha: 39aaf6dc77e546fe7f7836f102a6c57f96d15365
+      commitTitle: 'fix: adapt for https://github.com/sxyazi/yazi/pull/4096'
+      sha: 65559fd3edc33cb0fd24ec92874c763fa5f68e3e
     path: .
   path: dotfiles/.config/yazi/plugins/full-border.yazi
 - contents:
   - git:
-      commitTitle: 'feat: support nightly `rt.mgr.ratio`'
-      sha: 39aaf6dc77e546fe7f7836f102a6c57f96d15365
+      commitTitle: 'fix: adapt for https://github.com/sxyazi/yazi/pull/4096'
+      sha: 65559fd3edc33cb0fd24ec92874c763fa5f68e3e
     path: .
   path: dotfiles/.config/yazi/plugins/git.yazi
 - contents:
   - git:
-      commitTitle: 'feat: support nightly `rt.mgr.ratio`'
-      sha: 39aaf6dc77e546fe7f7836f102a6c57f96d15365
+      commitTitle: 'fix: adapt for https://github.com/sxyazi/yazi/pull/4096'
+      sha: 65559fd3edc33cb0fd24ec92874c763fa5f68e3e
     path: .
   path: dotfiles/.config/yazi/plugins/piper.yazi
 - contents:
   - git:
-      commitTitle: 'feat: support nightly `rt.mgr.ratio`'
-      sha: 39aaf6dc77e546fe7f7836f102a6c57f96d15365
+      commitTitle: 'fix: adapt for https://github.com/sxyazi/yazi/pull/4096'
+      sha: 65559fd3edc33cb0fd24ec92874c763fa5f68e3e
     path: .
   path: dotfiles/.config/yazi/plugins/toggle-pane.yazi
 - contents:
@@ -132,6 +148,8 @@ directories:
   - git:
       commitTitle: 'Merge pull request #35 from openaitx-system/Auto_translate_README_and_Wiki...'
       sha: 406ce6c13ec3a18d4872b8f64b62f4a530759b2c
+      tags:
+      - v0.7.0-12-g406ce6c
     path: .
   path: dotfiles/.config/yazi/plugins/ouch.yazi
 - contents:
