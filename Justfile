@@ -3,7 +3,6 @@
 ################################################################################
 
 SHELL_TARGETS := "dotfiles/.bashrc dotfiles/.bash_profile dotfiles/.config/bash dotfiles/.config/shell"
-VENDIR_LOCK_FILE := if os_family() == "windows" { "vendir.lock.windows.yml" } else { "vendir.lock.yml" }
 
 # ==============================================================================
 # Help
@@ -22,8 +21,7 @@ help:
 
 [doc('Synchronize external plugins and dependencies')]
 [group('Dotfiles')]
-sync:
-    vendir sync --locked --lock-file {{ VENDIR_LOCK_FILE }}
+sync: vendir::sync
 
 [doc('Preview dotfiles deployment')]
 [group('Dotfiles')]
@@ -95,6 +93,13 @@ clean:
     rm -rf dotfiles/.config/yazi/flavors
     rm -rf dotfiles/.config/yazi/plugins
     @echo "✅ Cleanup complete!"
+
+# ==============================================================================
+# Vendir
+# ==============================================================================
+
+[group: 'Vendir']
+mod vendir 'misc/justfiles/vendir.just'
 
 # ==============================================================================
 # Validators
