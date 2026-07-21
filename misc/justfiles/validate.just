@@ -289,8 +289,16 @@ tmux:
     assert_bind root M-t display-popup 'nu --login --interactive'
     assert_bind root M-g display-popup lazygit
     assert_bind root M-e display-menu Config
-    if tmux_cmd list-keys -T prefix H >/dev/null 2>&1 || tmux_cmd list-keys -T harpoon >/dev/null 2>&1; then
-        echo "Harpoon bindings must not be present." >&2
+    # prefix H must stay unbound and the harpoon key table must not exist.
+    # Single-key list-keys queries print nothing (and exit 0) on tmux 3.7b, so
+    # the prefix table is searched for an H binding instead of relying on the
+    # query's exit status. A missing table still errors, so that check is fine.
+    if tmux_cmd list-keys -T prefix 2>&1 | tr -s ' ' | grep -Fq -- "-T prefix H "; then
+        echo "Harpoon binding (prefix H) must not be present." >&2
+        exit 1
+    fi
+    if tmux_cmd list-keys -T harpoon >/dev/null 2>&1; then
+        echo "Harpoon key table must not be present." >&2
         exit 1
     fi
 
