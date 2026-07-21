@@ -223,37 +223,82 @@ tmux:
     tmux_cmd show-options -gqv detach-on-destroy | grep -Fx off >/dev/null
     tmux_cmd show-options -sqv extended-keys | grep -Fx on >/dev/null
     tmux_cmd show-options -sqv terminal-features | grep -F 'extkeys' >/dev/null
-    tmux_cmd list-keys -T copy-mode-vi y | grep -F copy-selection-and-cancel >/dev/null
-    tmux_cmd list-keys -T copy-mode-vi Enter | grep -F copy-selection-and-cancel >/dev/null
-    tmux_cmd list-keys -T copy-mode-vi MouseDragEnd1Pane | grep -F copy-pipe-and-cancel >/dev/null
-    tmux_cmd list-keys -T root M-Left | grep -F 'select-pane -L' >/dev/null
-    tmux_cmd list-keys -T root M-Down | grep -F 'select-pane -D' >/dev/null
-    tmux_cmd list-keys -T root M-Up | grep -F 'select-pane -U' >/dev/null
-    tmux_cmd list-keys -T root M-Right | grep -F 'select-pane -R' >/dev/null
-    tmux_cmd list-keys -T root C-h | grep -F 'select-pane -L' >/dev/null
-    tmux_cmd list-keys -T root C-j | grep -F 'select-pane -D' >/dev/null
-    tmux_cmd list-keys -T root C-k | grep -F 'select-pane -U' >/dev/null
-    tmux_cmd list-keys -T root C-l | grep -F 'select-pane -R' >/dev/null
-    tmux_cmd list-keys -T root 'C-\' | grep -F 'select-pane -l' >/dev/null
-    tmux_cmd list-keys -T copy-mode-vi C-h | grep -F 'select-pane -L' >/dev/null
-    tmux_cmd list-keys -T copy-mode-vi C-j | grep -F 'select-pane -D' >/dev/null
-    tmux_cmd list-keys -T copy-mode-vi C-k | grep -F 'select-pane -U' >/dev/null
-    tmux_cmd list-keys -T copy-mode-vi C-l | grep -F 'select-pane -R' >/dev/null
-    tmux_cmd list-keys -T copy-mode-vi 'C-\' | grep -F 'select-pane -l' >/dev/null
-    tmux_cmd list-keys -T prefix v | grep -F 'copy-mode' >/dev/null
-    tmux_cmd list-keys -T prefix P | grep -F 'paste-buffer' >/dev/null
-    tmux_cmd list-keys -T prefix F | grep -F 'tmux-fzf/main.sh' >/dev/null
-    tmux_cmd list-keys -T prefix C-y | grep -F 'display-popup -E -d "#{pane_current_path}" -h "90%" -w "90%" yazi' >/dev/null
-    tmux_cmd list-keys -T prefix C-t | grep -F 'display-popup -E -d "#{pane_current_path}" -h "80%" -w "80%" "nu --login --interactive"' >/dev/null
-    tmux_cmd list-keys -T prefix C-g | grep -F 'display-popup -E -d "#{pane_current_path}" -h "90%" -w "90%" lazygit' >/dev/null
-    tmux_cmd list-keys -T prefix e | grep -F 'display-menu -T "#[align=centre]Config"' >/dev/null
-    tmux_cmd list-keys -T prefix d | grep -F 'detach-client' >/dev/null
-    tmux_cmd list-keys -T root M-y | grep -F 'display-popup -E -d "#{pane_current_path}" -h "90%" -w "90%" yazi' >/dev/null
-    tmux_cmd list-keys -T root M-t | grep -F 'display-popup -E -d "#{pane_current_path}" -h "80%" -w "80%" "nu --login --interactive"' >/dev/null
-    tmux_cmd list-keys -T root M-g | grep -F 'display-popup -E -d "#{pane_current_path}" -h "90%" -w "90%" lazygit' >/dev/null
-    tmux_cmd list-keys -T root M-e | grep -F 'display-menu -T "#[align=centre]Config"' >/dev/null
-    if tmux_cmd list-keys -T prefix H >/dev/null 2>&1 || tmux_cmd list-keys -T harpoon >/dev/null 2>&1; then
-        echo "Harpoon bindings must not be present." >&2
+
+    # assert_bind <table> <key> <needle> [needle...]
+    # Fails (with the offending binding printed) unless the key's list-keys
+    # entry contains every needle. Substring matching keeps the assertions
+    # independent of tmux's version-specific quoting/flag ordering in list-keys
+    # output.
+    #
+    # list-keys no longer honours the single-key query form (it prints nothing
+    # on tmux 3.7b), so the full table is dumped and the key column matched.
+    # Keys are escaped in list-keys output (C-\ prints as C-\\) and columns are
+    # space-padded, hence the backslash doubling and whitespace squeeze.
+    assert_bind() {
+        local table="$1" key="$2"
+        shift 2
+        local out line needle esc_key
+        esc_key="${key//\\/\\\\}"
+        if ! out="$(tmux_cmd list-keys -T "$table" 2>&1)"; then
+            echo "FAIL: list-keys -T $table: $out" >&2
+            exit 1
+        fi
+        line="$(printf '%s\n' "$out" | tr -s ' ' | grep -F -- "-T $table $esc_key " || true)"
+        if [ -z "$line" ]; then
+            echo "FAIL: no binding for $table/$key" >&2
+            exit 1
+        fi
+        for needle in "$@"; do
+            case "$line" in
+            *"$needle"*) ;;
+            *)
+                echo "FAIL: $table/$key binding missing '$needle':" >&2
+                echo "  $line" >&2
+                exit 1
+                ;;
+            esac
+        done
+    }
+
+    assert_bind copy-mode-vi y copy-selection-and-cancel
+    assert_bind copy-mode-vi Enter copy-selection-and-cancel
+    assert_bind copy-mode-vi MouseDragEnd1Pane copy-pipe-and-cancel
+    assert_bind root M-Left 'select-pane -L'
+    assert_bind root M-Down 'select-pane -D'
+    assert_bind root M-Up 'select-pane -U'
+    assert_bind root M-Right 'select-pane -R'
+    assert_bind root C-h 'select-pane -L'
+    assert_bind root C-j 'select-pane -D'
+    assert_bind root C-k 'select-pane -U'
+    assert_bind root C-l 'select-pane -R'
+    assert_bind root 'C-\' 'select-pane -l'
+    assert_bind copy-mode-vi C-h 'select-pane -L'
+    assert_bind copy-mode-vi C-j 'select-pane -D'
+    assert_bind copy-mode-vi C-k 'select-pane -U'
+    assert_bind copy-mode-vi C-l 'select-pane -R'
+    assert_bind copy-mode-vi 'C-\' 'select-pane -l'
+    assert_bind prefix v 'copy-mode'
+    assert_bind prefix P 'paste-buffer'
+    assert_bind prefix F 'tmux-fzf/main.sh'
+    assert_bind prefix C-y display-popup yazi
+    assert_bind prefix C-t display-popup 'nu --login --interactive'
+    assert_bind prefix C-g display-popup lazygit
+    assert_bind prefix e display-menu Config
+    assert_bind prefix d detach-client
+    assert_bind root M-y display-popup yazi
+    assert_bind root M-t display-popup 'nu --login --interactive'
+    assert_bind root M-g display-popup lazygit
+    assert_bind root M-e display-menu Config
+    # prefix H must stay unbound and the harpoon key table must not exist.
+    # Single-key list-keys queries print nothing (and exit 0) on tmux 3.7b, so
+    # the prefix table is searched for an H binding instead of relying on the
+    # query's exit status. A missing table still errors, so that check is fine.
+    if tmux_cmd list-keys -T prefix 2>&1 | tr -s ' ' | grep -Fq -- "-T prefix H "; then
+        echo "Harpoon binding (prefix H) must not be present." >&2
+        exit 1
+    fi
+    if tmux_cmd list-keys -T harpoon >/dev/null 2>&1; then
+        echo "Harpoon key table must not be present." >&2
         exit 1
     fi
 
