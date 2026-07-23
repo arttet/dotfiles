@@ -11,9 +11,9 @@ This repository is a personal, cross-platform dotfiles configuration for Artyom 
 - **Repository**: `https://github.com/arttet/dotfiles`
 - **Maintainer**: `@arttet` (see `.github/CODEOWNERS`)
 - **Primary language of documentation and comments**: English
-- **Deployment model**: Symlink-based dotfiles deployed with **dotter** (`just deploy`) or GNU **stow** (`just install`/`uninstall`)
+- **Deployment model**: Symlink-based dotfiles deployed with **dotter** (`just deploy apply`) or GNU **stow** (`just deploy install`/`uninstall`)
 - **External assets**: Plugins, themes, and wallpapers are vendored with **vendir** (`vendir.yml` + `vendir.lock.yml`, plus `vendir.lock.windows.yml` for Windows path handling)
-- **Task runner**: `just` (`Justfile`)
+- **Task runners**: `just` (`Justfile`) for deployment and local recipes; `mise` (`mise.toml`) for pinned dev tools and Stage-1 CI gate tasks
 - **Documentation site**: VitePress under `docs/`, served via Bun (`just docs dev`)
 - **NixOS integration**: `nixos/home.nix` links selected dotfiles into a Home Manager generation
 
@@ -24,6 +24,8 @@ This repository is a personal, cross-platform dotfiles configuration for Artyom 
 ├── .dotter/              # dotter deployment configuration
 │   └── global.toml       # package/profiles and file mappings
 ├── .github/              # CI/CD workflows and Dependabot config
+│   ├── actions/setup-mise/ # pinned, checksum-verified mise installer with tool cache
+│   ├── harden-runner/      # allowed-endpoints lists loaded by CI jobs
 │   └── workflows/ci.yml  # validation, security, docs, deployment
 ├── docs/                 # VitePress documentation site
 │   ├── package.json      # Bun-based dev dependencies
@@ -62,8 +64,8 @@ This repository is a personal, cross-platform dotfiles configuration for Artyom 
 │   └── justfiles/docs.just
 ├── nixos/
 │   └── home.nix          # Home Manager links for NixOS
-├── scripts/              # (currently empty directory)
 ├── Justfile              # primary task definitions
+├── mise.toml             # pinned dev tools + Stage-1 CI gate tasks (fmt/lint/security/antivirus/docs)
 ├── vendir.yml            # external dependency specifications
 ├── vendir.lock.yml       # pinned external dependency versions
 ├── vendir.lock.windows.yml # Windows-specific lock file (backslash paths)
@@ -132,19 +134,21 @@ All commands are run from the repository root via `just`.
 # Help
 just help
 
-# Dotfiles deployment
-just sync          # vendir sync --locked
-just check         # dotter dry-run preview
-just deploy        # dotter deploy --verbose --force
-just undeploy      # dotter undeploy
-just install       # stow -v --target=${HOME} dotfiles  (Unix only)
-just uninstall     # stow -v --delete --target=${HOME} dotfiles (Unix only)
+# Development (mise-backed)
+just install       # install pinned CI/dev tools (mise install)
+just fmt           # delegates to `mise run fmt:write` (dprint + stylua + shfmt + just --fmt)
+just lint          # delegates to `mise run lint:all` (all Stage-1 linters)
+just check         # delegates to `mise run check` (all Stage-1 gates)
+just ci            # delegates to `mise run ci` (GitHub Actions locally via act)
+just clean         # remove vendir deps, .tools caches, docs artifacts
 
-# Formatting
-just fmt           # dprint fmt + stylua + shfmt + just --fmt
-
-# Linting
-just lint          # selene + shellcheck + yamllint + markdownlint + actionlint + stylelint
+# Dotfiles deployment (deploy module)
+just deploy sync        # vendir sync --locked
+just deploy check       # dotter dry-run preview
+just deploy apply       # dotter deploy --verbose --force
+just deploy undeploy    # dotter undeploy
+just deploy install     # stow -v --target=${HOME} dotfiles  (Unix only)
+just deploy uninstall   # stow -v --delete --target=${HOME} dotfiles (Unix only)
 
 # Docs
 just docs dev      # VitePress dev server (port 5173)
@@ -154,9 +158,18 @@ just docs preview  # preview production build
 # Performance
 just bench         # hyperfine benchmarks for bash, zsh, nu, pwsh
 
-# Dependencies
-just deps          # install actionlint via go install
+# Stage-1 CI gates via mise (local CI parity)
+mise install       # install all pinned tools from mise.toml
+mise run check     # all Stage-1 gates: fmt, lint, security, antivirus, docs
+mise tasks         # list individual gate tasks (fmt:all, lint:all, security:all, ...)
+mise run deps:outdated  # Renovate local report of available dependency updates
+mise run ci:list   # list GitHub Actions jobs runnable locally via act
+mise run ci        # run the CI workflow locally via act (requires Docker)
 ```
+
+Stage-1 gate tasks live in `mise.toml` and are exactly what CI runs (`.github/workflows/ci.yml` calls
+`mise run fmt:all` / `lint:all` / `security:*` / `antivirus:all` / `docs:*`). Tools are pinned in
+`mise.toml` and installed in CI by the checksum-verified composite action `.github/actions/setup-mise`.
 
 ## Code Style Guidelines
 
@@ -169,6 +182,9 @@ just deps          # install actionlint via go install
 | Shell (bash/zsh)                       | `shfmt`      | called via `just fmt` on `dotfiles/.bashrc`, `.bash_profile`, `dotfiles/.config/bash`, `dotfiles/.config/shell` |
 | Justfile                               | `just --fmt` | `Justfile`                                                                                                      |
 | CSS                                    | `stylelint`  | `.stylelintrc.json` (currently no rules)                                                                        |
+
+`.github/workflows/ci.yml` is excluded from dprint (see `excludes` in `dprint.json`) because its section
+headers use zero-indent `# ===...` separators, which pretty_yaml would re-indent.
 
 ### Shell scripting conventions
 
@@ -200,20 +216,24 @@ just --fmt --check
 just lint
 
 # Validate vendored deps are present
-just sync
+just deploy sync
 
 # Validate dotfiles can be deployed
-just check
+just deploy check
 ```
 
 The GitHub Actions workflow (`.github/workflows/ci.yml`) runs the following gates:
 
-- **Stage 1** (parallel):
-  - `fmt` — dprint check + justfile format check
-  - `lint` — yamllint, actionlint, stylelint
-  - `security` — TruffleHog secret scan, Trivy filesystem scan (secrets/misconfig), SARIF upload
-  - `antivirus` — ClamAV scan
-  - `docs` — Bun install, audit, VitePress build, Lychee link check
+The `allowed-endpoints` lists for `step-security/harden-runner` live in `.github/harden-runner/*.txt` and are
+loaded by the `Load allowed endpoints` step in each job; to allow a new endpoint, add it to the appropriate
+txt file, not to the workflow.
+
+- **Stage 1** (parallel, via `mise run` with tools pinned in `mise.toml`):
+  - `fmt` — `mise run fmt:all` (dprint check, editorconfig-checker, justfile/Lua/shell format checks)
+  - `lint` — `mise run lint:all` (yamllint, actionlint, shellcheck, selene, taplo, markdownlint, stylelint, zizmor, Zellij/Nushell config validation)
+  - `security` — TruffleHog secret scan (`--fail`), Semgrep SAST (p/ci OSS rules), Trivy filesystem scan (vuln/secret/misconfig) with blocking HIGH/CRITICAL gate, SARIF upload
+  - `antivirus` — `mise run antivirus:all` (ClamAV via Docker image, DB cached daily)
+  - `docs` — `mise run docs:install/audit/build/links` (Bun install, audit, VitePress build, Lychee link check)
 - **Stage 2** (gated by Stage 1):
   - `hyprland` — `hyprland --verify-config`
   - `neovim` — syntax check + headless `Lazy! sync`
@@ -246,7 +266,7 @@ Default target type is `symbolic`. Windows-only paths use `if = "dotter.windows"
 
 ### stow (alternative)
 
-`just install` / `uninstall` run `stow` against the `dotfiles/` tree directly. The CI `stow` job verifies that expected paths are symlinks.
+`just deploy install` / `just deploy uninstall` run `stow` against the `dotfiles/` tree directly. The CI `stow` job verifies that expected paths are symlinks.
 
 ### NixOS / Home Manager
 
@@ -261,9 +281,9 @@ Default target type is `symbolic`. Windows-only paths use `if = "dotter.windows"
 - Yazi flavors and plugins (catppuccin, chmod, copy-file-contents, full-border, git, ouch, piper, starship, toggle-pane, torrent-preview, yaziline)
 - Hyprland wallpapers (catppuccin, graphite, nord, whitesur, mactahoe)
 
-**Rule**: update these with `just sync` / `just vendir update`, not by hand. `just sync` uses `--locked` for reproducibility; `just vendir update` re-resolves refs and rewrites `vendir.lock.yml` (and `vendir.lock.windows.yml` on Windows). Run `just vendir outdated` to see which pinned commits are behind their upstream HEAD. Vendored paths are excluded from formatting and linting.
+**Rule**: update these with `just deploy sync` / `just vendir update`, not by hand. `just deploy sync` uses `--locked` for reproducibility; `just vendir update` re-resolves refs and rewrites `vendir.lock.yml` (and `vendir.lock.windows.yml` on Windows). Run `just vendir outdated` to see which pinned commits are behind their upstream HEAD. Vendored paths are excluded from formatting and linting.
 
-> `vendir.lock.windows.yml` is kept because `vendir` on Windows normalizes paths to backslashes while the committed `vendir.lock.yml` uses forward slashes. `just sync` selects the appropriate lock file automatically.
+> `vendir.lock.windows.yml` is kept because `vendir` on Windows normalizes paths to backslashes while the committed `vendir.lock.yml` uses forward slashes. `just deploy sync` selects the appropriate lock file automatically.
 
 > Known issue (see `TODO.md`): `vendir sync` can fail on Windows with access-denied errors on its temp clone.
 
@@ -317,7 +337,7 @@ When modifying configs:
   - `Justfile` (if a new validation recipe is needed)
   - `.github/workflows/ci.yml` (validation job)
 - Run `just fmt` and `just lint` before committing.
-- If adding an external plugin/theme, declare it in `vendir.yml`, run `just sync`, and commit `vendir.yml`, `vendir.lock.yml`, and `vendir.lock.windows.yml`.
+- If adding an external plugin/theme, declare it in `vendir.yml`, run `just deploy sync`, and commit `vendir.yml`, `vendir.lock.yml`, and `vendir.lock.windows.yml`.
 - The `dotfiles/.config/nvim` configuration is currently noted as broken in `TODO.md`; treat it as a known issue requiring a dedicated fix session.
 
 ## Useful Links

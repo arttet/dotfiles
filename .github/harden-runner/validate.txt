@@ -1,0 +1,3 @@
+cache.nixos.org:443
+models.dev:443
+releases.nixos.org:443

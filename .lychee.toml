@@ -1,11 +1,20 @@
+# Link checker config (https://lychee.cli.rs/usage/config)
+
 max_retries = 3
-retry_wait_time = 5
-timeout = 15
+retry_wait_time = 3
+max_concurrency = 8
+timeout = 5
+cache = true
+max_cache_age = "1d"
 verbose = "info"
+
+# Treat rate-limiting and partial content as success.
 accept = [200, 204, 206, 429]
+
 exclude_loopback = true
 exclude_private = true
 include_mail = false
+
 exclude = [
   "^mailto:",
   "^file:",

@@ -43,6 +43,6 @@ preview:
 
 [doc('Clean build artifacts and cache')]
 [working-directory(docs_dir)]
-clear:
+clean:
     @echo "🧹 Sweeping documentation artifacts..."
     rm -rf node_modules .vitepress/cache .vitepress/dist

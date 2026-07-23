@@ -1,0 +1,325 @@
+[tools]
+"npm:markdownlint-cli2" = "0.23.1"
+"npm:stylelint" = "16.26.1"
+"npm:wrangler" = "4.112.0"
+
+"github:Kampfkarren/selene" = "0.31.0"
+"aqua:nushell/nushell" = "0.114.1"
+
+act = "0.2.89"
+actionlint = "1.7.12"
+bun = "1.3.14"
+dprint = "0.55.2"
+editorconfig-checker = "3.8.0"
+just = "1.57.0"
+lychee = "0.24.2"
+node = "24.18.0"
+semgrep = "1.171.0"
+shellcheck = "0.11.0"
+shfmt = "3.13.1"
+stylua = "2.5.2"
+taplo = "0.10.0"
+trivy = "0.72.0"
+trufflehog = "3.95.9"
+yamllint = "1.38.0"
+zellij = "0.44.3"
+zizmor = "1.27.0"
+
+[env]
+MSYS_NO_PATHCONV = "1"
+CLAMAV_DB_DIR = "{{config_root}}/.tools/clamav-db"
+CLAMAV_IMAGE = "clamav/clamav:1.5.3_base"
+DPRINT_CACHE_DIR = "{{config_root}}/.tools/dprint"
+npm_config_fetch_retries = "5"
+npm_config_fetch_retry_mintimeout = "20000"
+npm_config_fetch_retry_maxtimeout = "120000"
+npm_config_fetch_timeout = "300000"
+
+# ==============================================================================
+# Development
+# ==============================================================================
+
+[tasks."deps:outdated"]
+description = "Show available dependency updates with Renovate local report"
+shell = "bash -c"
+run = """
+RENOVATE_GITHUB_COM_TOKEN="$(gh auth token)" mise exec node@24 -- npx --yes renovate@43.272.6 \
+  --platform=local \
+  --onboarding=false \
+  --require-config=required \
+  --report-type=logging \
+  --cache-dir=.tools/renovate/cache
+"""
+
+[tasks.check]
+description = "Run all checks"
+depends = ["fmt:all", "lint:all", "security:all", "antivirus:all", "docs:all"]
+
+[tasks.ci]
+description = "Run GitHub Actions locally with act"
+shell = "bash -c"
+run = """
+act pull_request --bind --artifact-server-path .tools/act-artifacts \
+  -s GITHUB_TOKEN="$(gh auth token)" \
+  -P ubuntu-26.04=catthehacker/ubuntu:act-latest
+"""
+
+[tasks."ci:list"]
+description = "List GitHub Actions jobs available via act"
+run = "act --list"
+
+# ==============================================================================
+# Format Quality Gate
+# ==============================================================================
+
+[tasks."fmt:dprint"]
+description = "dprint format check"
+run = "dprint check"
+
+[tasks."fmt:editorconfig"]
+description = "EditorConfig check"
+run = "ec"
+
+[tasks."fmt:just"]
+description = "Justfile format check"
+run = "just --fmt --check"
+
+[tasks."fmt:stylua"]
+description = "Lua format check"
+run = "stylua --allow-hidden --check ."
+
+[tasks."fmt:shfmt"]
+description = "Shell format check"
+shell = "bash -c"
+run = """
+shell_targets="dotfiles/.bashrc dotfiles/.bash_profile dotfiles/.config/bash dotfiles/.config/shell"
+shfmt --diff $(shfmt --find $shell_targets)
+"""
+
+[tasks."fmt:all"]
+description = "All format checks"
+depends = [
+  "fmt:dprint",
+  "fmt:editorconfig",
+  "fmt:just",
+  "fmt:stylua",
+  "fmt:shfmt",
+]
+
+[tasks."fmt:write"]
+description = "Format source files"
+shell = "bash -c"
+run = [
+  "dprint fmt",
+  "stylua --allow-hidden .",
+  "shfmt --write dotfiles/.bashrc dotfiles/.bash_profile dotfiles/.config/bash dotfiles/.config/shell",
+  "just --fmt",
+]
+
+# ==============================================================================
+# Lint Quality Gate
+# ==============================================================================
+
+[tasks."lint:yaml"]
+description = "YAML lint"
+run = "yamllint ."
+
+[tasks."lint:actions"]
+description = "GitHub Actions lint"
+run = "actionlint"
+
+[tasks."lint:shell"]
+description = "Shell lint"
+shell = "bash -c"
+run = """
+shell_targets="dotfiles/.bashrc dotfiles/.bash_profile dotfiles/.config/bash dotfiles/.config/shell"
+shellcheck -s bash $(shfmt --find $shell_targets)
+"""
+
+[tasks."lint:lua"]
+description = "Lua lint"
+shell = "bash -c"
+run = """
+selene dotfiles/.config/nvim dotfiles/.config/wezterm
+selene --config dotfiles/.config/hypr/selene.toml dotfiles/.config/hypr/hyprland.lua
+"""
+
+[tasks."lint:toml"]
+description = "TOML lint"
+shell = "bash -c"
+run = """
+taplo lint --no-schema \
+  $(find dotfiles/.config -type f -name "*.toml" \
+    ! -path "*/node_modules/*" \
+    ! -path "*/yazi/plugins/*" \
+    ! -path "*/alacritty/themes/*")
+"""
+
+[tasks."lint:markdown"]
+description = "Markdown lint"
+run = "markdownlint-cli2"
+
+[tasks."lint:css"]
+description = "CSS lint"
+shell = "bash -c"
+run = "stylelint --config .stylelintrc.json './dotfiles/.config/**/*.css'"
+
+[tasks."lint:zellij"]
+description = "Validate Zellij config"
+shell = "bash -c"
+run = "zellij --config dotfiles/.config/zellij/config.kdl setup --dump-config >/dev/null"
+
+[tasks."lint:nushell"]
+description = "Validate Nushell config"
+run = 'nu --config dotfiles/.config/nushell/config.nu --env-config dotfiles/.config/nushell/env.nu -c "exit 0"'
+
+[tasks."lint:zizmor"]
+description = "GitHub Actions security audit"
+run = "zizmor --persona pedantic .github/"
+
+[tasks."lint:all"]
+description = "All lint checks"
+depends = [
+  "lint:yaml",
+  "lint:actions",
+  "lint:shell",
+  "lint:lua",
+  "lint:toml",
+  "lint:markdown",
+  "lint:css",
+  "lint:zellij",
+  "lint:nushell",
+  "lint:zizmor",
+]
+
+# ==============================================================================
+# Security Gate
+# ==============================================================================
+
+[tasks."security:trufflehog"]
+description = "Secret scanning over git history"
+run = "trufflehog git file://. --results=verified,unknown --fail"
+
+[tasks."security:semgrep"]
+description = "SAST scan (OSS rules)"
+shell = "bash -c"
+run = """
+semgrep scan --verbose --config p/ci --oss-only --metrics=off --error
+"""
+
+[tasks."security:trivy"]
+description = "Trivy scan"
+shell = "bash -c"
+run = """
+mkdir -p .tools/docker .tools/trivy
+export DOCKER_CONFIG="$PWD/.tools/docker"
+trivy fs \
+  --scanners vuln,secret,misconfig \
+  --include-dev-deps \
+  --format json \
+  --output .tools/trivy/trivy.json \
+  --exit-code 0 \
+  --include-dev-deps \
+  --timeout 10m \
+  .
+"""
+
+[tasks."security:trivy:table"]
+description = "Convert Trivy report to table"
+run = """
+trivy convert \
+  --scanners vuln,secret,misconfig \
+  --format table \
+  .tools/trivy/trivy.json
+"""
+depends = ["security:trivy"]
+
+[tasks."security:trivy:sarif"]
+description = "Convert Trivy report to SARIF"
+run = """
+trivy convert \
+  --scanners vuln,secret,misconfig \
+  --format sarif \
+  --output .tools/trivy/trivy-results.sarif \
+  .tools/trivy/trivy.json
+"""
+depends = ["security:trivy"]
+
+[tasks."security:all"]
+description = "All security checks"
+depends = [
+  "security:trufflehog",
+  "security:semgrep",
+  "security:trivy:table",
+  "security:trivy:sarif",
+]
+
+# ==============================================================================
+# Antivirus Gate
+# ==============================================================================
+
+[tasks."antivirus:update"]
+description = "Update ClamAV database into CLAMAV_DB_DIR"
+shell = "bash -c"
+run = """
+mkdir -p "$CLAMAV_DB_DIR"
+docker run --rm -v "$CLAMAV_DB_DIR:/var/lib/clamav" "$CLAMAV_IMAGE" \
+  freshclam --foreground --debug
+"""
+
+[tasks."antivirus:scan"]
+description = "Malware scan of the working tree"
+shell = "bash -c"
+run = """
+docker run --rm \
+  --entrypoint clamscan \
+  -v "$PWD:/scandir:ro" \
+  -v "$CLAMAV_DB_DIR:/var/lib/clamav:ro" \
+  "$CLAMAV_IMAGE" \
+  --recursive \
+  --infected \
+  --exclude-dir='^/scandir/\\.git' \
+  --exclude-dir='^/scandir/\\.tools' \
+  --exclude-dir='^/scandir/docs/node_modules' \
+  /scandir
+"""
+
+[tasks."antivirus:all"]
+description = "All antivirus checks"
+run = ["mise run antivirus:update", "mise run antivirus:scan"]
+
+# ==============================================================================
+# Documentation Gate
+# ==============================================================================
+
+[tasks."docs:install"]
+description = "Install documentation dependencies"
+dir = "docs"
+run = "bun install --frozen-lockfile"
+
+[tasks."docs:audit"]
+description = "Audit documentation dependencies"
+dir = "docs"
+run = "bun audit"
+
+[tasks."docs:build"]
+description = "Build VitePress documentation (set CI_BASE_URL to override the base)"
+dir = "docs"
+run = "bun run docs:build"
+
+[tasks."docs:links"]
+description = "Link check over built documentation"
+shell = "bash -c"
+depends = ["docs:build"]
+run = """
+# Run from .tools/lychee so the lychee cache (.lycheecache) lands there.
+mkdir -p .tools/lychee
+cd .tools/lychee
+lychee --config "{{config_root}}/.lychee.toml" --no-progress \
+  --root-dir "{{config_root}}/docs/.vitepress/dist" \
+  "{{config_root}}/docs/.vitepress/dist"
+"""
+
+[tasks."docs:all"]
+description = "All documentation checks"
+run = ["mise run docs:install", "mise run docs:audit", "mise run docs:build", "mise run docs:links"]

@@ -1,0 +1,6 @@
+# ClamAV endpoints: freshclam database mirror + Docker Hub image pulls
+*.cloudflarestorage.com:443
+auth.docker.io:443
+database.clamav.net:443
+production.cloudflare.docker.com:443
+registry-1.docker.io:443

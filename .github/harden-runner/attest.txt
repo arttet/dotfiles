@@ -1,0 +1,5 @@
+fulcio.sigstore.dev:443
+get.anchore.io:443
+raw.githubusercontent.com:443
+rekor.sigstore.dev:443
+release-assets.githubusercontent.com:443

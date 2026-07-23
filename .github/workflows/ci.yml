@@ -18,179 +18,93 @@ permissions:
 
 env:
   NIXPKGS: github:NixOS/nixpkgs/nixos-unstable
+  MISE_VERSION: v2026.7.11
+  MISE_SHA256: 044157d43a442e3e48aab7d5da3ea0fa40250f53532a6024f93dffa37393a2ac # mise-v2026.7.11-linux-x64-musl.tar.gz
+  MISE_DATA_DIR: ${{ github.workspace }}/.tools/mise
+  MISE_INSTALL_PATH: ${{ github.workspace }}/.tools/mise/bin/mise
+  DPRINT_CACHE_DIR: ${{ github.workspace }}/.tools/dprint
 
 defaults:
   run:
     shell: bash
 
 jobs:
-  # ---------------------------------------------------------------------------
+  # ==============================================================================
   # Stage 1: Format Quality Gate
-  # ---------------------------------------------------------------------------
+  # ==============================================================================
   fmt:
     name: Format
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-26.04
     timeout-minutes: 5
 
     steps:
-      - name: Harden runner
-        uses: step-security/harden-runner@9af89fc71515a100421586dfdb3dc9c984fbf411 # v2.19.4
-        with:
-          egress-policy: audit
-
       - name: Checkout
-        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
 
-      - name: Install Nix
-        uses: cachix/install-nix-action@8aa03977d8d733052d78f4e008a241fd1dbf36b3 # v31
-        with:
-          extra_nix_config: |
-            experimental-features = nix-command flakes
-
-      - name: Restore and save Nix store
-        uses: nix-community/cache-nix-action@7df957e333c1e5da7721f60227dbba6d06080569 # v7
-        with:
-          primary-key: nix-${{ runner.os }}-${{ github.job }}-${{ github.run_id }}-${{ github.run_attempt }}
-          restore-prefixes-first-match: nix-${{ runner.os }}-${{ github.job }}-
-          gc-max-store-size-linux: 1G
-          purge: true
-          purge-prefixes: nix-${{ runner.os }}-${{ github.job }}-
-          purge-created: 0
-          purge-last-accessed: P1DT12H
-          purge-primary-key: never
-
-      - name: Download tools
-        run: nix shell "$NIXPKGS#just" "$NIXPKGS#editorconfig-checker" "$NIXPKGS#dprint" "$NIXPKGS#stylua" "$NIXPKGS#shfmt" --command true
-
-      - name: Check Justfile formatting
-        run: nix shell "$NIXPKGS#just" --command just --fmt --check
-
-      - name: Check EditorConfig formatting
-        run: nix shell "$NIXPKGS#editorconfig-checker" --command editorconfig-checker
-
-      - name: Format Check
-        run: nix shell "$NIXPKGS#dprint" --command dprint check
-
-      - name: Check Lua formatting
-        run: nix shell "$NIXPKGS#stylua" --command stylua --allow-hidden --check .
-
-      - name: Check shell formatting
+      - name: Load allowed endpoints
+        id: endpoints
         run: |
-          # shellcheck disable=SC2016
-          nix shell "$NIXPKGS#shfmt" --command bash -euo pipefail -c '
-            shell_targets="dotfiles/.bashrc dotfiles/.bash_profile dotfiles/.config/bash dotfiles/.config/shell"
-            shfmt --diff $(shfmt --find $shell_targets)
-          '
+          allowed="$(grep -hvE '^\s*(#|$)' .github/harden-runner/base.txt .github/harden-runner/fmt.txt | xargs)"
+          echo "list=${allowed}" >> "$GITHUB_OUTPUT"
 
-  # ---------------------------------------------------------------------------
+      - name: Harden runner
+        uses: step-security/harden-runner@bf7454d06d71f1098171f2acdf0cd4708d7b5920 # v2.20.0
+        with:
+          egress-policy: block
+          allowed-endpoints: ${{ steps.endpoints.outputs.list }}
+
+      - name: Setup mise
+        uses: ./.github/actions/setup-mise
+        with:
+          version: ${{ env.MISE_VERSION }}
+          sha256: ${{ env.MISE_SHA256 }}
+
+      - name: Format checks
+        run: mise run fmt:all
+
+  # ==============================================================================
   # Stage 1: Lint Quality Gate
-  # ---------------------------------------------------------------------------
+  # ==============================================================================
   lint:
     name: Lint
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-26.04
     timeout-minutes: 5
 
     steps:
-      - name: Harden runner
-        uses: step-security/harden-runner@9af89fc71515a100421586dfdb3dc9c984fbf411 # v2.19.4
-        with:
-          egress-policy: audit
-
       - name: Checkout
-        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
 
-      - name: Install Nix
-        uses: cachix/install-nix-action@8aa03977d8d733052d78f4e008a241fd1dbf36b3 # v31
+      - name: Load allowed endpoints
+        id: endpoints
+        run: |
+          allowed="$(grep -hvE '^\s*(#|$)' .github/harden-runner/base.txt | xargs)"
+          echo "list=${allowed}" >> "$GITHUB_OUTPUT"
+
+      - name: Harden runner
+        uses: step-security/harden-runner@bf7454d06d71f1098171f2acdf0cd4708d7b5920 # v2.20.0
         with:
-          extra_nix_config: |
-            experimental-features = nix-command flakes
+          egress-policy: block
+          allowed-endpoints: ${{ steps.endpoints.outputs.list }}
 
-      - name: Restore and save Nix store
-        uses: nix-community/cache-nix-action@7df957e333c1e5da7721f60227dbba6d06080569 # v7
+      - name: Setup mise
+        uses: ./.github/actions/setup-mise
         with:
-          primary-key: nix-${{ runner.os }}-${{ github.job }}-${{ github.run_id }}-${{ github.run_attempt }}
-          restore-prefixes-first-match: nix-${{ runner.os }}-${{ github.job }}-
-          gc-max-store-size-linux: 1G
-          purge: true
-          purge-prefixes: nix-${{ runner.os }}-${{ github.job }}-
-          purge-created: 0
-          purge-last-accessed: P1DT12H
-          purge-primary-key: never
+          version: ${{ env.MISE_VERSION }}
+          sha256: ${{ env.MISE_SHA256 }}
 
-      - name: Download tools
-        run: |
-          nix shell \
-            "$NIXPKGS#yamllint" \
-            "$NIXPKGS#actionlint" \
-            "$NIXPKGS#shellcheck" \
-            "$NIXPKGS#shfmt" \
-            "$NIXPKGS#selene" \
-            "$NIXPKGS#taplo" \
-            "$NIXPKGS#zellij" \
-            "$NIXPKGS#nushell" \
-            "$NIXPKGS#markdownlint-cli2" \
-            --command true
+      - name: Lint checks
+        run: mise run lint:all
 
-      - name: Lint YAML
-        run: nix shell "$NIXPKGS#yamllint" --command yamllint .
-
-      - name: Lint GitHub Actions
-        run: nix shell "$NIXPKGS#actionlint" --command actionlint
-
-      - name: Lint shell scripts
-        run: |
-          # shellcheck disable=SC2016
-          nix shell "$NIXPKGS#shellcheck" "$NIXPKGS#shfmt" --command bash -euo pipefail -c '
-            shell_targets="dotfiles/.bashrc dotfiles/.bash_profile dotfiles/.config/bash dotfiles/.config/shell"
-            shellcheck -s bash $(shfmt --find $shell_targets)
-          '
-
-      - name: Lint Lua
-        run: |
-          # shellcheck disable=SC2016
-          nix shell "$NIXPKGS#selene" --command bash -euo pipefail -c '
-            selene dotfiles/.config/nvim dotfiles/.config/wezterm
-            selene --config dotfiles/.config/hypr/selene.toml dotfiles/.config/hypr/hyprland.lua
-          '
-
-      - name: Lint TOML
-        run: |
-          # shellcheck disable=SC2016
-          nix shell "$NIXPKGS#taplo" --command bash -euo pipefail -c '
-            taplo lint --no-schema \
-              $(find dotfiles/.config -type f -name "*.toml" \
-                ! -path "*/node_modules/*" \
-                ! -path "*/yazi/plugins/*" \
-                ! -path "*/alacritty/themes/*")
-          '
-
-      - name: Lint Markdown
-        run: nix shell "$NIXPKGS#markdownlint-cli2" --command markdownlint-cli2
-
-      - name: Setup Bun
-        uses: oven-sh/setup-bun@0c5077e51419868618aeaa5fe8019c62421857d6 # v2.2.0
-
-      - name: Lint CSS
-        run: bunx stylelint@16 --config .stylelintrc.json './dotfiles/.config/**/*.css'
-
-      - name: Validate Zellij config
-        run: |
-          nix shell "$NIXPKGS#zellij" --command zellij --config "$PWD/dotfiles/.config/zellij/config.kdl" setup --dump-config >/dev/null
-
-      - name: Validate Nushell config
-        run: |
-          nix shell "$NIXPKGS#nushell" --command nu --config dotfiles/.config/nushell/config.nu --env-config dotfiles/.config/nushell/env.nu -c "exit 0"
-
-  # ---------------------------------------------------------------------------
+  # ==============================================================================
   # Stage 1: Security
-  # ---------------------------------------------------------------------------
+  # ==============================================================================
   security:
     name: Security
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-26.04
     timeout-minutes: 5
 
     permissions:
@@ -198,150 +112,136 @@ jobs:
       security-events: write # Required to upload security scan results to GitHub Security tab.
 
     steps:
-      - name: Harden runner
-        uses: step-security/harden-runner@9af89fc71515a100421586dfdb3dc9c984fbf411 # v2.19.4
-        with:
-          egress-policy: audit
-
       - name: Checkout
-        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           fetch-depth: 0
           persist-credentials: false
 
-      - name: Secret scanning
-        uses: trufflesecurity/trufflehog@c1a1d6a28a601e902d8652e75425c4b3d3294053 # main
+      - name: Load allowed endpoints
+        id: endpoints
+        run: |
+          allowed="$(grep -hvE '^\s*(#|$)' .github/harden-runner/base.txt .github/harden-runner/security.txt | xargs)"
+          echo "list=${allowed}" >> "$GITHUB_OUTPUT"
+
+      - name: Harden runner
+        uses: step-security/harden-runner@bf7454d06d71f1098171f2acdf0cd4708d7b5920 # v2.20.0
         with:
-          extra_args: --results=verified,unknown
+          egress-policy: block
+          allowed-endpoints: ${{ steps.endpoints.outputs.list }}
+
+      - name: Setup mise
+        uses: ./.github/actions/setup-mise
+        with:
+          version: ${{ env.MISE_VERSION }}
+          sha256: ${{ env.MISE_SHA256 }}
+
+      - name: Restore Trivy cache
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: ~/.cache/trivy
+          key: trivy-${{ runner.os }}-${{ github.run_id }}
+          restore-keys: |
+            trivy-${{ runner.os }}-
+
+      - name: Secret scanning
+        run: mise run security:trufflehog
+
+      - name: SAST scan
+        run: mise run security:semgrep
 
       - name: Trivy filesystem scan
-        uses: aquasecurity/trivy-action@ed142fd0673e97e23eac54620cfb913e5ce36c25 # v0.36.0
-        with:
-          scan-type: fs
-          scan-ref: .
-          scanners: secret,misconfig
-          format: table
-          exit-code: "1"
-          severity: HIGH,CRITICAL
-          cache: "true"
+        run: mise run security:trivy:gate
 
       - name: Trivy SARIF
-        uses: aquasecurity/trivy-action@ed142fd0673e97e23eac54620cfb913e5ce36c25 # v0.36.0
         if: always()
         continue-on-error: true
-        with:
-          scan-type: fs
-          scan-ref: .
-          scanners: secret,misconfig
-          format: sarif
-          output: trivy-results.sarif
-          exit-code: "0"
-          severity: HIGH,CRITICAL
-          cache: "true"
+        run: mise run security:trivy:sarif
 
       - name: Upload Trivy SARIF
-        uses: github/codeql-action/upload-sarif@8aad20d150bbac5944a9f9d289da16a4b0d87c1e # v4.36.2
+        uses: github/codeql-action/upload-sarif@e4fba868fa4b1b91e1fdab776edc8cfbe6e9fb81 # v4.37.3
         if: always()
         with:
-          sarif_file: trivy-results.sarif
+          sarif_file: .tools/trivy/trivy-results.sarif
 
-  # ---------------------------------------------------------------------------
+  # ==============================================================================
   # Stage 1: Antivirus
-  # ---------------------------------------------------------------------------
+  # ==============================================================================
   antivirus:
     name: Antivirus
-    runs-on: ubuntu-latest
-    timeout-minutes: 5
+    runs-on: ubuntu-26.04
+    timeout-minutes: 10
 
     steps:
-      - name: Harden runner
-        uses: step-security/harden-runner@9af89fc71515a100421586dfdb3dc9c984fbf411 # v2.19.4
-        with:
-          egress-policy: audit
-
       - name: Checkout
-        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
 
-      - name: Install Nix
-        uses: cachix/install-nix-action@8aa03977d8d733052d78f4e008a241fd1dbf36b3 # v31
-        with:
-          extra_nix_config: |
-            experimental-features = nix-command flakes
-
-      - name: Restore and save Nix store
-        uses: nix-community/cache-nix-action@7df957e333c1e5da7721f60227dbba6d06080569 # v7
-        with:
-          primary-key: nix-${{ runner.os }}-${{ github.job }}-${{ github.run_id }}-${{ github.run_attempt }}
-          restore-prefixes-first-match: nix-${{ runner.os }}-${{ github.job }}-
-          gc-max-store-size-linux: 1G
-          purge: true
-          purge-prefixes: nix-${{ runner.os }}-${{ github.job }}-
-          purge-created: 0
-          purge-last-accessed: P1DT12H
-          purge-primary-key: never
-
-      - name: Download tools
-        run: nix shell "$NIXPKGS#clamav" --command true
-
-      - name: Download ClamAV database
+      - name: Load allowed endpoints
+        id: endpoints
         run: |
-          db_dir="$(mktemp -d)"
-          config_file="$(mktemp)"
-          printf '%s\n' \
-            "DatabaseDirectory $db_dir" \
-            "DatabaseMirror database.clamav.net" \
-            >"$config_file"
-          echo "CLAMAV_DB_DIR=$db_dir" >> "$GITHUB_ENV"
-          nix shell "$NIXPKGS#clamav" --command freshclam --config-file="$config_file"
-        env:
-          LANG: C.UTF-8
+          allowed="$(grep -hvE '^\s*(#|$)' .github/harden-runner/base.txt .github/harden-runner/antivirus.txt | xargs)"
+          echo "list=${allowed}" >> "$GITHUB_OUTPUT"
 
-      - name: Scan for malware
-        run: nix shell "$NIXPKGS#clamav" --command clamscan --database="$CLAMAV_DB_DIR" -r --infected .
-        env:
-          LANG: C.UTF-8
+      - name: Harden runner
+        uses: step-security/harden-runner@bf7454d06d71f1098171f2acdf0cd4708d7b5920 # v2.20.0
+        with:
+          egress-policy: block
+          allowed-endpoints: ${{ steps.endpoints.outputs.list }}
 
-  # ---------------------------------------------------------------------------
+      - name: Setup mise
+        uses: ./.github/actions/setup-mise
+        with:
+          version: ${{ env.MISE_VERSION }}
+          sha256: ${{ env.MISE_SHA256 }}
+
+      - name: Get current date
+        id: date
+        run: echo "date=$(date +%Y-%m-%d)" >> "$GITHUB_OUTPUT"
+
+      - name: Restore ClamAV database cache
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: .tools/clamav-db
+          key: clamav-${{ runner.os }}-${{ steps.date.outputs.date }}
+          restore-keys: |
+            clamav-${{ runner.os }}-
+
+      - name: Update ClamAV database and scan for malware
+        run: mise run antivirus:all
+
+  # ==============================================================================
   # Stage 1: Documentation Gate
-  # ---------------------------------------------------------------------------
+  # ==============================================================================
   docs:
     name: Documentation
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-26.04
     timeout-minutes: 5
 
     steps:
-      - name: Harden runner
-        uses: step-security/harden-runner@9af89fc71515a100421586dfdb3dc9c984fbf411 # v2.19.4
-        with:
-          egress-policy: audit
-
       - name: Checkout
-        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
 
-      - name: Install Nix
-        uses: cachix/install-nix-action@8aa03977d8d733052d78f4e008a241fd1dbf36b3 # v31
-        with:
-          extra_nix_config: |
-            experimental-features = nix-command flakes
+      - name: Load allowed endpoints
+        id: endpoints
+        run: |
+          allowed="$(grep -hvE '^\s*(#|$)' .github/harden-runner/base.txt .github/harden-runner/docs.txt | xargs)"
+          echo "list=${allowed}" >> "$GITHUB_OUTPUT"
 
-      - name: Restore and save Nix store
-        uses: nix-community/cache-nix-action@7df957e333c1e5da7721f60227dbba6d06080569 # v7
+      - name: Harden runner
+        uses: step-security/harden-runner@bf7454d06d71f1098171f2acdf0cd4708d7b5920 # v2.20.0
         with:
-          primary-key: nix-${{ runner.os }}-${{ github.job }}-${{ github.run_id }}-${{ github.run_attempt }}
-          restore-prefixes-first-match: nix-${{ runner.os }}-${{ github.job }}-
-          gc-max-store-size-linux: 1G
-          purge: true
-          purge-prefixes: nix-${{ runner.os }}-${{ github.job }}-
-          purge-created: 0
-          purge-last-accessed: P1DT12H
-          purge-primary-key: never
+          egress-policy: block
+          allowed-endpoints: ${{ steps.endpoints.outputs.list }}
 
-      - name: Setup Bun
-        uses: oven-sh/setup-bun@0c5077e51419868618aeaa5fe8019c62421857d6 # v2.2.0
+      - name: Setup mise
+        uses: ./.github/actions/setup-mise
+        with:
+          version: ${{ env.MISE_VERSION }}
+          sha256: ${{ env.MISE_SHA256 }}
 
       - name: Restore Bun cache
         uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
@@ -351,29 +251,27 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-bun-
 
+      - name: Restore lychee cache
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: .tools/lychee/.lycheecache
+          key: lychee-${{ github.sha }}
+          restore-keys: |
+            lychee-
+
       - name: Install docs dependencies
-        working-directory: docs
-        run: bun install --frozen-lockfile
+        run: mise run docs:install
 
       - name: Audit docs dependencies
-        working-directory: docs
-        run: bun audit
+        run: mise run docs:audit
 
       - name: Build docs (Cloudflare Pages)
-        working-directory: docs
         env:
           CI_BASE_URL: /
-        run: bun run docs:build
-
-      - name: Download tools
-        run: nix shell "$NIXPKGS#lychee" --command true
+        run: mise run docs:build
 
       - name: Link Check
-        run: |
-          # shellcheck disable=SC2016
-          nix shell "$NIXPKGS#lychee" --command bash -euo pipefail -c '
-            lychee --config .lychee.toml --root-dir "$GITHUB_WORKSPACE/docs/.vitepress/dist" docs/.vitepress/dist
-          '
+        run: mise run docs:links
 
       - name: Upload docs artifact
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
@@ -382,10 +280,9 @@ jobs:
           path: docs/.vitepress/dist
 
       - name: Build docs (GitHub Pages)
-        working-directory: docs
         env:
           CI_BASE_URL: /dotfiles/
-        run: bun run docs:build
+        run: mise run docs:build
 
       # GitHub Pages requires the dedicated Pages artifact format.
       - name: Upload Pages artifact
@@ -394,12 +291,12 @@ jobs:
           name: docs-github-pages
           path: docs/.vitepress/dist
 
-  # ---------------------------------------------------------------------------
-  # Stage 2: Validate application configs (one matrix entry per app)
-  # ---------------------------------------------------------------------------
+  # ==============================================================================
+  # Stage 2: Validate application configs
+  # ==============================================================================
   validate:
     name: ${{ matrix.name }}
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-26.04
     timeout-minutes: 5
     needs: [fmt, lint, security, antivirus, docs]
 
@@ -488,18 +385,25 @@ jobs:
             deps: 'nix profile install "$NIXPKGS#just" && npm install -g opencode-ai@latest'
 
     steps:
+      - name: Load allowed endpoints
+        id: endpoints
+        run: |
+          allowed="$(grep -hvE '^\s*(#|$)' .github/harden-runner/base.txt .github/harden-runner/validate.txt | xargs)"
+          echo "list=${allowed}" >> "$GITHUB_OUTPUT"
+
       - name: Harden runner
-        uses: step-security/harden-runner@9af89fc71515a100421586dfdb3dc9c984fbf411 # v2.19.4
+        uses: step-security/harden-runner@bf7454d06d71f1098171f2acdf0cd4708d7b5920 # v2.20.0
         with:
-          egress-policy: audit
+          egress-policy: block
+          allowed-endpoints: ${{ steps.endpoints.outputs.list }}
 
       - name: Checkout
-        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
 
       - name: Install Nix
-        uses: cachix/install-nix-action@8aa03977d8d733052d78f4e008a241fd1dbf36b3 # v31
+        uses: cachix/install-nix-action@630ae543ea3a38a9a4166f03376c02c50f408342 # v31
         with:
           extra_nix_config: |
             experimental-features = nix-command flakes
@@ -516,44 +420,54 @@ jobs:
           purge-last-accessed: P1DT12H
           purge-primary-key: never
 
-      - name: Setup Node.js
-        uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e # v6.4.0
+      - name: Setup mise
+        uses: ./.github/actions/setup-mise
         with:
-          node-version: 22
+          version: ${{ env.MISE_VERSION }}
+          sha256: ${{ env.MISE_SHA256 }}
 
       - name: Install ${{ matrix.name }} dependencies
+        # zizmor: ignore[template-injection] static maintainer-defined matrix values
         run: ${{ matrix.deps }}
 
       - name: Verify ${{ matrix.name }} config
+        # zizmor: ignore[template-injection] static maintainer-defined matrix values
         run: just validate ${{ matrix.app }}
 
-  # ---------------------------------------------------------------------------
+  # ==============================================================================
   # Stage 2: Performance regression gate
-  # ---------------------------------------------------------------------------
+  # ==============================================================================
   performance:
     name: Performance
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-26.04
     timeout-minutes: 10
     needs: [fmt, lint, security, antivirus, docs]
     if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository
 
     permissions:
       contents: read
-      pull-requests: write
+      pull-requests: write # Required to post the performance report comment on PRs
 
     steps:
+      - name: Load allowed endpoints
+        id: endpoints
+        run: |
+          allowed="$(grep -hvE '^\s*(#|$)' .github/harden-runner/nix.txt | xargs)"
+          echo "list=${allowed}" >> "$GITHUB_OUTPUT"
+
       - name: Harden runner
-        uses: step-security/harden-runner@9af89fc71515a100421586dfdb3dc9c984fbf411 # v2.19.4
+        uses: step-security/harden-runner@bf7454d06d71f1098171f2acdf0cd4708d7b5920 # v2.20.0
         with:
-          egress-policy: audit
+          egress-policy: block
+          allowed-endpoints: ${{ steps.endpoints.outputs.list }}
 
       - name: Checkout
-        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
 
       - name: Install Nix
-        uses: cachix/install-nix-action@8aa03977d8d733052d78f4e008a241fd1dbf36b3 # v31
+        uses: cachix/install-nix-action@630ae543ea3a38a9a4166f03376c02c50f408342 # v31
         with:
           extra_nix_config: |
             experimental-features = nix-command flakes
@@ -604,10 +518,27 @@ jobs:
 
       - name: Publish performance report
         if: always() && github.event_name == 'pull_request'
-        uses: marocchino/sticky-pull-request-comment@0ea0beb66eb9baf113663a64ec522f60e49231c0 # v3.0.4
-        with:
-          header: performance-regression
-          path: performance-report.md
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_REPO: ${{ github.repository }}
+          GH_PR_NUMBER: ${{ github.event.pull_request.number }}
+        run: |
+          if [[ ! -f performance-report.md ]]; then
+            printf '## Performance report\n\n**Failed:** benchmark did not produce a report.\n' >performance-report.md
+          fi
+          # Sticky PR comment: update the existing marked comment or create a new one.
+          marker="performance-regression"
+          body="$(cat performance-report.md)"
+          comment_id="$(
+            gh api "repos/${GH_REPO}/issues/${GH_PR_NUMBER}/comments" --paginate \
+              --jq '.[] | select(.body | contains("<!-- '"${marker}"' -->")) | .id' | head -n 1
+          )"
+          full_body="${body}"$'\n\n'"<!-- ${marker} -->"
+          if [ -n "$comment_id" ]; then
+            gh api -X PATCH "repos/${GH_REPO}/issues/comments/${comment_id}" -f body="$full_body" >/dev/null
+          else
+            gh api -X POST "repos/${GH_REPO}/issues/${GH_PR_NUMBER}/comments" -f body="$full_body" >/dev/null
+          fi
 
       - name: Enforce performance gate
         if: always() && steps.benchmark.outcome == 'failure'
@@ -620,12 +551,12 @@ jobs:
           fi
           exit 1
 
-  # ---------------------------------------------------------------------------
-  # Stage 2: Attest Build Provenance (non-PR only)
-  # ---------------------------------------------------------------------------
+  # ==============================================================================
+  # Stage 2: Attest Build Provenance
+  # ==============================================================================
   attest:
     name: Attest Build
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-26.04
     timeout-minutes: 5
     needs: docs
     if: github.event_name != 'pull_request'
@@ -636,10 +567,22 @@ jobs:
       id-token: write # Required by Sigstore to sign attestations via OIDC
 
     steps:
-      - name: Harden runner
-        uses: step-security/harden-runner@9af89fc71515a100421586dfdb3dc9c984fbf411 # v2.19.4
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
-          egress-policy: audit
+          persist-credentials: false
+
+      - name: Load allowed endpoints
+        id: endpoints
+        run: |
+          allowed="$(grep -hvE '^\s*(#|$)' .github/harden-runner/minimal.txt .github/harden-runner/artifacts.txt .github/harden-runner/attest.txt | xargs)"
+          echo "list=${allowed}" >> "$GITHUB_OUTPUT"
+
+      - name: Harden runner
+        uses: step-security/harden-runner@bf7454d06d71f1098171f2acdf0cd4708d7b5920 # v2.20.0
+        with:
+          egress-policy: block
+          allowed-endpoints: ${{ steps.endpoints.outputs.list }}
 
       - name: Download docs artifact
         uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
@@ -651,7 +594,7 @@ jobs:
         run: tar -czf docs-build.tar.gz -C docs/.vitepress/dist .
 
       - name: Attest build provenance
-        uses: actions/attest-build-provenance@a2bbfa25375fe432b6a289bc6b6cd05ecd0c4c32 # v4.1.0
+        uses: actions/attest-build-provenance@0f67c3f4856b2e3261c31976d6725780e5e4c373 # v4.1.1
         with:
           subject-path: docs-build.tar.gz
 
@@ -663,19 +606,18 @@ jobs:
           output-file: sbom.spdx.json
 
       - name: Attest SBOM
-        uses: actions/attest@59d89421af93a897026c735860bf21b6eb4f7b26 # v4.1.0
+        uses: actions/attest@f7c74d28b9d84cb8768d0b8ca14a4bac6ef463e6 # v4.2.0
         with:
           subject-path: docs-build.tar.gz
           sbom-path: sbom.spdx.json
 
-  # ---------------------------------------------------------------------------
+  # ==============================================================================
   # Stage 3: Cloudflare Preflight
-  # ---------------------------------------------------------------------------
+  # ==============================================================================
   cf-preflight:
     name: Cloudflare Preflight
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-26.04
     timeout-minutes: 5
-
     needs: [fmt, lint, security, antivirus, docs, validate, performance]
 
     if: |
@@ -687,10 +629,22 @@ jobs:
       enabled: ${{ steps.check.outputs.enabled }}
 
     steps:
-      - name: Harden runner
-        uses: step-security/harden-runner@9af89fc71515a100421586dfdb3dc9c984fbf411 # v2.19.4
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
-          egress-policy: audit
+          persist-credentials: false
+
+      - name: Load allowed endpoints
+        id: endpoints
+        run: |
+          allowed="$(grep -hvE '^\s*(#|$)' .github/harden-runner/minimal.txt | xargs)"
+          echo "list=${allowed}" >> "$GITHUB_OUTPUT"
+
+      - name: Harden runner
+        uses: step-security/harden-runner@bf7454d06d71f1098171f2acdf0cd4708d7b5920 # v2.20.0
+        with:
+          egress-policy: block
+          allowed-endpoints: ${{ steps.endpoints.outputs.list }}
 
       - name: Check Cloudflare configuration
         id: check
@@ -698,12 +652,12 @@ jobs:
           ENABLED: ${{ secrets.CLOUDFLARE_API_TOKEN != '' && secrets.CLOUDFLARE_ACCOUNT_ID != '' && vars.CF_PAGES_PROJECT != '' }}
         run: echo "enabled=$ENABLED" >> "$GITHUB_OUTPUT"
 
-  # ---------------------------------------------------------------------------
+  # ==============================================================================
   # Stage 3: Deploy Cloudflare Pages
-  # ---------------------------------------------------------------------------
+  # ==============================================================================
   deploy-cf-pages:
     name: Deploy Cloudflare Pages
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-26.04
     timeout-minutes: 5
     if: needs.cf-preflight.outputs.enabled == 'true'
     needs: cf-preflight
@@ -715,10 +669,28 @@ jobs:
       CF_PAGES_PROJECT: ${{ vars.CF_PAGES_PROJECT }}
 
     steps:
+      - name: Load allowed endpoints
+        id: endpoints
+        run: |
+          allowed="$(grep -hvE '^\s*(#|$)' .github/harden-runner/base.txt .github/harden-runner/deploy-cf.txt | xargs)"
+          echo "list=${allowed}" >> "$GITHUB_OUTPUT"
+
       - name: Harden runner
-        uses: step-security/harden-runner@9af89fc71515a100421586dfdb3dc9c984fbf411 # v2.19.4
+        uses: step-security/harden-runner@bf7454d06d71f1098171f2acdf0cd4708d7b5920 # v2.20.0
         with:
-          egress-policy: audit
+          egress-policy: block
+          allowed-endpoints: ${{ steps.endpoints.outputs.list }}
+
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Setup mise
+        uses: ./.github/actions/setup-mise
+        with:
+          version: ${{ env.MISE_VERSION }}
+          sha256: ${{ env.MISE_SHA256 }}
 
       - name: Download docs artifact
         uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
@@ -728,45 +700,61 @@ jobs:
 
       - name: Deploy preview (pull request)
         if: ${{ github.event_name == 'pull_request' }}
-        id: deploy
-        uses: cloudflare/wrangler-action@ebbaa1584979971c8614a24965b4405ff95890e0 # v4.0.0
-        with:
-          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
-          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-          command: pages deploy docs/.vitepress/dist --project-name=${{ env.CF_PAGES_PROJECT }} --branch=pr-${{ github.event.pull_request.number }} --commit-dirty=true
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+        run: |
+          wrangler pages deploy docs/.vitepress/dist \
+            --project-name="${CF_PAGES_PROJECT}" \
+            --branch="pr-${PR_NUMBER}" \
+            --commit-dirty=true
 
       - name: Deploy production (main)
         if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' }}
-        uses: cloudflare/wrangler-action@ebbaa1584979971c8614a24965b4405ff95890e0 # v4.0.0
-        with:
-          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
-          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-          command: pages deploy docs/.vitepress/dist --project-name=${{ env.CF_PAGES_PROJECT }} --commit-dirty=true
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+        run: |
+          wrangler pages deploy docs/.vitepress/dist \
+            --project-name="${CF_PAGES_PROJECT}" \
+            --commit-dirty=true
 
       - name: Update sticky PR comment
-        if: ${{ github.event_name == 'pull_request' && steps.deploy.outputs.pages-deployment-alias-url != '' }}
-        uses: marocchino/sticky-pull-request-comment@0ea0beb66eb9baf113663a64ec522f60e49231c0 # v3.0.4
-        with:
-          header: cloudflare-preview
-          message: |
-            ## Cloudflare Pages Preview
+        if: ${{ github.event_name == 'pull_request' }}
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_REPO: ${{ github.repository }}
+          GH_PR_NUMBER: ${{ github.event.pull_request.number }}
+        run: |
+          # Sticky PR comment: update the existing marked comment or create a new one.
+          marker="cloudflare-preview"
+          body="## Cloudflare Pages Preview"$'\n\n'"Deployed: https://pr-${GH_PR_NUMBER}.${CF_PAGES_PROJECT}.pages.dev"
+          comment_id="$(
+            gh api "repos/${GH_REPO}/issues/${GH_PR_NUMBER}/comments" --paginate \
+              --jq '.[] | select(.body | contains("<!-- '"${marker}"' -->")) | .id' | head -n 1
+          )"
+          full_body="${body}"$'\n\n'"<!-- ${marker} -->"
+          if [ -n "$comment_id" ]; then
+            gh api -X PATCH "repos/${GH_REPO}/issues/comments/${comment_id}" -f body="$full_body" >/dev/null
+          else
+            gh api -X POST "repos/${GH_REPO}/issues/${GH_PR_NUMBER}/comments" -f body="$full_body" >/dev/null
+          fi
 
-            Deployed: ${{ steps.deploy.outputs.pages-deployment-alias-url }}
-
-  # ---------------------------------------------------------------------------
-  # Stage 3: Deploy to GitHub Pages (main only)
-  # ---------------------------------------------------------------------------
+  # ==============================================================================
+  # Stage 3: Deploy to GitHub Pages
+  # ==============================================================================
   deploy-github-pages:
     name: Deploy GitHub Pages
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-26.04
     timeout-minutes: 5
 
     if: github.ref == 'refs/heads/main' && github.event_name != 'schedule'
     needs: cf-preflight
 
     permissions:
-      pages: write
-      id-token: write
+      pages: write # Required to deploy the docs site to GitHub Pages
+      id-token: write # Required for OIDC authentication to GitHub Pages
 
     environment:
       name: github-pages
@@ -777,10 +765,22 @@ jobs:
       cancel-in-progress: false
 
     steps:
+      - name: Load allowed endpoints
+        id: endpoints
+        run: |
+          allowed="$(grep -hvE '^\s*(#|$)' .github/harden-runner/minimal.txt .github/harden-runner/artifacts.txt | xargs)"
+          echo "list=${allowed}" >> "$GITHUB_OUTPUT"
+
       - name: Harden runner
-        uses: step-security/harden-runner@9af89fc71515a100421586dfdb3dc9c984fbf411 # v2.19.4
+        uses: step-security/harden-runner@bf7454d06d71f1098171f2acdf0cd4708d7b5920 # v2.20.0
         with:
-          egress-policy: audit
+          egress-policy: block
+          allowed-endpoints: ${{ steps.endpoints.outputs.list }}
+
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
 
       - name: Deploy to GitHub Pages
         id: deployment
