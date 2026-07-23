@@ -17,40 +17,46 @@ help:
 # Development
 # ==============================================================================
 
-[doc('Install CI/dev tools via mise')]
+[doc('Install tools')]
 [group('Development')]
 install:
     mise install
 
-[doc('Show available dependency updates')]
+[doc('Shows outdated tool versions')]
 [group('Development')]
 outdated:
     mise run deps:outdated
+    mise outdated --local
 
-[doc('Format code (mise fmt gate, write mode)')]
+[doc('Upgrades outdated tools')]
+[group('Development')]
+upgrade:
+    mise upgrade --bump
+
+[doc('Format code')]
 [group('Development')]
 fmt:
     mise run fmt:write
 
-[doc('Run linters (mise lint gate)')]
+[doc('Run linters')]
 [group('Development')]
 lint:
     mise run lint:all
 
-[doc('Run all mise checks (fmt, lint, security, antivirus, docs)')]
+[doc('Run CI checks')]
 [group('Development')]
 check:
     mise run check
 
-[doc('Run CI locally via act')]
+[doc('Run CI locally')]
 [group('Development')]
 ci:
     mise run ci
 
-[doc('Remove vendir dependencies and local tool caches')]
+[doc('Remove vendir dependencies')]
 [group('Development')]
 clean:
-    @echo "🧹 Removing vendir dependencies and local caches..."
+    @echo "🧹 Removing vendir dependencies..."
     rm -rf .tools
     rm -rf dotfiles/.config/alacritty/themes
     rm -rf dotfiles/.config/tmux/plugins

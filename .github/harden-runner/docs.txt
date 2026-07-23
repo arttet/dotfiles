@@ -1,2 +1,0 @@
-specifications.freedesktop.org:443
-www.nushell.sh:443

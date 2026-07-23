@@ -124,4 +124,4 @@ just docs serve # Start documentation dev server
 
 - **Shells**: Primary shell is [Nushell](https://www.nushell.sh/). Bash and Zsh configs are also provided.
 - **Editor**: Neovim config is NvChad-based — start with `nvim`.
-- **Multiplexer**: [Zellij](https://zellij.dev/) (`zellij`) or Tmux (`tmux`, prefix `Ctrl + A`).
+- **Multiplexer**: [Zellij](https://github.com/zellij-org/zellij#readme) (`zellij`) or Tmux (`tmux`, prefix `Ctrl + A`).

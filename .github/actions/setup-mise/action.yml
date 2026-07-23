@@ -49,4 +49,12 @@ runs:
       shell: bash
       run: |
         mise install
+        # GitHub release archives can restore tool binaries without the executable bit.
+        selene_path="$(find "$MISE_DATA_DIR/installs" -path '*/github-kampfkarren-selene/*/selene' -type f -print -quit)"
+        if [ -z "$selene_path" ]; then
+          echo "Selene binary was not found after mise install" >&2
+          exit 1
+        fi
+        chmod 755 "$selene_path"
+        echo "Restored executable permissions for $selene_path"
         mise reshim

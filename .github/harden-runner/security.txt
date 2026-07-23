@@ -1,3 +1,0 @@
-ghcr.io:443
-pkg-containers.githubusercontent.com:443
-semgrep.dev:443

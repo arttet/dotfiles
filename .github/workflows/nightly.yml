@@ -26,22 +26,29 @@ jobs:
     timeout-minutes: 10
 
     steps:
-      - name: Checkout
-        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-        with:
-          persist-credentials: false
-
-      - name: Load allowed endpoints
-        id: endpoints
-        run: |
-          allowed="$(grep -hvE '^\s*(#|$)' .github/harden-runner/nix.txt | xargs)"
-          echo "list=${allowed}" >> "$GITHUB_OUTPUT"
-
       - name: Harden runner
         uses: step-security/harden-runner@bf7454d06d71f1098171f2acdf0cd4708d7b5920 # v2.20.0
         with:
           egress-policy: block
-          allowed-endpoints: ${{ steps.endpoints.outputs.list }}
+          allowed-endpoints: >-
+            *.blob.core.windows.net:443
+            github.com:443
+            production.cloudfront.docker.com:443
+            *.cloudfront.docker.com:443
+            *.github.com:443
+            cache.nixos.org:443
+            release-assets.githubusercontent.com:443
+            releases.nixos.org:443
+            mise-versions.jdx.dev:443
+            jdx.dev:443
+            *.jdx.dev:443
+            tuf-repo-cdn.sigstore.dev:443
+            *.sigstore.dev:443
+
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
 
       - name: Install Nix
         uses: cachix/install-nix-action@630ae543ea3a38a9a4166f03376c02c50f408342 # v31

@@ -1,1 +1,0 @@
-*.blob.core.windows.net:443
