@@ -17,6 +17,7 @@ ignore: |
   vendir.lock.windows.yml
   .serena/
   node_modules/
+  .tools/
   docs/.vitepress/cache/
   docs/.vitepress/dist/
   dotfiles/.config/yazi/flavors/

@@ -1,0 +1,41 @@
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "minimumReleaseAge": "7 days",
+  "internalChecksFilter": "strict",
+  "dependencyDashboard": false,
+  "enabledManagers": ["bun", "github-actions", "mise", "vendir"],
+  "ignorePaths": [
+    ".serena/**",
+    ".tools/**",
+    "docs/.vitepress/cache/**",
+    "docs/.vitepress/dist/**",
+    "docs/node_modules/**",
+    "node_modules/**",
+    "out/**",
+    "target/**"
+  ],
+  "labels": ["dependencies"],
+  "lockFileMaintenance": {
+    "enabled": false
+  },
+  "packageRules": [
+    {
+      "groupName": "GitHub Actions",
+      "matchManagers": ["github-actions"]
+    },
+    {
+      "groupName": "mise tools",
+      "matchManagers": ["mise"]
+    },
+    {
+      "groupName": "docs dependencies",
+      "matchFileNames": ["docs/package.json", "docs/bun.lock"],
+      "matchManagers": ["bun"]
+    },
+    {
+      "groupName": "vendir sources",
+      "matchManagers": ["vendir"]
+    }
+  ],
+  "rangeStrategy": "bump"
+}

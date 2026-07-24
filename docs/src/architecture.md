@@ -100,7 +100,7 @@ This path is useful when the Nix flake is the source of truth for the machine, b
 
 ## XDG Base Directory Hierarchy
 
-The configuration enforces [XDG Base Directory](https://specifications.freedesktop.org/basedir-spec/basedir-spec-latest.html) compliance to keep `$HOME` clean.
+The configuration enforces [XDG Base Directory](https://specifications.freedesktop.org/basedir/) compliance to keep `$HOME` clean.
 
 ```nu
 # dotfiles/.config/nushell/env.nu (excerpt)

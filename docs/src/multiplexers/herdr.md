@@ -15,7 +15,7 @@ directly.
 - Nix: `nix run github:ogulcancelik/herdr` (not yet in nixpkgs proper)
 - Homebrew: `brew install herdr`
 - Mise: `mise use -g herdr`
-- Script: `curl -fsSL https://herdr.dev/install.sh | sh` (`install.ps1` for the Windows preview build)
+- GitHub releases: [download a binary](https://github.com/ogulcancelik/herdr/releases)
 - Cargo: build from source with `cargo build --release`
 
 ## Configuration
@@ -23,7 +23,7 @@ directly.
 - Config: `~/.config/herdr/config.toml` (TOML, optional — Herdr runs with sane defaults if absent)
 
 Configuration topics covered upstream include keybindings, themes, sidebar/dashboard layout, notifications, and
-scrollback buffer size (10 MB default). See [herdr.dev/docs](https://herdr.dev/docs/) for the full reference.
+scrollback buffer size (10 MB default). See [Herdr documentation](https://github.com/ogulcancelik/herdr#readme) for the full reference.
 
 ## Keybindings
 

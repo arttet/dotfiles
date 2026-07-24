@@ -24,3 +24,6 @@ dotfiles/.config/yazi/plugins
 # zsh
 dotfiles/.config/zsh/.zcompdump*
 .serena/
+
+# mise / scan artifacts
+.tools/

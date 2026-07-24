@@ -19,7 +19,7 @@ defaults:
 jobs:
   clear:
     name: Clear Caches
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-26.04
     timeout-minutes: 30
 
     permissions:
@@ -27,9 +27,21 @@ jobs:
 
     steps:
       - name: Harden runner
-        uses: step-security/harden-runner@9af89fc71515a100421586dfdb3dc9c984fbf411 # v2.19.4
+        uses: step-security/harden-runner@bf7454d06d71f1098171f2acdf0cd4708d7b5920 # v2.20.0
         with:
-          egress-policy: audit
+          egress-policy: block
+          allowed-endpoints: >-
+            github.com:443
+            *.github.com:443
+            production.cloudfront.docker.com:443
+            *.cloudfront.docker.com:443
+            tuf-repo-cdn.sigstore.dev:443
+            *.sigstore.dev:443
+
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
 
       - name: Clear all caches
         env:
