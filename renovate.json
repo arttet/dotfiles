@@ -3,14 +3,13 @@
   "minimumReleaseAge": "7 days",
   "internalChecksFilter": "strict",
   "dependencyDashboard": false,
-  "enabledManagers": ["bun", "github-actions", "mise", "vendir"],
+  "enabledManagers": ["github-actions", "mise", "npm", "vendir"],
   "ignorePaths": [
     ".serena/**",
     ".tools/**",
     "docs/.vitepress/cache/**",
-    "docs/.vitepress/dist/**",
+    "docs/dist/**",
     "docs/node_modules/**",
-    "node_modules/**",
     "out/**",
     "target/**"
   ],
@@ -29,12 +28,18 @@
     },
     {
       "groupName": "docs dependencies",
-      "matchFileNames": ["docs/package.json", "docs/bun.lock"],
-      "matchManagers": ["bun"]
+      "matchFileNames": ["docs/package.json"],
+      "matchManagers": ["npm"]
     },
     {
       "groupName": "vendir sources",
       "matchManagers": ["vendir"]
+    },
+    {
+      "description": "Treat vendir GitSource refs as exact refs, not SemVer versions",
+      "matchManagers": ["vendir"],
+      "matchDatasources": ["git-refs"],
+      "versioning": "exact"
     }
   ],
   "rangeStrategy": "bump"

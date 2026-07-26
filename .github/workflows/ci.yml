@@ -90,6 +90,7 @@ jobs:
           egress-policy: block
           allowed-endpoints: >-
             *.blob.core.windows.net:443
+            api.cloudflare.com:443
             github.com:443
             production.cloudfront.docker.com:443
             *.cloudfront.docker.com:443

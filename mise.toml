@@ -1,14 +1,15 @@
 [tools]
+aube = "1.33.0"
 "npm:markdownlint-cli2" = "0.23.1"
 "npm:stylelint" = "17.14.1"
-"npm:wrangler" = "4.113.0"
+"npm:wrangler" = { version = "4.114.0", allow_builds = ["esbuild", "workerd"] }
+"npm:renovate" = "43.279.0"
 
-"github:Kampfkarren/selene" = "0.31.0"
 "aqua:nushell/nushell" = "0.114.1"
+"github:Kampfkarren/selene" = "0.31.0"
 
 act = "0.2.89"
 actionlint = "1.7.12"
-bun = "1.3.14"
 dprint = "0.55.2"
 editorconfig-checker = "3.8.0"
 just = "1.57.0"
@@ -26,14 +27,17 @@ zellij = "0.44.3"
 zizmor = "1.28.0"
 
 [env]
-MSYS_NO_PATHCONV = "1"
+AUBE_FETCH_RETRIES = "10"
+AUBE_FETCH_RETRY_FACTOR = "2"
+AUBE_FETCH_RETRY_MAXTIMEOUT = "180000"
+AUBE_FETCH_RETRY_MINTIMEOUT = "20000"
+AUBE_TRUST_POLICY_EXCLUDE = "@yarnpkg/libzip@3.2.2"
 CLAMAV_DB_DIR = "{{config_root}}/.tools/clamav-db"
 CLAMAV_IMAGE = "clamav/clamav:1.5.3_base"
 DPRINT_CACHE_DIR = "{{config_root}}/.tools/dprint"
-npm_config_fetch_retries = "5"
-npm_config_fetch_retry_mintimeout = "20000"
-npm_config_fetch_retry_maxtimeout = "120000"
-npm_config_fetch_timeout = "300000"
+MSYS_NO_PATHCONV = "1"
+RENOVATE_BINARY_SOURCE = "global"
+RENOVATE_X_IGNORE_RE2 = true
 
 # ==============================================================================
 # Development
@@ -43,11 +47,12 @@ npm_config_fetch_timeout = "300000"
 description = "Show available dependency updates with Renovate local report"
 shell = "bash -c"
 run = """
-RENOVATE_GITHUB_COM_TOKEN="$(gh auth token)" mise exec node@24 -- npx --yes renovate@43.272.6 \
+LOG_LEVEL=info RENOVATE_GITHUB_COM_TOKEN="$(gh auth token)" mise exec node@24 -- renovate \
   --platform=local \
   --onboarding=false \
   --require-config=required \
-  --report-type=logging \
+  --report-type=file \
+  --report-path=.tools/renovate/renovate-report.json \
   --cache-dir=.tools/renovate/cache
 """
 
@@ -295,31 +300,42 @@ run = ["mise run antivirus:update", "mise run antivirus:scan"]
 [tasks."docs:install"]
 description = "Install documentation dependencies"
 dir = "docs"
-run = "bun install --frozen-lockfile"
+run = "aube install --frozen-lockfile"
 
 [tasks."docs:audit"]
 description = "Audit documentation dependencies"
 dir = "docs"
-run = "bun audit"
+run = "aube audit"
 
 [tasks."docs:build"]
 description = "Build VitePress documentation (set CI_BASE_URL to override the base)"
 dir = "docs"
-run = "bun run docs:build"
+run = "aube run docs:build"
 
 [tasks."docs:links"]
 description = "Link check over built documentation"
 shell = "bash -c"
 depends = ["docs:build"]
 run = """
-# Run from .tools/lychee so the lychee cache (.lycheecache) lands there.
 mkdir -p .tools/lychee
 cd .tools/lychee
-lychee --config "{{config_root}}/.lychee.toml" --no-progress \
-  --root-dir "{{config_root}}/docs/.vitepress/dist" \
-  "{{config_root}}/docs/.vitepress/dist"
+lychee \
+  --config "{{config_root}}/.lychee.toml" \
+  --no-progress \
+  --root-dir "{{config_root}}/docs/dist" \
+  "{{config_root}}/docs/dist"
 """
+
+[tasks."docs:pack"]
+description = "Pack documentation package archive"
+run = "just docs pack"
 
 [tasks."docs:all"]
 description = "All documentation checks"
-run = ["mise run docs:install", "mise run docs:audit", "mise run docs:build", "mise run docs:links"]
+run = [
+  "mise run docs:install",
+  "mise run docs:audit",
+  "mise run docs:build",
+  "mise run docs:links",
+  "mise run docs:pack",
+]
