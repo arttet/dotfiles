@@ -1,6 +1,9 @@
-# Dependencies (bun install)
+# Node.js dependencies
 node_modules/
 
-# VitePress build and cache
+# VitePress cache and generated site
 .vitepress/cache/
-.vitepress/dist/
+dist/
+
+# Packaged distribution archives
+*.tgz

@@ -1,7 +1,12 @@
 {
-  "name": "docs",
+  "name": "dotfiles-docs",
+  "version": "0.0.1",
   "private": true,
   "type": "module",
+  "packageManager": "aube@1.33.0",
+  "files": [
+    "dist"
+  ],
   "scripts": {
     "docs:dev": "vitepress dev",
     "docs:build": "vitepress build",
@@ -16,6 +21,7 @@
   },
   "overrides": {
     "vite": "^8.1.5",
-    "linkify-it": "^6.1.0"
+    "linkify-it": "^6.1.0",
+    "typescript": "^7.0.2"
   }
 }

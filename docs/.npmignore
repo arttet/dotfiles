@@ -1,0 +1,5 @@
+# Workspace configuration
+aube-workspace.yaml
+
+# Generated package archives
+*.tgz

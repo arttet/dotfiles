@@ -25,8 +25,8 @@ install:
 [doc('Shows outdated tool versions')]
 [group('Development')]
 outdated:
+    mise outdated --bump
     mise run deps:outdated
-    mise outdated --local
 
 [doc('Upgrades outdated tools')]
 [group('Development')]
