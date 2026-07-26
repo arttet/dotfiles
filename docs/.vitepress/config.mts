@@ -8,6 +8,7 @@ export default defineConfig({
   head: [["meta", { name: "theme-color", content: "#6366f1" }]],
 
   srcDir: "src",
+  outDir: "dist",
   base: process.env.CI_BASE_URL || "/",
   cleanUrls: true,
 

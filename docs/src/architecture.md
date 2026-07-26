@@ -255,7 +255,7 @@ All jobs run in parallel and must pass before Stage 2.
 | `lint`      | Run yamllint, actionlint, shellcheck, selene, markdownlint, etc. |
 | `security`  | TruffleHog secret scan + Trivy filesystem scan                   |
 | `antivirus` | ClamAV malware scan                                              |
-| `docs`      | Bun install/audit, VitePress build, Lychee link check            |
+| `docs`      | aube install/audit, VitePress build, Lychee link check           |
 
 ### Stage 2: Per-Tool Validation
 

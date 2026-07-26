@@ -14,7 +14,7 @@ This repository is a personal, cross-platform dotfiles configuration for Artyom 
 - **Deployment model**: Symlink-based dotfiles deployed with **dotter** (`just deploy apply`) or GNU **stow** (`just deploy install`/`uninstall`)
 - **External assets**: Plugins, themes, and wallpapers are vendored with **vendir** (`vendir.yml` + `vendir.lock.yml`, plus `vendir.lock.windows.yml` for Windows path handling)
 - **Task runners**: `just` (`Justfile`) for deployment and local recipes; `mise` (`mise.toml`) for pinned dev tools and Stage-1 CI gate tasks
-- **Documentation site**: VitePress under `docs/`, served via Bun (`just docs dev`)
+- **Documentation site**: VitePress under `docs/`, served via aube (`just docs dev`)
 - **NixOS integration**: `nixos/home.nix` links selected dotfiles into a Home Manager generation
 
 ## Repository Layout
@@ -28,7 +28,7 @@ This repository is a personal, cross-platform dotfiles configuration for Artyom 
 │   ├── harden-runner/      # allowed-endpoints lists loaded by CI jobs
 │   └── workflows/ci.yml  # validation, security, docs, deployment
 ├── docs/                 # VitePress documentation site
-│   ├── package.json      # Bun-based dev dependencies
+│   ├── package.json      # aube-managed dev dependencies
 │   ├── .vitepress/config.ts
 │   └── src/              # markdown content
 ├── dotfiles/             # actual dotfile contents (deployed to $HOME)
@@ -233,7 +233,7 @@ txt file, not to the workflow.
   - `lint` — `mise run lint:all` (yamllint, actionlint, shellcheck, selene, taplo, markdownlint, stylelint, zizmor, Zellij/Nushell config validation)
   - `security` — TruffleHog secret scan (`--fail`), Semgrep SAST (p/ci OSS rules), Trivy filesystem scan (vuln/secret/misconfig) with blocking HIGH/CRITICAL gate, SARIF upload
   - `antivirus` — `mise run antivirus:all` (ClamAV via Docker image, DB cached daily)
-  - `docs` — `mise run docs:install/audit/build/links` (Bun install, audit, VitePress build, Lychee link check)
+  - `docs` — `mise run docs:install/audit/build/links` (aube install, audit, VitePress build, Lychee link check)
 - **Stage 2** (gated by Stage 1):
   - `hyprland` — `hyprland --verify-config`
   - `neovim` — syntax check + headless `Lazy! sync`
