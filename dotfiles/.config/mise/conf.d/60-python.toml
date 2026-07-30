@@ -1,0 +1,8 @@
+[tools]
+python = "3.14.6"
+
+ruff = "0.16.0"
+uv = "0.12.0"
+
+"npm:pyright" = "1.1.411"
+"pipx:ty" = "0.0.64"

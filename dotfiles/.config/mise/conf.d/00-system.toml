@@ -1,0 +1,17 @@
+[tool_alias]
+btop4win = "github:aristocratos/btop4win"
+ouch = "github:ouch-org/ouch"
+
+[tools]
+aube = "1.35.0"
+btop = { version = "1.4.7", os = ["linux", "macos"] }
+btop4win = { version = "1.0.5", os = ["windows"] }
+dua = "2.39.0"
+duf = "0.9.1"
+dust = "1.2.4"
+fastfetch = "2.66.0"
+hyperfine = "1.20.0"
+mprocs = "0.9.6"
+node = "26.5.1"
+ouch = "0.8.1"
+watchexec = "2.5.1"

@@ -14,6 +14,7 @@ let
     ".config/alacritty"
     ".config/bash"
 
+    ".config/aube/config.toml"
     ".config/claude/CLAUDE.md"
     ".config/claude/keybindings.json"
     ".config/claude/settings.json"
@@ -35,6 +36,9 @@ let
 
     ".config/kimi-code/AGENTS.md"
     ".config/kimi-code/config.toml"
+    ".config/mise/config.toml"
+    ".config/mise/mise.lock"
+    ".config/mise/conf.d"
     ".config/kimi-code/mcp.json"
     ".config/kimi-code/themes/nord.json"
     ".config/kimi-code/tui.toml"

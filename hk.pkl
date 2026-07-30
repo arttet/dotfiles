@@ -1,0 +1,21 @@
+// Git hook manager: https://hk.jdx.dev
+//
+amends "package://github.com/jdx/hk/releases/download/v1.53.0/hk@1.53.0#/Config.pkl"
+
+min_hk_version = "1.53.0"
+default_branch = "main"
+
+hooks {
+  ["pre-commit"] {
+    steps {
+      ["fmt"] {
+        check = "mise run fmt:all"
+        exclusive = true
+      }
+      ["lint"] {
+        check = "mise run lint:all"
+        exclusive = true
+      }
+    }
+  }
+}

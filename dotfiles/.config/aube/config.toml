@@ -1,0 +1,2 @@
+# Central supply-chain delay; change this value to alter the policy.
+minimumReleaseAge = 1440

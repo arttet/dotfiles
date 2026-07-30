@@ -10,16 +10,37 @@ export def "init" [] {
     }
     print $"Target directory: ($autoload_dir)"
 
-    # Ensure local bin is in PATH for this session
+    # Ensure user binaries and mise shims are available while generators run.
     let local_bin = ($nu.home-dir | path join ".local" "bin")
-    let new_path = ($env.PATH | split row (char esep) | prepend $local_bin)
+    let mise_shims = ($nu.home-dir | path join ".local" "share" "mise" "shims")
+    let current_path = (
+        if ($env.PATH? | describe) == "string" {
+            $env.PATH | split row (char esep)
+        } else if ($env.PATH? | describe) =~ "list" {
+            $env.PATH
+        } else {
+            []
+        }
+    )
+    let new_path = (
+        $current_path
+        | prepend $local_bin
+        | prepend $mise_shims
+        | uniq
+    )
 
-    # Define tools with their command names and generators
-    let tools = [
+    # Windows uses mise shims from env.nu. `mise activate nu` snapshots PATH
+    # and can remove Windows system directories when the active project changes.
+    let shared_tools = [
         { name: "starship", file: "starship.nu", args: ["init", "nu"] },
         { name: "carapace", file: "carapace.nu", args: ["_carapace", "nushell"] },
-        { name: "zoxide",   file: "zoxide.nu",   args: ["init", "nushell"] }
+        { name: "zoxide", file: "zoxide.nu", args: ["init", "nushell"] }
     ]
+    let tools = if $nu.os-info.name == "windows" {
+        $shared_tools
+    } else {
+        [{ name: "mise", file: "mise.nu", args: ["activate", "nu"] }] | append $shared_tools
+    }
 
     with-env { PATH: $new_path } {
         for tool in $tools {
@@ -48,7 +69,8 @@ export def "init" [] {
                     }
                 } else {
                     print $"✗ ($tool.name) not found in PATH or .local/bin"
-                    print $"  Install with: cargo install ($tool.name)"
+                    let install_hint = ($tool.install? | default $"cargo install ($tool.name)")
+                    print $"  Install with: ($install_hint)"
                 }
             }
         }
