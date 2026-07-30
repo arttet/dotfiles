@@ -2,7 +2,7 @@
 selene = "github:Kampfkarren/selene"
 
 [tools]
-"npm:markdownlint-cli2" = "0.23.2"
+"npm:markdownlint-cli2" = { version = "0.23.2", allow_low_downloads = true }
 "npm:stylelint" = "17.14.1"
 
 act = "0.2.89"
