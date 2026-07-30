@@ -1,4 +1,0 @@
-[tools]
-"npm:@tailwindcss/language-server" = "0.16.0"
-# "npm:svelte-language-server" = "0.18.3"
-"npm:typescript-language-server" = "5.3.0"

@@ -1,12 +1,11 @@
 [tool_alias]
 nushell = "aqua:nushell/nushell"
-vendir = "aqua:carvel-dev/vendir"
-pwsh = "github:PowerShell/PowerShell"
 
 [tools]
 carapace = "1.7.3"
 just = "1.57.0"
 nushell = "0.114.1"
+powershell = "7.6.4"
 starship = "1.26.0"
 vendir = "0.46.0"
 
@@ -14,16 +13,3 @@ vendir = "0.46.0"
 # direnv = "2.37.1"
 # usage = "4.0.0"
 # "cargo:dotter" = "0.13.5"
-
-[tools.pwsh]
-version = "7.6.4"
-version_prefix = "v"
-bin_path = "."
-
-[tools.pwsh.platforms]
-linux-x64 = { asset_pattern = "PowerShell-{{ version }}-linux-x64.tar.gz" }
-linux-arm64 = { asset_pattern = "PowerShell-{{ version }}-linux-arm64.tar.gz" }
-macos-x64 = { asset_pattern = "PowerShell-{{ version }}-osx-x64.tar.gz" }
-macos-arm64 = { asset_pattern = "PowerShell-{{ version }}-osx-arm64.tar.gz" }
-windows-x64 = { asset_pattern = "PowerShell-{{ version }}-win-x64.zip" }
-windows-arm64 = { asset_pattern = "PowerShell-{{ version }}-win-arm64.zip" }

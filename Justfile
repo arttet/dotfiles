@@ -27,12 +27,12 @@ install:
 [group('Development')]
 outdated:
     mise outdated --bump --local
-    mise run deps:outdated
+    mise run deps:renovate
 
 [doc('Upgrades outdated tools')]
 [group('Development')]
 upgrade:
-    mise upgrade --bump --local -x node
+    mise upgrade --bump --local
 
 [doc('Format code')]
 [group('Development')]

@@ -1,13 +1,14 @@
 [tool_alias]
-selene = "github:Kampfkarren/selene"
+selene = "aqua:Kampfkarren/selene"
 
 [tools]
 "npm:markdownlint-cli2" = { version = "0.23.2", allow_low_downloads = true }
 "npm:stylelint" = "17.14.1"
+"npm:wrangler" = "4.116.0"
 
 act = "0.2.89"
 actionlint = "1.7.12"
-aube = "1.35.0"
+aube = "1.36.0"
 dprint = "0.55.2"
 editorconfig-checker = "3.8.0"
 hk = "1.53.0"
@@ -188,15 +189,21 @@ run = "typos"
 description = "YAML lint"
 run = "yamllint ."
 
+[tasks."lint:lua"]
+description = "All Lua lint checks"
+run = [
+  "mise run lint:lua:hyprland",
+  "mise run lint:lua:nvim",
+  "mise run lint:lua:wezterm",
+]
+
 [tasks."lint:all"]
 description = "All lint checks"
 depends = [
   "lint:actions",
   "lint:bash",
   "lint:css",
-  "lint:lua:hyprland",
-  "lint:lua:nvim",
-  "lint:lua:wezterm",
+  "lint:lua",
   "lint:markdown",
   "lint:toml",
   "lint:typos",

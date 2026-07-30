@@ -1,6 +1,5 @@
 [tool_alias]
 herdrw = "github:ogulcancelik/herdr"
-superfile = "github:yorukot/superfile"
 
 [tools]
 dive = "0.13.1"
