@@ -16,6 +16,6 @@ go telemetry off
 test "$(go telemetry)" = "off"
 """
 
-# [tasks.setup]
-# description = "Apply safe, idempotent global mise setup"
-# depends = ["setup:go-telemetry"]
+[tasks.setup]
+description = "Apply safe, idempotent global mise setup"
+depends = ["setup:go-telemetry"]
