@@ -1,26 +1,41 @@
 {
   "mcpServers": {
     "context7": {
-      "command": "bunx",
-      "args": ["@upstash/context7-mcp"],
+      "command": "context7-mcp",
+      "args": [],
       "startupTimeoutMs": 60000,
       "toolTimeoutMs": 120000
     },
     "playwright": {
-      "command": "bunx",
-      "args": ["@playwright/mcp@latest"],
+      "command": "playwright-mcp",
+      "args": [],
       "startupTimeoutMs": 60000,
       "toolTimeoutMs": 120000
     },
     "serena": {
-      "command": "uvx",
+      "command": "serena-agent",
       "args": [
-        "serena-agent@v1.5.3",
         "start-mcp-server",
         "--context=agent",
         "--project-from-cwd",
         "--open-web-dashboard=false"
       ],
+      "startupTimeoutMs": 60000,
+      "toolTimeoutMs": 120000
+    },
+    "graphify": {
+      "command": "python",
+      "args": ["-m", "graphify.serve", "graphify-out/graph.json"],
+      "startupTimeoutMs": 60000,
+      "toolTimeoutMs": 120000
+    },
+    "vikunja": {
+      "command": "vikunja-mcp",
+      "args": [],
+      "env": {
+        "VIKUNJA_URL": "${VIKUNJA_URL}",
+        "VIKUNJA_API_TOKEN": "${VIKUNJA_API_TOKEN}"
+      },
       "startupTimeoutMs": 60000,
       "toolTimeoutMs": 120000
     }

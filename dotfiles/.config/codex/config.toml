@@ -4,7 +4,7 @@
 # Model and response behavior
 ################################################################################
 
-model = "gpt-5.5"
+model = "gpt-5.6-terra"
 model_provider = "openai"
 personality = "pragmatic"
 
@@ -28,7 +28,7 @@ mcp_oauth_credentials_store = "auto"
 
 project_doc_max_bytes = 32768
 file_opener = "none"
-service_tier = "fast"
+service_tier = "default"
 
 ################################################################################
 # History and process environment
@@ -100,6 +100,9 @@ terminal_title = ["spinner", "project"]
 theme = "nord"
 status_line_use_colors = true
 
+[tui.model_availability_nux]
+"gpt-5.6-sol" = 3
+
 [analytics]
 enabled = false
 
@@ -121,9 +124,8 @@ sandbox = "elevated"
 ################################################################################
 
 [mcp_servers.serena]
-command = "uvx"
+command = "serena-agent"
 args = [
-  "serena-agent@v1.5.3",
   "start-mcp-server",
   "--context=codex",
   "--project-from-cwd",
@@ -139,3 +141,43 @@ url = "https://developers.openai.com/mcp"
 startup_timeout_sec = 10
 tool_timeout_sec = 60
 enabled = true
+
+[mcp_servers.context7]
+command = "context7-mcp"
+args = []
+startup_timeout_sec = 60
+tool_timeout_sec = 120
+enabled = true
+
+[mcp_servers.playwright]
+command = "playwright-mcp"
+args = []
+startup_timeout_sec = 60
+tool_timeout_sec = 120
+enabled = true
+
+[mcp_servers.graphify]
+command = "python"
+args = ["-m", "graphify.serve", "graphify-out/graph.json"]
+startup_timeout_sec = 60
+tool_timeout_sec = 120
+enabled = true
+
+[mcp_servers.vikunja]
+command = "vikunja-mcp"
+args = []
+env = { VIKUNJA_URL = "${VIKUNJA_URL}", VIKUNJA_API_TOKEN = "${VIKUNJA_API_TOKEN}" }
+startup_timeout_sec = 60
+tool_timeout_sec = 120
+enabled = true
+
+[projects.'c:\users\artyom\documents\github\dotfiles']
+trust_level = "trusted"
+
+[projects.'c:\users\artyom\documents\statements\al fana gas\rera']
+trust_level = "trusted"
+
+[hooks.state]
+
+[hooks.state.'C:\Users\Artyom\.config\codex\hooks.json:session_start:0:0']
+trusted_hash = "sha256:96dcadc0bd33d3832fb2846424daa0f58b8f3e99d4eeba560c874ba7ea44ece5"

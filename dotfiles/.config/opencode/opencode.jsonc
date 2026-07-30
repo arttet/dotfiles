@@ -53,13 +53,23 @@
   ],
 
   "mcp": {
+    "context7": {
+      "type": "local",
+      "enabled": true,
+      "command": ["context7-mcp"],
+      "timeout": 30000,
+    },
+    "playwright": {
+      "type": "local",
+      "enabled": true,
+      "command": ["playwright-mcp"],
+      "timeout": 30000,
+    },
     "serena": {
       "type": "local",
       "enabled": true,
-      // Pin the Serena package and let it infer the project from OpenCode's cwd.
       "command": [
-        "uvx",
-        "serena-agent@v1.5.3",
+        "serena-agent",
         "start-mcp-server",
         "--context",
         "agent",
@@ -68,6 +78,27 @@
       ],
       "environment": {
         "PYTHONUNBUFFERED": "1",
+      },
+      "timeout": 30000,
+    },
+    "graphify": {
+      "type": "local",
+      "enabled": true,
+      "command": [
+        "python",
+        "-m",
+        "graphify.serve",
+        "graphify-out/graph.json",
+      ],
+      "timeout": 30000,
+    },
+    "vikunja": {
+      "type": "local",
+      "enabled": false,
+      "command": ["vikunja-mcp"],
+      "environment": {
+        "VIKUNJA_URL": "${VIKUNJA_URL}",
+        "VIKUNJA_API_TOKEN": "${VIKUNJA_API_TOKEN}",
       },
       "timeout": 30000,
     },
