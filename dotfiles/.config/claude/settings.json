@@ -124,6 +124,7 @@
       "~/.agents"
     ]
   },
+  "model": "opus",
   "statusLine": {
     "type": "command",
     "command": "bash \"$CLAUDE_CONFIG_DIR/statusline.sh\"",
@@ -135,5 +136,50 @@
     "type": "command",
     "command": "bash \"$CLAUDE_CONFIG_DIR/statusline.sh\""
   },
-  "theme": "dark"
+  "theme": "dark",
+  "mcpServers": {
+    "context7": {
+      "command": "context7-mcp",
+      "args": [],
+      "startupTimeoutMs": 60000,
+      "toolTimeoutMs": 120000
+    },
+    "playwright": {
+      "command": "playwright-mcp",
+      "args": [],
+      "startupTimeoutMs": 60000,
+      "toolTimeoutMs": 120000
+    },
+    "serena": {
+      "command": "serena-agent",
+      "args": [
+        "start-mcp-server",
+        "--context=agent",
+        "--project-from-cwd",
+        "--open-web-dashboard=false"
+      ],
+      "startupTimeoutMs": 60000,
+      "toolTimeoutMs": 120000
+    },
+    "graphify": {
+      "command": "python",
+      "args": [
+        "-m",
+        "graphify.serve",
+        "graphify-out/graph.json"
+      ],
+      "startupTimeoutMs": 60000,
+      "toolTimeoutMs": 120000
+    },
+    "vikunja": {
+      "command": "vikunja-mcp",
+      "args": [],
+      "env": {
+        "VIKUNJA_URL": "${VIKUNJA_URL}",
+        "VIKUNJA_API_TOKEN": "${VIKUNJA_API_TOKEN}"
+      },
+      "startupTimeoutMs": 60000,
+      "toolTimeoutMs": 120000
+    }
+  }
 }

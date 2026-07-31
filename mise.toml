@@ -1,29 +1,30 @@
-[tools]
-aube = "1.33.0"
-"npm:markdownlint-cli2" = "0.23.1"
-"npm:stylelint" = "17.14.1"
-"npm:wrangler" = { version = "4.114.0", allow_builds = ["esbuild", "workerd"] }
-"npm:renovate" = "43.279.0"
+[tool_alias]
+selene = "aqua:Kampfkarren/selene"
 
-"aqua:nushell/nushell" = "0.114.1"
-"github:Kampfkarren/selene" = "0.31.0"
+[tools]
+"npm:markdownlint-cli2" = { version = "0.23.2", allow_low_downloads = true }
+"npm:stylelint" = "17.14.1"
+"npm:wrangler" = "4.116.0"
 
 act = "0.2.89"
 actionlint = "1.7.12"
+aube = "1.36.0"
 dprint = "0.55.2"
 editorconfig-checker = "3.8.0"
+hk = "1.53.0"
 just = "1.57.0"
 lychee = "0.24.2"
-node = "26.5.0"
-semgrep = "1.171.0"
+node = "26.5.1"
+selene = "0.31.0"
+semgrep = "1.172.0"
 shellcheck = "0.11.0"
 shfmt = "3.13.1"
 stylua = "2.5.2"
 taplo = "0.10.0"
 trivy = "0.72.0"
-trufflehog = "3.95.9"
+trufflehog = "3.96.0"
+typos = "1.48.0"
 yamllint = "1.38.0"
-zellij = "0.44.3"
 zizmor = "1.28.0"
 
 [env]
@@ -32,37 +33,62 @@ AUBE_FETCH_RETRY_FACTOR = "2"
 AUBE_FETCH_RETRY_MAXTIMEOUT = "180000"
 AUBE_FETCH_RETRY_MINTIMEOUT = "20000"
 AUBE_TRUST_POLICY_EXCLUDE = "@yarnpkg/libzip@3.2.2"
-CLAMAV_DB_DIR = "{{config_root}}/.tools/clamav-db"
-CLAMAV_IMAGE = "clamav/clamav:1.5.3_base"
 DPRINT_CACHE_DIR = "{{config_root}}/.tools/dprint"
-MSYS_NO_PATHCONV = "1"
-RENOVATE_BINARY_SOURCE = "global"
-RENOVATE_X_IGNORE_RE2 = true
+
+[vars]
+bash_targets = "dotfiles/.bashrc dotfiles/.bash_profile dotfiles/.config/bash dotfiles/.config/shell"
+clamav_db_dir = ".tools/clamav-db"
+clamav_image = "clamav/clamav:1.5.3_base"
+renovate_image = "ghcr.io/renovatebot/renovate:43.260.2@sha256:8eabe48179e3f69baf1495336c6c4fdd8b11d03dc603dd7fc5a29422a2fdd905"
+
+[settings]
+auto_install = false
+lockfile = true
 
 # ==============================================================================
-# Development
+# Development Gate
 # ==============================================================================
 
-[tasks."deps:outdated"]
+[tasks."deps:renovate:setup"]
+description = "TODO"
+run = "mkdir -p .tools/renovate/cache"
+
+[tasks."deps:renovate"]
 description = "Show available dependency updates with Renovate local report"
-shell = "bash -c"
+env = { LOG_LEVEL = "info", RENOVATE_GITHUB_COM_TOKEN = "{{ exec(command='gh auth token') }}", MSYS_NO_PATHCONV = "1" }
 run = """
-LOG_LEVEL=info RENOVATE_GITHUB_COM_TOKEN="$(gh auth token)" mise exec node@24 -- renovate \
+podman run --rm \
+  -e LOG_LEVEL \
+  -e RENOVATE_GITHUB_COM_TOKEN \
+  -v "$PWD:/usr/src/app:Z" \
+  -v "$PWD/.tools/renovate:/tmp/renovate:Z" \
+  "{{vars.renovate_image}}" \
   --platform=local \
   --onboarding=false \
   --require-config=required \
   --report-type=file \
-  --report-path=.tools/renovate/renovate-report.json \
-  --cache-dir=.tools/renovate/cache
+  --report-path=/tmp/renovate/renovate-report.json \
+  --cache-dir=/tmp/renovate/cache
 """
 
+[tasks."hooks:install"]
+description = "Install hk git hooks into this clone"
+run = "hk install"
+
+[tasks."hooks:run"]
+description = "Run the pre-commit hook without committing"
+run = "hk run pre-commit"
+
 [tasks.check]
+description = "Run checks"
+depends = ["fmt:all", "lint:all", "security:all", "docs:all"]
+
+[tasks."check:all"]
 description = "Run all checks"
 depends = ["fmt:all", "lint:all", "security:all", "antivirus:all", "docs:all"]
 
 [tasks.ci]
 description = "Run GitHub Actions locally with act"
-shell = "bash -c"
 run = """
 act pull_request --bind --artifact-server-path .tools/act-artifacts \
   -s GITHUB_TOKEN="$(gh auth token)" \
@@ -77,6 +103,15 @@ run = "act --list"
 # Format Quality Gate
 # ==============================================================================
 
+[tasks."fmt:write"]
+description = "Format source files"
+run = [
+  "dprint fmt",
+  "stylua --allow-hidden .",
+  "shfmt --write --language-dialect=bash --simplify {{vars.bash_targets}}",
+  "just --fmt",
+]
+
 [tasks."fmt:dprint"]
 description = "dprint format check"
 run = "dprint check"
@@ -89,17 +124,13 @@ run = "ec"
 description = "Justfile format check"
 run = "just --fmt --check"
 
+[tasks."fmt:shfmt"]
+description = "Shell format check"
+run = "shfmt --diff {{vars.bash_targets}}"
+
 [tasks."fmt:stylua"]
 description = "Lua format check"
 run = "stylua --allow-hidden --check ."
-
-[tasks."fmt:shfmt"]
-description = "Shell format check"
-shell = "bash -c"
-run = """
-shell_targets="dotfiles/.bashrc dotfiles/.bash_profile dotfiles/.config/bash dotfiles/.config/shell"
-shfmt --diff $(shfmt --find $shell_targets)
-"""
 
 [tasks."fmt:all"]
 description = "All format checks"
@@ -107,94 +138,76 @@ depends = [
   "fmt:dprint",
   "fmt:editorconfig",
   "fmt:just",
-  "fmt:stylua",
   "fmt:shfmt",
-]
-
-[tasks."fmt:write"]
-description = "Format source files"
-shell = "bash -c"
-run = [
-  "dprint fmt",
-  "stylua --allow-hidden .",
-  "shfmt --write dotfiles/.bashrc dotfiles/.bash_profile dotfiles/.config/bash dotfiles/.config/shell",
-  "just --fmt",
+  "fmt:stylua",
 ]
 
 # ==============================================================================
 # Lint Quality Gate
 # ==============================================================================
 
-[tasks."lint:yaml"]
-description = "YAML lint"
-run = "yamllint ."
-
 [tasks."lint:actions"]
 description = "GitHub Actions lint"
 run = "actionlint"
 
-[tasks."lint:shell"]
+[tasks."lint:bash"]
 description = "Shell lint"
 shell = "bash -c"
-run = """
-shell_targets="dotfiles/.bashrc dotfiles/.bash_profile dotfiles/.config/bash dotfiles/.config/shell"
-shellcheck -s bash $(shfmt --find $shell_targets)
-"""
+run = '''
+shellcheck --shell=bash --external-sources $(shfmt --find {{vars.bash_targets}})
+'''
 
-[tasks."lint:lua"]
-description = "Lua lint"
-shell = "bash -c"
-run = """
-selene dotfiles/.config/nvim dotfiles/.config/wezterm
-selene --config dotfiles/.config/hypr/selene.toml dotfiles/.config/hypr/hyprland.lua
-"""
+[tasks."lint:css"]
+description = "CSS lint"
+run = "stylelint --config .stylelintrc.json './dotfiles/.config/**/*.css'"
 
-[tasks."lint:toml"]
-description = "TOML lint"
-shell = "bash -c"
-run = """
-taplo lint --no-schema \
-  $(find dotfiles/.config -type f -name "*.toml" \
-    ! -path "*/node_modules/*" \
-    ! -path "*/yazi/plugins/*" \
-    ! -path "*/alacritty/themes/*")
-"""
+[tasks."lint:lua:nvim"]
+description = "Neovim Lua lint"
+run = "selene dotfiles/.config/nvim"
+
+[tasks."lint:lua:hyprland"]
+description = "Hyprland Lua lint"
+run = "selene --config dotfiles/.config/hypr/selene.toml dotfiles/.config/hypr/hyprland.lua"
+
+[tasks."lint:lua:wezterm"]
+description = "WezTerm Lua lint"
+run = "selene dotfiles/.config/wezterm"
 
 [tasks."lint:markdown"]
 description = "Markdown lint"
 run = "markdownlint-cli2"
 
-[tasks."lint:css"]
-description = "CSS lint"
-shell = "bash -c"
-run = "stylelint --config .stylelintrc.json './dotfiles/.config/**/*.css'"
+[tasks."lint:toml"]
+description = "TOML lint"
+run = "taplo lint --no-schema"
 
-[tasks."lint:zellij"]
-description = "Validate Zellij config"
-shell = "bash -c"
-run = "zellij --config dotfiles/.config/zellij/config.kdl setup --dump-config >/dev/null"
+[tasks."lint:typos"]
+description = "Spell check"
+run = "typos"
 
-[tasks."lint:nushell"]
-description = "Validate Nushell config"
-run = 'nu --config dotfiles/.config/nushell/config.nu --env-config dotfiles/.config/nushell/env.nu -c "exit 0"'
+[tasks."lint:yaml"]
+description = "YAML lint"
+run = "yamllint ."
 
-[tasks."lint:zizmor"]
-description = "GitHub Actions security audit"
-run = "zizmor --persona pedantic .github/"
+[tasks."lint:lua"]
+description = "All Lua lint checks"
+run = [
+  "mise run lint:lua:hyprland",
+  "mise run lint:lua:nvim",
+  "mise run lint:lua:wezterm",
+]
 
 [tasks."lint:all"]
 description = "All lint checks"
 depends = [
-  "lint:yaml",
   "lint:actions",
-  "lint:shell",
-  "lint:lua",
-  "lint:toml",
-  "lint:markdown",
+  "lint:bash",
   "lint:css",
-  "lint:zellij",
-  "lint:nushell",
-  "lint:zizmor",
+  "lint:lua",
+  "lint:markdown",
+  "lint:toml",
+  "lint:typos",
+  "lint:yaml",
 ]
 
 # ==============================================================================
@@ -207,17 +220,16 @@ run = "trufflehog git file://. --results=verified,unknown --fail"
 
 [tasks."security:semgrep"]
 description = "SAST scan (OSS rules)"
-shell = "bash -c"
-run = """
-semgrep scan --verbose --config p/ci --oss-only --metrics=off --error
-"""
+run = "semgrep scan --config p/ci --oss-only --metrics=off --error --verbose"
+
+[tasks."security:trivy:setup"]
+description = "Setup Trivy"
+run = "mkdir -p .tools/docker .tools/trivy"
 
 [tasks."security:trivy"]
 description = "Trivy scan"
-shell = "bash -c"
+env = { DOCKER_CONFIG = "{{config_root}}/.tools/docker" }
 run = """
-mkdir -p .tools/docker .tools/trivy
-export DOCKER_CONFIG="$PWD/.tools/docker"
 trivy fs \
   --scanners vuln,secret,misconfig \
   --include-dev-deps \
@@ -228,6 +240,7 @@ trivy fs \
   --timeout 10m \
   .
 """
+depends = ["security:trivy:setup"]
 
 [tasks."security:trivy:table"]
 description = "Convert Trivy report to table"
@@ -250,6 +263,11 @@ trivy convert \
 """
 depends = ["security:trivy"]
 
+[tasks."security:zizmor"]
+description = "GitHub Actions security audit"
+env = { ZIZMOR_GITHUB_TOKEN = "{{ exec(command='gh auth token') }}" }
+run = "zizmor --persona pedantic .github/"
+
 [tasks."security:all"]
 description = "All security checks"
 depends = [
@@ -257,35 +275,33 @@ depends = [
   "security:semgrep",
   "security:trivy:table",
   "security:trivy:sarif",
+  "security:zizmor",
 ]
 
 # ==============================================================================
 # Antivirus Gate
 # ==============================================================================
 
+[tasks."antivirus:setup"]
+description = "Setup ClamAV"
+run = "mkdir -p {{vars.clamav_db_dir}}"
+
 [tasks."antivirus:update"]
 description = "Update ClamAV database into CLAMAV_DB_DIR"
-shell = "bash -c"
+env = { MSYS_NO_PATHCONV = "1" }
 run = """
-mkdir -p "$CLAMAV_DB_DIR"
-docker run --rm -v "$CLAMAV_DB_DIR:/var/lib/clamav" "$CLAMAV_IMAGE" \
-  freshclam --foreground --debug
+podman run --rm -v "{{vars.clamav_db_dir}}:/var/lib/clamav" "{{vars.clamav_image}}" \
+  sh -c "sed -i '/^NotifyClamd/d' /etc/clamav/freshclam.conf; exec freshclam --foreground"
 """
+depends = ["antivirus:setup"]
 
 [tasks."antivirus:scan"]
 description = "Malware scan of the working tree"
-shell = "bash -c"
+env = { MSYS_NO_PATHCONV = "1" }
 run = """
-docker run --rm \
-  --entrypoint clamscan \
-  -v "$PWD:/scandir:ro" \
-  -v "$CLAMAV_DB_DIR:/var/lib/clamav:ro" \
-  "$CLAMAV_IMAGE" \
+podman run --rm --entrypoint clamscan -v "$PWD:/scandir:ro" -v "{{vars.clamav_db_dir}}:/var/lib/clamav:ro" "{{vars.clamav_image}}" \
   --recursive \
   --infected \
-  --exclude-dir='^/scandir/\\.git' \
-  --exclude-dir='^/scandir/\\.tools' \
-  --exclude-dir='^/scandir/docs/node_modules' \
   /scandir
 """
 
@@ -308,34 +324,249 @@ dir = "docs"
 run = "aube audit"
 
 [tasks."docs:build"]
-description = "Build VitePress documentation (set CI_BASE_URL to override the base)"
+description = "Build VitePress documentation [set CI_BASE_URL to override the base]"
 dir = "docs"
 run = "aube run docs:build"
 
+[tasks."docs:links:setup"]
+description = "Create the Lychee working directory"
+run = "mkdir -p .tools/lychee"
+
 [tasks."docs:links"]
 description = "Link check over built documentation"
-shell = "bash -c"
-depends = ["docs:build"]
+depends = ["docs:links:setup"]
+dir = ".tools/lychee"
 run = """
-mkdir -p .tools/lychee
-cd .tools/lychee
 lychee \
   --config "{{config_root}}/.lychee.toml" \
-  --no-progress \
   --root-dir "{{config_root}}/docs/dist" \
+  --no-progress \
   "{{config_root}}/docs/dist"
 """
 
 [tasks."docs:pack"]
 description = "Pack documentation package archive"
-run = "just docs pack"
+run = "aube pack"
 
 [tasks."docs:all"]
 description = "All documentation checks"
 run = [
-  "mise run docs:install",
+  "mise run docs:ci",
   "mise run docs:audit",
   "mise run docs:build",
   "mise run docs:links",
   "mise run docs:pack",
+]
+
+# ==============================================================================
+# Stage 2: Validate dotfiles configs
+# ==============================================================================
+
+# ==============================================================================
+# Stage 2: AI Agents
+# ==============================================================================
+
+[tasks."validate:claude"]
+description = "Validate Claude Code configuration"
+env = { CLAUDE_CONFIG_DIR = "{{config_root}}/dotfiles/.config/claude" }
+run = "claude doctor"
+
+[tasks."validate:codex"]
+description = "Validate Codex configuration"
+env = { CODEX_HOME = "{{config_root}}/dotfiles/.config/codex", OPENAI_API_KEY = "-" }
+run = "codex doctor"
+
+[tasks."validate:kimi"]
+description = "Validate Kimi Code configuration"
+env = { KIMI_CODE_HOME = "{{config_root}}/dotfiles/.config/kimi-code" }
+run = "kimi doctor"
+
+[tasks."validate:opencode"]
+description = "Validate OpenCode configuration"
+env = { OPENCODE_CONFIG_DIR = "{{config_root}}/dotfiles/.config/opencode" }
+run = "opencode debug config --pure"
+
+# ==============================================================================
+# Stage 2: Editors
+# ==============================================================================
+
+[tasks."validate:helix"]
+description = "Validate Helix configuration"
+shell = "nu -c"
+run = """
+hx --config '{{config_root}}/dotfiles/.config/helix/config.toml' --health all
+"""
+
+[tasks."validate:neovim"]
+description = "Validate Neovim configuration"
+run = "nvim --headless -c 'qa!'"
+
+# ==============================================================================
+# Stage 2: Shell
+# ==============================================================================
+
+[tasks."validate:bash"]
+description = "Validate Bash configuration"
+run = "bash -x -i -c 'echo OK'"
+
+[tasks."validate:nu"]
+description = "Validate Nushell configuration"
+run = "nu --log-level debug --login --interactive -c 'exit 0'"
+
+[tasks."validate:pwsh"]
+description = "Validate PowerShell configuration"
+env = { PWSH_TRACE = "1" }
+run = [
+  "pwsh -NoProfile -Command '$PROFILE | Select-Object *'",
+  "pwsh -NoLogo -Command exit",
+]
+
+[tasks."validate:zsh"]
+description = "Validate Zsh configuration"
+shell = "nu -c"
+env = { HOME = "{{config_root}}/dotfiles" }
+run = """
+if (which zsh | is-not-empty) {
+  zsh -x -i -c 'echo OK'
+}
+"""
+
+# ==============================================================================
+# Stage 2: Multiplexers
+# ==============================================================================
+
+[tasks."validate:herdr"]
+description = "Validate Herdr configuration"
+env = { HERDR_CONFIG_PATH = "{{config_root}}/dotfiles/.config/herdr/config.toml" }
+run = [
+  "herdr --help",
+  "herdr config check",
+]
+
+[tasks."validate:tmux"]
+description = "Validate Tmux configuration"
+shell = "nu -c"
+run = """
+if (which tmux | is-not-empty) {
+    let config = [$env.PWD, "dotfiles", ".config", "tmux", "tmux.conf"] | path join
+    let socket = $"tmux-test-verify-($nu.pid)"
+    let session = "test"
+
+    ^tmux -V
+
+    ^tmux -f $config -L $socket start-server
+    print $"start-server exit code: ($env.LAST_EXIT_CODE)"
+
+    ^tmux -L $socket new-session -d -s $session
+    print $"new-session exit code: ($env.LAST_EXIT_CODE)"
+
+    ^tmux -L $socket show-messages
+
+    def check [socket: string, scope: string, opt: string, expected: string] {
+        let actual = (^tmux -L $socket show-options $scope $opt)
+        if ($actual | str contains $expected) {
+            print $"OK: ($opt) = ($actual)"
+            true
+        } else {
+            print $"FAIL: ($opt) — expected to contain '($expected)', got '($actual)'"
+            false
+        }
+    }
+
+    let results = [
+        (check $socket "-g" "default-terminal" "tmux-256color")
+        (check $socket "-s" "set-clipboard" "on")
+        (check $socket "-g" "prefix" "C-a")
+    ]
+
+    do -i { ^tmux -L $socket kill-session -t $session }
+    do -i { ^tmux -L $socket kill-server }
+
+    if ($results | any {|r| not $r }) {
+        exit 1
+    }
+}
+"""
+
+[tasks."validate:zellij"]
+description = "Validate Zellij configuration"
+env = { ZELLIJ_CONFIG_DIR = "{{config_root}}/dotfiles/.config/zellij" }
+run = "zellij setup --check"
+
+# ==============================================================================
+# Stage 2: CLI Tools
+# ==============================================================================
+
+[tasks."validate:git"]
+description = "Validate Git config"
+env = { GIT_CONFIG_GLOBAL = "{{config_root}}/dotfiles/.config/git/config" }
+run = "git --no-pager config --list --show-origin --show-scope --global"
+
+[tasks."validate:starship:default"]
+description = "Validate Starship config"
+env = { STARSHIP_LOG = "trace", STARSHIP_CONFIG = "{{config_root}}/dotfiles/.config/starship.toml" }
+run = [
+  "starship print-config",
+  "starship explain",
+  "starship timings",
+]
+
+[tasks."validate:starship:tmux"]
+description = "Validate Starship Tmux config"
+env = { STARSHIP_LOG = "trace", STARSHIP_CONFIG = "{{config_root}}/dotfiles/.config/starship.tmux.toml" }
+run = [
+  "starship print-config",
+  "starship explain",
+  "starship timings",
+]
+
+[tasks."validate:starship:zellij"]
+description = "Validate Starship Tmux config"
+env = { STARSHIP_LOG = "trace", STARSHIP_CONFIG = "{{config_root}}/dotfiles/.config/starship.zellij.toml" }
+run = [
+  "starship print-config",
+  "starship explain",
+  "starship timings",
+]
+
+[tasks."validate:yazi"]
+description = "Validate Yazi config"
+env = { YAZI_CONFIG_HOME = "{{config_root}}/dotfiles/.config/yazi" }
+shell = "nu -c"
+run = "yazi --debug"
+
+# ==============================================================================
+# Stage 2: Aggregate
+# ==============================================================================
+
+[tasks."validate:all"]
+description = "Validate all deployed dotfiles configurations"
+depends = [
+  # AI Agents
+  "validate:claude",
+  "validate:codex",
+  "validate:kimi",
+  "validate:opencode",
+
+  # Editors
+  "validate:helix",
+  "validate:neovim",
+
+  # Shell
+  "validate:bash",
+  "validate:nu",
+  "validate:pwsh",
+  "validate:zsh",
+
+  # Multiplexers
+  "validate:herdr",
+  "validate:tmux",
+  "validate:zellij",
+
+  # CLI Tools
+  "validate:git",
+  "validate:starship:default",
+  "validate:starship:tmux",
+  "validate:starship:zellij",
+  "validate:yazi",
 ]

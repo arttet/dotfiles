@@ -1,0 +1,9 @@
+include = [
+  "dotfiles/.config/**/*.toml",
+]
+
+exclude = [
+  "dotfiles/.config/**/node_modules/**",
+  "dotfiles/.config/yazi/plugins/**",
+  "dotfiles/.config/alacritty/themes/**",
+]

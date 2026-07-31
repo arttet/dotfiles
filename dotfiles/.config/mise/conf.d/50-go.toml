@@ -1,0 +1,9 @@
+[tool_alias]
+delve = "go:github.com/go-delve/delve/cmd/dlv"
+goimports = "go:golang.org/x/tools/cmd/goimports"
+
+[tools]
+go = "1.26.5"
+
+delve = "1.27.0"
+goimports = "0.48.0"

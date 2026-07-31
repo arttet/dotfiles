@@ -21,17 +21,18 @@ help:
 [group('Development')]
 install:
     mise install
+    mise run setup
 
 [doc('Shows outdated tool versions')]
 [group('Development')]
 outdated:
-    mise outdated --bump
-    mise run deps:outdated
+    mise outdated --bump --local
+    mise run deps:renovate
 
 [doc('Upgrades outdated tools')]
 [group('Development')]
 upgrade:
-    mise upgrade --bump
+    mise upgrade --bump --local
 
 [doc('Format code')]
 [group('Development')]
@@ -79,13 +80,6 @@ mod deploy 'misc/justfiles/deploy.just'
 
 [group('Vendir')]
 mod vendir 'misc/justfiles/vendir.just'
-
-# ==============================================================================
-# Validators
-# ==============================================================================
-
-[group('Validators')]
-mod validate 'misc/justfiles/validate.just'
 
 # ==============================================================================
 # Documentation

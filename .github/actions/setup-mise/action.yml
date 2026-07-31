@@ -3,18 +3,27 @@ description: Install pinned mise binary with checksum verification and cached to
 
 inputs:
   version:
-    description: mise version tag, for example v2026.7.11
+    description: mise version tag, for example v2026.7.17
     required: true
-    default: v2026.7.11
+    default: v2026.7.17
   sha256:
     description: SHA-256 of mise-<version>-linux-x64-musl.tar.gz
     required: true
     default: 044157d43a442e3e48aab7d5da3ea0fa40250f53532a6024f93dffa37393a2ac
+  install-tools:
+    description: Install tools from the active mise configuration
+    required: false
+    default: "true"
+  use-cache:
+    description: Restore and save the mise tool cache
+    required: false
+    default: "true"
 
 runs:
   using: composite
   steps:
     - name: Restore mise cache
+      if: inputs.use-cache == 'true'
       uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
       with:
         path: ${{ env.MISE_DATA_DIR || '~/.local/share/mise' }}
@@ -46,15 +55,8 @@ runs:
         echo "$data_dir/shims" >> "$GITHUB_PATH"
 
     - name: Install tools
+      if: inputs.install-tools == 'true'
       shell: bash
       run: |
         mise install
-        # GitHub release archives can restore tool binaries without the executable bit.
-        selene_path="$(find "$MISE_DATA_DIR/installs" -path '*/github-kampfkarren-selene/*/selene' -type f -print -quit)"
-        if [ -z "$selene_path" ]; then
-          echo "Selene binary was not found after mise install" >&2
-          exit 1
-        fi
-        chmod 755 "$selene_path"
-        echo "Restored executable permissions for $selene_path"
         mise reshim

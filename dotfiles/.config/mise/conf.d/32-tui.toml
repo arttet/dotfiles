@@ -1,0 +1,15 @@
+[tool_alias]
+herdrw = "github:ogulcancelik/herdr"
+
+[tools]
+dive = "0.13.1"
+herdr = { version = "0.7.5", os = ["linux", "macos"] }
+herdrw = { version = "preview-2026-07-21-0f10e1453a7f", os = ["windows"] }
+lazydocker = "0.25.2"
+lazyjournal = { version = "0.8.6", os = ["linux", "macos"] }
+lazyssh = "0.3.0"
+lnav = "0.14.0"
+superfile = "1.6.0"
+tmux = { version = "3.7b", os = ["linux", "macos"] }
+yazi = "26.5.6"
+zellij = "0.44.3"

@@ -5,10 +5,13 @@
 # These groups bundle related packages for easy deployment.
 
 [default]
-depends = ["agent", "editor", "shell", "terminal"]
+depends = ["agent", "dev", "editor", "shell", "terminal"]
 
 [agent]
 depends = ["claude", "codex", "kimi", "opencode"]
+
+[dev]
+depends = ["mise"]
 
 [editor]
 depends = ["helix", "zed"]
@@ -107,6 +110,14 @@ depends = []
 # -----------------------------------------------------------------------------
 # Shells
 # -----------------------------------------------------------------------------
+
+[mise]
+depends = []
+
+[mise.files]
+"dotfiles/.config/mise/mise.lock" = { target = "~/.config/mise/mise.lock", type = "symbolic" }
+"dotfiles/.config/mise/config.toml" = { target = "~/.config/mise/config.toml", type = "symbolic" }
+"dotfiles/.config/mise/conf.d" = { target = "~/.config/mise/conf.d", type = "symbolic" }
 
 [bash]
 depends = []

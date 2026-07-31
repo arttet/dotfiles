@@ -1,0 +1,8 @@
+[tool_alias]
+kimi = "npm:@moonshot-ai/kimi-code"
+
+[tools]
+claude-code = "2.1.220"
+codex = "0.145.0"
+kimi = "0.30.0"
+opencode = "1.18.9"

@@ -1,0 +1,13 @@
+# Spell checker configuration
+
+[files]
+extend-exclude = [
+  "docs/aube-lock.yaml",
+  "vendir.lock.yml",
+  "vendir.lock.windows.yml",
+  "*.lock",
+  "package-lock.json",
+]
+
+[default.extend-words]
+Sur = "Sur"

@@ -22,11 +22,55 @@ defaults:
 
 env:
   NIXPKGS: github:NixOS/nixpkgs/nixos-unstable
-  MISE_VERSION: v2026.7.11
-  MISE_SHA256: 044157d43a442e3e48aab7d5da3ea0fa40250f53532a6024f93dffa37393a2ac # mise-v2026.7.11-linux-x64-musl.tar.gz
+  MISE_VERSION: v2026.7.17
+  MISE_SHA256: 71b4a7720cf8f1e22adbc31fed6f0094e84b16d6e365a19c4afae354f1493b3a # mise-v2026.7.17-linux-x64-musl.tar.gz
   MISE_DATA_DIR: ${{ github.workspace }}/.tools/mise
   MISE_INSTALL_PATH: ${{ github.workspace }}/.tools/mise/bin/mise
   DPRINT_CACHE_DIR: ${{ github.workspace }}/.tools/dprint
+  MISE_LOCAL_ALLOWED_ENDPOINTS: >-
+    *.blob.core.windows.net:443
+    github.com:443
+    api.osv.dev:443
+    *.cloudfront.docker.com:443
+    *.github.com:443
+    files.pythonhosted.org:443
+    nodejs.org:443
+    objects.githubusercontent.com:443
+    pypi.org:443
+    registry.npmjs.org:443
+    release-assets.githubusercontent.com:443
+    plugins.dprint.dev:443
+    mise-versions.jdx.dev:443
+    jdx.dev:443
+    *.jdx.dev:443
+    *.sigstore.dev:443
+  VALIDATE_MISE_INSTALL_ALLOWED_ENDPOINTS: >-
+    crates.io:443
+    dl.google.com:443
+    formulae.brew.sh:443
+    go.dev:443
+    golang.org:443
+    index.crates.io:443
+    models.dev:443
+    packages.microsoft.com:443
+    raw.githubusercontent.com:443
+    static.crates.io:443
+    static.rust-lang.org:443
+    ziglang.org:443
+    zig.karearl.com:443
+    zig.linus.dev:443
+    ziglang.freetls.fastly.net:443
+    zigmirror.com:443
+    builds.zigtools.org:443
+    zig.mirror.mschae23.de:443
+    fs.liujiacai.net:443
+    zig.tilok.dev:443
+    zig.bcr.ist:443
+    pkg.hexops.org:443
+    storage.googleapis.com:443
+    conda.anaconda.org:443
+    proxy.golang.org:443
+    sum.golang.org:443
 
 jobs:
   # ==============================================================================
@@ -43,23 +87,7 @@ jobs:
         with:
           egress-policy: block
           allowed-endpoints: >-
-            *.blob.core.windows.net:443
-            github.com:443
-            production.cloudfront.docker.com:443
-            *.cloudfront.docker.com:443
-            *.github.com:443
-            files.pythonhosted.org:443
-            nodejs.org:443
-            objects.githubusercontent.com:443
-            pypi.org:443
-            registry.npmjs.org:443
-            release-assets.githubusercontent.com:443
-            plugins.dprint.dev:443
-            mise-versions.jdx.dev:443
-            jdx.dev:443
-            *.jdx.dev:443
-            tuf-repo-cdn.sigstore.dev:443
-            *.sigstore.dev:443
+            ${{ env.MISE_LOCAL_ALLOWED_ENDPOINTS }}
 
       - name: Checkout
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -89,25 +117,10 @@ jobs:
         with:
           egress-policy: block
           allowed-endpoints: >-
-            *.blob.core.windows.net:443
+            ${{ env.MISE_LOCAL_ALLOWED_ENDPOINTS }}
             api.cloudflare.com:443
-            github.com:443
-            production.cloudfront.docker.com:443
-            *.cloudfront.docker.com:443
-            *.github.com:443
-            files.pythonhosted.org:443
-            nodejs.org:443
-            objects.githubusercontent.com:443
-            pypi.org:443
-            registry.npmjs.org:443
-            release-assets.githubusercontent.com:443
             starship.rs:443
             *.starship.rs:443
-            mise-versions.jdx.dev:443
-            jdx.dev:443
-            *.jdx.dev:443
-            tuf-repo-cdn.sigstore.dev:443
-            *.sigstore.dev:443
 
       - name: Checkout
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -141,26 +154,12 @@ jobs:
         with:
           egress-policy: block
           allowed-endpoints: >-
-            *.blob.core.windows.net:443
-            github.com:443
-            production.cloudfront.docker.com:443
-            *.cloudfront.docker.com:443
-            *.github.com:443
-            files.pythonhosted.org:443
-            nodejs.org:443
-            objects.githubusercontent.com:443
-            pypi.org:443
-            registry.npmjs.org:443
-            release-assets.githubusercontent.com:443
+            ${{ env.MISE_LOCAL_ALLOWED_ENDPOINTS }}
+            api.cloudflare.com:443
             ghcr.io:443
             mirror.gcr.io:443
             pkg-containers.githubusercontent.com:443
             semgrep.dev:443
-            mise-versions.jdx.dev:443
-            jdx.dev:443
-            *.jdx.dev:443
-            tuf-repo-cdn.sigstore.dev:443
-            *.sigstore.dev:443
 
       - name: Checkout
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -216,27 +215,12 @@ jobs:
         with:
           egress-policy: block
           allowed-endpoints: >-
-            *.blob.core.windows.net:443
-            github.com:443
-            production.cloudfront.docker.com:443
-            *.cloudfront.docker.com:443
-            *.github.com:443
-            files.pythonhosted.org:443
-            nodejs.org:443
-            objects.githubusercontent.com:443
-            pypi.org:443
-            registry.npmjs.org:443
-            release-assets.githubusercontent.com:443
+            ${{ env.MISE_LOCAL_ALLOWED_ENDPOINTS }}
             *.cloudflarestorage.com:443
             auth.docker.io:443
             database.clamav.net:443
             production.cloudflare.docker.com:443
             registry-1.docker.io:443
-            mise-versions.jdx.dev:443
-            jdx.dev:443
-            *.jdx.dev:443
-            tuf-repo-cdn.sigstore.dev:443
-            *.sigstore.dev:443
 
       - name: Checkout
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -278,24 +262,9 @@ jobs:
         with:
           egress-policy: block
           allowed-endpoints: >-
-            *.blob.core.windows.net:443
-            github.com:443
-            production.cloudfront.docker.com:443
-            *.cloudfront.docker.com:443
-            *.github.com:443
-            files.pythonhosted.org:443
-            nodejs.org:443
-            objects.githubusercontent.com:443
-            pypi.org:443
-            registry.npmjs.org:443
-            release-assets.githubusercontent.com:443
+            ${{ env.MISE_LOCAL_ALLOWED_ENDPOINTS }}
             specifications.freedesktop.org:443
             www.nushell.sh:443
-            mise-versions.jdx.dev:443
-            jdx.dev:443
-            *.jdx.dev:443
-            tuf-repo-cdn.sigstore.dev:443
-            *.sigstore.dev:443
 
       - name: Checkout
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -312,7 +281,7 @@ jobs:
         uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
           path: ~/.local/share/aube/store
-          key: ${{ runner.os }}-aube-${{ hashFiles('docs/aube-workspace.yaml', 'docs/bun.lock') }}
+          key: ${{ runner.os }}-aube-${{ hashFiles('docs/aube-workspace.yaml', 'docs/aube-lock.yaml') }}
           restore-keys: |
             ${{ runner.os }}-aube-
 
@@ -325,17 +294,24 @@ jobs:
             lychee-
 
       - name: Install docs dependencies
+        env:
+          MISE_CONFIG_DIR: ${{ github.workspace }}/dotfiles/.config/mise
         run: mise run docs:install
 
       - name: Audit docs dependencies
+        env:
+          MISE_CONFIG_DIR: ${{ github.workspace }}/dotfiles/.config/mise
         run: mise run docs:audit
 
       - name: Build docs (Cloudflare Pages)
         env:
+          MISE_CONFIG_DIR: ${{ github.workspace }}/dotfiles/.config/mise
           CI_BASE_URL: /
         run: mise run docs:build
 
       - name: Link Check
+        env:
+          MISE_CONFIG_DIR: ${{ github.workspace }}/dotfiles/.config/mise
         run: mise run docs:links
 
       - name: Upload docs artifact
@@ -346,6 +322,7 @@ jobs:
 
       - name: Build docs (GitHub Pages)
         env:
+          MISE_CONFIG_DIR: ${{ github.workspace }}/dotfiles/.config/mise
           CI_BASE_URL: /dotfiles/
         run: mise run docs:build
 
@@ -356,97 +333,23 @@ jobs:
           path: docs/dist
 
   # ==============================================================================
-  # Stage 2: Validate application configs
+  # Stage 2: Validate dotfiles configurations
   # ==============================================================================
   validate:
-    name: ${{ matrix.name }}
-    runs-on: ubuntu-26.04
-    timeout-minutes: 5
-    needs: [fmt, lint, security, antivirus, docs]
+    name: Validate (${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 15
+    needs: [fmt, lint, security, docs]
+    permissions:
+      contents: read
 
     strategy:
       fail-fast: false
       matrix:
-        include:
-          # Window manager
-          - name: Hyprland
-            app: hyprland
-            deps: 'nix profile install "$NIXPKGS#just" "$NIXPKGS#hyprland"'
-
-          # Editors
-          - name: Helix
-            app: helix
-            deps: 'nix profile install "$NIXPKGS#just" "$NIXPKGS#helix"'
-
-          - name: Neovim
-            app: neovim
-            deps: 'nix profile install "$NIXPKGS#just" "$NIXPKGS#neovim" "$NIXPKGS#lua5_1" "$NIXPKGS#tree-sitter" "$NIXPKGS#gcc" "$NIXPKGS#ripgrep" "$NIXPKGS#fd"'
-
-          # Terminals
-          - name: Alacritty
-            app: alacritty
-            deps: 'nix profile install "$NIXPKGS#just" "$NIXPKGS#alacritty" "$NIXPKGS#vendir"'
-
-          - name: Ghostty
-            app: ghostty
-            deps: 'nix profile install "$NIXPKGS#just" "$NIXPKGS#ghostty"'
-
-          - name: WezTerm
-            app: wezterm
-            deps: 'nix profile install "$NIXPKGS#just" "$NIXPKGS#wezterm"'
-
-          # Shells
-          - name: Bash
-            app: bash
-            deps: 'nix profile install "$NIXPKGS#just"'
-
-          - name: Nushell
-            app: nushell
-            deps: 'nix profile install "$NIXPKGS#just" "$NIXPKGS#nushell"'
-
-          - name: PowerShell
-            app: powershell
-            deps: 'nix profile install "$NIXPKGS#just" "$NIXPKGS#powershell"'
-
-          - name: Zsh
-            app: zsh
-            deps: 'nix profile install "$NIXPKGS#just" "$NIXPKGS#zsh"'
-
-          # Shell tooling (prompt, multiplexer, file manager)
-          - name: Starship
-            app: starship
-            deps: 'nix profile install "$NIXPKGS#just" "$NIXPKGS#starship"'
-
-          - name: Yazi
-            app: yazi
-            deps: 'nix profile install "$NIXPKGS#just" "$NIXPKGS#yazi" "$NIXPKGS#vendir"'
-
-          - name: Zellij
-            app: zellij
-            deps: 'nix profile install "$NIXPKGS#just" "$NIXPKGS#zellij"'
-
-          - name: Tmux
-            app: tmux
-            deps: 'nix profile install "$NIXPKGS#just" "$NIXPKGS#tmux" "$NIXPKGS#vendir"'
-
-          # Dotfiles management
-          - name: Stow
-            app: stow
-            deps: 'nix profile install "$NIXPKGS#just" "$NIXPKGS#stow" "$NIXPKGS#vendir"'
-
-          # Version control
-          - name: Git
-            app: git
-            deps: 'nix profile install "$NIXPKGS#just" "$NIXPKGS#git"'
-
-          # Coding agents
-          - name: Kimi
-            app: kimi
-            deps: 'nix profile install "$NIXPKGS#just" && npm install -g @moonshot-ai/kimi-code@latest'
-
-          - name: OpenCode
-            app: opencode
-            deps: 'nix profile install "$NIXPKGS#just" && npm install -g opencode-ai@latest'
+        os:
+          - ubuntu-26.04
+          # - macos-26
+          # - windows-2025
 
     steps:
       - name: Harden runner
@@ -454,71 +357,55 @@ jobs:
         with:
           egress-policy: block
           allowed-endpoints: >-
-            *.blob.core.windows.net:443
-            github.com:443
-            production.cloudfront.docker.com:443
-            *.cloudfront.docker.com:443
-            *.github.com:443
-            files.pythonhosted.org:443
-            nodejs.org:443
-            objects.githubusercontent.com:443
-            pypi.org:443
-            registry.npmjs.org:443
-            release-assets.githubusercontent.com:443
-            cache.nixos.org:443
-            models.dev:443
-            releases.nixos.org:443
-            mise-versions.jdx.dev:443
-            jdx.dev:443
-            *.jdx.dev:443
-            tuf-repo-cdn.sigstore.dev:443
-            *.sigstore.dev:443
+            ${{ env.MISE_LOCAL_ALLOWED_ENDPOINTS }}
+            ${{ env.VALIDATE_MISE_INSTALL_ALLOWED_ENDPOINTS }}
+            archive.ubuntu.com:443
+            azure.archive.ubuntu.com:443
+            security.ubuntu.com:443
+            api.openai.com:443
 
       - name: Checkout
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
 
-      - name: Install Nix
-        uses: cachix/install-nix-action@630ae543ea3a38a9a4166f03376c02c50f408342 # v31
-        with:
-          extra_nix_config: |
-            experimental-features = nix-command flakes
-
-      - name: Restore and save Nix store
-        uses: nix-community/cache-nix-action@7df957e333c1e5da7721f60227dbba6d06080569 # v7
-        with:
-          primary-key: nix-${{ runner.os }}-${{ github.job }}-${{ matrix.app }}-${{ github.run_id }}-${{ github.run_attempt }}
-          restore-prefixes-first-match: nix-${{ runner.os }}-${{ github.job }}-${{ matrix.app }}-
-          gc-max-store-size-linux: 1G
-          purge: true
-          purge-prefixes: nix-${{ runner.os }}-${{ github.job }}-${{ matrix.app }}-
-          purge-created: 0
-          purge-last-accessed: P1DT12H
-          purge-primary-key: never
-
       - name: Setup mise
         uses: ./.github/actions/setup-mise
         with:
           version: ${{ env.MISE_VERSION }}
-          sha256: ${{ env.MISE_SHA256 }}
+          install-tools: "false"
 
-      - name: Install ${{ matrix.name }} dependencies
-        # zizmor: ignore[template-injection] static maintainer-defined matrix values
-        run: ${{ matrix.deps }}
+      - name: Install Stow
+        shell: bash
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y stow
 
-      - name: Verify ${{ matrix.name }} config
-        # zizmor: ignore[template-injection] static maintainer-defined matrix values
-        run: just validate ${{ matrix.app }}
+      - name: Deploy dotfiles
+        shell: bash
+        run: stow -v --adopt --target="$HOME" dotfiles
+
+      - name: Install global mise toolset
+        working-directory: ${{ runner.temp }}
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        run: time mise install
+
+      - name: Sync vendored dependencies
+        run: vendir sync --locked
+
+      - name: Validate dotfiles configurations
+        run: mise run validate:all
 
   # ==============================================================================
   # Stage 2: Performance regression gate
   # ==============================================================================
+
   performance:
     name: Performance
     runs-on: ubuntu-26.04
     timeout-minutes: 10
-    needs: [fmt, lint, security, antivirus, docs]
+    needs: [fmt, lint, security, docs]
     if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository
 
     permissions:
@@ -533,7 +420,6 @@ jobs:
           allowed-endpoints: >-
             *.blob.core.windows.net:443
             github.com:443
-            production.cloudfront.docker.com:443
             *.cloudfront.docker.com:443
             *.github.com:443
             cache.nixos.org:443
@@ -542,7 +428,6 @@ jobs:
             mise-versions.jdx.dev:443
             jdx.dev:443
             *.jdx.dev:443
-            tuf-repo-cdn.sigstore.dev:443
             *.sigstore.dev:443
 
       - name: Checkout
@@ -658,15 +543,10 @@ jobs:
           allowed-endpoints: >-
             github.com:443
             *.github.com:443
-            production.cloudfront.docker.com:443
             *.cloudfront.docker.com:443
             *.blob.core.windows.net:443
-            tuf-repo-cdn.sigstore.dev:443
             *.sigstore.dev:443
-            fulcio.sigstore.dev:443
             get.anchore.io:443
-            raw.githubusercontent.com:443
-            rekor.sigstore.dev:443
             release-assets.githubusercontent.com:443
             starship.rs:443
             *.starship.rs:443
@@ -731,11 +611,9 @@ jobs:
           allowed-endpoints: >-
             github.com:443
             mise-versions.jdx.dev:443
-            production.cloudfront.docker.com:443
             *.cloudfront.docker.com:443
             jdx.dev:443
             *.jdx.dev:443
-            tuf-repo-cdn.sigstore.dev:443
             *.sigstore.dev:443
 
       - name: Checkout
@@ -771,24 +649,9 @@ jobs:
         with:
           egress-policy: block
           allowed-endpoints: >-
-            *.blob.core.windows.net:443
-            github.com:443
-            production.cloudfront.docker.com:443
-            *.cloudfront.docker.com:443
-            *.github.com:443
-            files.pythonhosted.org:443
-            nodejs.org:443
-            objects.githubusercontent.com:443
-            pypi.org:443
-            registry.npmjs.org:443
-            release-assets.githubusercontent.com:443
+            ${{ env.MISE_LOCAL_ALLOWED_ENDPOINTS }}
             api.cloudflare.com:443
             sparrow.cloudflare.com:443
-            mise-versions.jdx.dev:443
-            jdx.dev:443
-            *.jdx.dev:443
-            tuf-repo-cdn.sigstore.dev:443
-            *.sigstore.dev:443
 
       - name: Checkout
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -881,13 +744,11 @@ jobs:
           allowed-endpoints: >-
             github.com:443
             *.github.com:443
-            production.cloudfront.docker.com:443
             *.cloudfront.docker.com:443
             *.blob.core.windows.net:443
             mise-versions.jdx.dev:443
             jdx.dev:443
             *.jdx.dev:443
-            tuf-repo-cdn.sigstore.dev:443
             *.sigstore.dev:443
 
       - name: Checkout
