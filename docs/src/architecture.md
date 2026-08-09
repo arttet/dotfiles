@@ -13,7 +13,7 @@ This document explains how the dotfiles repository is organized, how configurati
 
 ## Deployment Models
 
-The repository supports three deployment strategies, each with different trade-offs.
+The repository supports two deployment strategies, each with different trade-offs.
 
 ### Dotter (Primary)
 
@@ -40,9 +40,9 @@ depends = ["alacritty", "windows-terminal"]
 Typical workflow:
 
 ```bash
-just check    # dry-run preview
-just deploy   # dotter deploy --verbose --force
-just undeploy # dotter undeploy
+just deploy check    # dry-run preview      (mise run deploy:check)
+just deploy apply    # dotter deploy --force (mise run deploy:apply)
+just deploy undeploy # dotter undeploy      (mise run deploy:undeploy)
 ```
 
 Activate an optional profile at any time:
@@ -62,17 +62,6 @@ Windows-only paths use `if = "dotter.windows"`:
 }
 ```
 
-### GNU Stow (Alternative)
-
-On Unix systems, Stow provides a simple symlink tree without profiles.
-
-```bash
-just install    # stow -v --target=$HOME dotfiles
-just uninstall  # stow -v --delete --target=$HOME dotfiles
-```
-
-Stow links the entire `dotfiles/` directory, so it is less granular than dotter but requires no extra tooling beyond Stow itself.
-
 ### NixOS / Home Manager
 
 For NixOS, `nixos/home.nix` creates a fixed list of out-of-store symlinks using `config.lib.file.mkOutOfStoreSymlink`. Every configured path is asserted to exist at evaluation time:
@@ -90,13 +79,13 @@ This path is useful when the Nix flake is the source of truth for the machine, b
 
 ### Windows vs Linux Differences
 
-| Concern      | Linux / macOS                            | Windows                                  |
-| :----------- | :--------------------------------------- | :--------------------------------------- |
-| Deployer     | dotter or stow                           | dotter only                              |
-| Config path  | `~/.config`                              | `~/AppData/Roaming` for many GUI apps    |
-| Shell        | Nushell, Bash, Zsh                       | Nushell, PowerShell, Bash (Git Bash)     |
-| WM           | Hyprland                                 | Windows window manager                   |
-| Just recipes | All except Windows-only `benchmark-pwsh` | All except Unix-only `install/uninstall` |
+| Concern     | Linux / macOS                                    | Windows                               |
+| :---------- | :----------------------------------------------- | :------------------------------------ |
+| Deployer    | dotter                                           | dotter                                |
+| Config path | `~/.config`                                      | `~/AppData/Roaming` for many GUI apps |
+| Shell       | Nushell, Bash, Zsh                               | Nushell, PowerShell, Bash (Git Bash)  |
+| WM          | Hyprland                                         | Windows window manager                |
+| Benchmarks  | `just bench` skips shells that are not installed | same                                  |
 
 ## XDG Base Directory Hierarchy
 
@@ -257,23 +246,22 @@ All jobs run in parallel and must pass before Stage 2.
 | `antivirus` | ClamAV malware scan                                              |
 | `docs`      | aube install/audit, VitePress build, Lychee link check           |
 
-### Stage 2: Per-Tool Validation
+### Stage 2: Validation and Performance
 
-The `verify` matrix runs only after Stage 1 succeeds. Each entry installs the tool via Nix and runs `just verify <app>`.
+Both jobs run only after Stage 1 succeeds and use tools pinned by mise — no Nix, no stow.
 
-Examples:
+| Job           | Purpose                                                                                          |
+| :------------ | :----------------------------------------------------------------------------------------------- |
+| `validate`    | `mise run deploy:apply` (dotter), install the global toolchain, then `mise run validate:all`     |
+| `performance` | `mise run bench:setup` then `mise run bench:ci`; compares shell startup ratios with the baseline |
 
-- Hyprland: `hyprland --verify-config`
-- Neovim: syntax check + headless `Lazy! sync`
-- Helix: `hx --health all`
-- Ghostty: `ghostty +validate-config`
-- Nushell: `nu --config ... --env-config ... -c "exit 0"`
-- Zellij: `zellij --config ... setup --dump-config`
-- Bash / Zsh: `bash -n` / `zsh -n`
+`validate:all` covers AI agents, MCP servers, editors, shells, multiplexers, and CLI tools; for example
+`hx --health all` for Helix, `zellij setup --check` for Zellij, and `yazi --debug` for Yazi.
 
 ### Stage 3: Deploy
 
-On pushes to `main` (not scheduled), the built docs artifact is published to GitHub Pages.
+Pull requests get a Cloudflare Pages preview (`mise run deploy:cloudflare:preview`). On pushes to `main`
+(not scheduled), the docs go to Cloudflare Pages production and to GitHub Pages.
 
 ## Adding New Tools
 
@@ -282,10 +270,9 @@ When adding a new tool config, follow this checklist to keep deployment, validat
 1. **Create the config file** under `dotfiles/.config/<tool>/`.
 2. **Map it for deployment** in `.dotter/global.toml`.
 3. **Add a NixOS link** in `nixos/home.nix` if the tool is Linux/Wayland relevant.
-4. **Add a validation recipe** in `misc/justfiles/verify.just` if needed.
-5. **Add a CI job** in `.github/workflows/ci.yml` under the `verify` matrix.
-6. **Document hotkeys** in `docs/src/<section>/<tool>.md` and add the entry to `docs/src/cheatsheet.md`.
-7. **Update the docs navigation** in `docs/.vitepress/config.mts`.
-8. **Run `just fmt` and `just lint`** before committing.
+4. **Add a validation task** (`validate:<group>:<tool>`) in `mise.toml` and list it in `validate:all`.
+5. **Document hotkeys** in `docs/src/<section>/<tool>.md` and add the entry to `docs/src/cheatsheet.md`.
+6. **Update the docs navigation** in `docs/.vitepress/config.mts`.
+7. **Run `just fmt` and `just lint`** before committing.
 
 This keeps the repository self-describing: every deployed file has a documented path, a validation step, and a place in the architecture.

@@ -13,26 +13,50 @@ The justfile provides a unified interface for dotfiles management, performance b
 ```sh
 $ just help
 Available recipes:
-    default        # Run the help recipe by default
-    help           # Show available recipes and their descriptions
+    default            # Show help
+    help               # List all commands
 
-    [Dotfiles]
-    sync           # Synchronize external plugins and dependencies using vendir
-    check          # Preview dotfiles deployment
-    deploy         # Install dotfiles using dotter
-    undeploy       # Uninstall dotfiles using dotter
-    install        # Install dotfiles using stow
-    uninstall      # Uninstall dotfiles using stow
+    [Development]
+    install            # Install tools
+    outdated           # Shows outdated tool versions
+    upgrade            # Upgrades outdated tools
+    fmt                # Format code
+    lint               # Run linters
+    check              # Run CI checks
+    ci                 # Run CI locally
+    clean              # Remove vendir dependencies
 
-    [Performance]
-    bench          # Run benchmarks for all supported shells
-    benchmark-bash # Benchmark Bash startup (raw vs configured)
-    benchmark-zsh  # Benchmark Zsh startup (raw vs configured)
-    benchmark-nu   # Benchmark Nushell startup (raw vs configured)
-    benchmark-pwsh # Benchmark PowerShell 7.0 startup (raw vs configured)
+    [Deploy]
+    deploy:
+        sync     # Synchronize external plugins and dependencies
+        check    # Preview dotfiles deployment (dotter dry-run)
+        apply    # Deploy dotfiles using dotter
+        undeploy # Undeploy dotfiles using dotter
+
+    [Vendir]
+    vendir:
+        sync             # Synchronize external plugins and dependencies
+        update           # Re-resolve refs and rewrite the vendir lock file
+        outdated         # List outdated vendir dependencies
+        outdated-summary # Write vendir dependency status as a Markdown summary
 
     [Documentation]
-    serve          # Start VitePress development server
-    build          # Build the site for production
-    preview        # Preview the production build locally
+    docs:
+        install # Install dependencies
+        update  # Update dependencies
+        audit   # Audit dependencies
+        dev     # Serve docs
+        build   # Build docs
+        preview # Preview docs
+        clean   # Clean build artifacts and cache
+        pack    # Pack package archive
+
+    [Performance]
+    bench target="all" # Run benchmarks [target: all, nu, bash, zsh, tmux, pwsh, ci, update]
+
+    [Neovim]
+    nvim:
+        doctor  # Environment + config sanity check (run first)
+        verify  # Full green/red gate: doctor + headless load + treesitter + lsp
+        ...     # `just nvim --list` for the full module
 ```

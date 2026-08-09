@@ -5,6 +5,9 @@ regressions in the repository configuration before they reach the main branch.
 
 ## Commands
 
+The benchmark lives in `misc/bench.sh` and is driven by mise tasks; `just bench <target>` is a shim over
+`mise run bench:<target>`.
+
 Run all benchmarks available on the current platform:
 
 ```sh
@@ -21,7 +24,8 @@ just bench tmux
 just bench pwsh
 ```
 
-PowerShell is available on Windows. The Linux CI gate covers Bash, Zsh, Nushell, and Tmux.
+Every target runs on every platform; `just bench` simply skips a shell that is not installed. The Linux CI gate
+covers Bash, Zsh, Nushell, and Tmux — the four targets tracked in `misc/baseline.json`.
 
 Compare the current checkout with the committed baseline:
 
@@ -29,7 +33,8 @@ Compare the current checkout with the committed baseline:
 just bench ci
 ```
 
-The command exits with a non-zero status when a normalized startup ratio regresses by more than 5%.
+The command exits with a non-zero status when a normalized startup ratio regresses by more than the threshold
+stored in `misc/baseline.json` (currently 20%).
 
 ## Measurement model
 
@@ -48,10 +53,13 @@ threshold, and one normalized ratio per monitored target.
 
 ## Updating the baseline
 
-Baseline generation is Linux-only because the performance job runs on Ubuntu. Use the same Nix packages as CI, then
-run:
+Baseline generation is Linux-only because the performance job runs on Ubuntu. Use the same tools as CI —
+`hyperfine`, `nushell`, `powershell`, and `tmux` are pinned in `mise.toml`, while `bash` and `zsh` come from
+Nix — then run:
 
 ```sh
+mise install
+mise run bench:setup
 just bench update
 just bench ci
 ```
