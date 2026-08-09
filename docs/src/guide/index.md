@@ -7,13 +7,14 @@ This guide walks you through installing and activating these dotfiles on your sy
 ```bash
 git clone https://github.com/arttet/dotfiles.git
 cd dotfiles
-just check    # Preview what will be linked
-just deploy   # Deploy with dotter
+just deploy check   # Preview what will be linked
+just deploy apply   # Deploy with dotter
 ```
 
 ## Prerequisites
 
-- [dotter](https://github.com/SuperCuber/dotter) (recommended) or [GNU Stow](https://www.gnu.org/software/stow/)
+- [mise](https://mise.jdx.dev/) — installs every pinned tool below with `mise install`
+- [dotter](https://github.com/SuperCuber/dotter) — the deployer
 - [just](https://github.com/casey/just) (optional, for convenience commands)
 - [vendir](https://github.com/vmware-tanzu/carvel-vendir) (to sync external plugins)
 
@@ -21,43 +22,21 @@ just deploy   # Deploy with dotter
 
 ## Deployment
 
-### Windows
-
-Use **dotter** — it handles Windows-specific paths and profiles:
+**dotter** is the only deployer, on every platform — it handles Windows-specific paths and profiles:
 
 ```bash
 # Preview changes without applying
-just check
+just deploy check
 
 # Deploy dotfiles
-just deploy
+just deploy apply
 
 # Remove deployed links
-just undeploy
+just deploy undeploy
 ```
 
-Activate additional profiles when needed:
-
-```bash
-dotter deploy -p bash
-dotter deploy -p zsh
-```
-
-### macOS / Linux
-
-Use **GNU Stow** for simple symlink deployment:
-
-```bash
-just install     # stow -v --target=$HOME dotfiles
-just uninstall   # stow -v --delete --target=$HOME dotfiles
-```
-
-Alternatively, you can use **dotter** on Unix as well if you need profiles or templating:
-
-```bash
-just check
-just deploy
-```
+Each recipe is a shim over the matching mise task (`mise run deploy:check`, `deploy:apply`, `deploy:undeploy`),
+which is exactly what CI runs.
 
 Available profiles (configured in `.dotter/global.toml`):
 
@@ -73,21 +52,12 @@ Activate a profile:
 dotter deploy -p bash
 ```
 
-### Option 2: GNU Stow
-
-For simpler symlink-based deployment:
-
-```bash
-just install     # stow -v --target=$HOME dotfiles
-just uninstall   # stow -v --delete --target=$HOME dotfiles
-```
-
 ## Sync External Dependencies
 
 Some configs rely on vendored plugins and themes:
 
 ```bash
-just sync
+just deploy sync
 ```
 
 This updates external resources managed by [vendir](https://github.com/vmware-tanzu/carvel-vendir) (Alacritty themes, Yazi plugins, etc.). Do not edit these files manually.

@@ -115,7 +115,6 @@ depends = []
 depends = []
 
 [mise.files]
-"dotfiles/.config/mise/mise.lock" = { target = "~/.config/mise/mise.lock", type = "symbolic" }
 "dotfiles/.config/mise/config.toml" = { target = "~/.config/mise/config.toml", type = "symbolic" }
 "dotfiles/.config/mise/conf.d" = { target = "~/.config/mise/conf.d", type = "symbolic" }
 

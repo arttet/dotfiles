@@ -21,12 +21,18 @@ defaults:
     shell: bash
 
 env:
-  NIXPKGS: github:NixOS/nixpkgs/nixos-unstable
+  NIXPKGS: github:NixOS/nixpkgs/nixos-unstable # Only the performance job: Bash and Zsh are not in the mise registry
   MISE_VERSION: v2026.7.17
   MISE_SHA256: 71b4a7720cf8f1e22adbc31fed6f0094e84b16d6e365a19c4afae354f1493b3a # mise-v2026.7.17-linux-x64-musl.tar.gz
   MISE_DATA_DIR: ${{ github.workspace }}/.tools/mise
   MISE_INSTALL_PATH: ${{ github.workspace }}/.tools/mise/bin/mise
   DPRINT_CACHE_DIR: ${{ github.workspace }}/.tools/dprint
+  # pino 9.14.0 is the last 9.x release and was published by the pino lead maintainer instead of the
+  # project's release workflow, so it carries a registry signature but no provenance attestation while
+  # 10.x does — aube reports that as a trust downgrade. @modelcontextprotocol/inspector pins ^9.14.0,
+  # so there is no patched 9.x to move to. mise drops the per-tool `trust_policy_excludes` option, and
+  # a config `[env]` block is not applied to tool installs; only the process environment reaches aube.
+  AUBE_TRUST_POLICY_EXCLUDE: pino@9.14.0
   MISE_LOCAL_ALLOWED_ENDPOINTS: >-
     *.blob.core.windows.net:443
     github.com:443
@@ -83,7 +89,7 @@ jobs:
 
     steps:
       - name: Harden runner
-        uses: step-security/harden-runner@bf7454d06d71f1098171f2acdf0cd4708d7b5920 # v2.20.0
+        uses: step-security/harden-runner@b09bb98e06d4d774595224525879c09bc6e98c40 # v2.20.1
         with:
           egress-policy: block
           allowed-endpoints: >-
@@ -113,7 +119,7 @@ jobs:
 
     steps:
       - name: Harden runner
-        uses: step-security/harden-runner@bf7454d06d71f1098171f2acdf0cd4708d7b5920 # v2.20.0
+        uses: step-security/harden-runner@b09bb98e06d4d774595224525879c09bc6e98c40 # v2.20.1
         with:
           egress-policy: block
           allowed-endpoints: >-
@@ -150,7 +156,7 @@ jobs:
 
     steps:
       - name: Harden runner
-        uses: step-security/harden-runner@bf7454d06d71f1098171f2acdf0cd4708d7b5920 # v2.20.0
+        uses: step-security/harden-runner@b09bb98e06d4d774595224525879c09bc6e98c40 # v2.20.1
         with:
           egress-policy: block
           allowed-endpoints: >-
@@ -196,7 +202,7 @@ jobs:
         run: mise run security:trivy:sarif
 
       - name: Upload Trivy SARIF
-        uses: github/codeql-action/upload-sarif@e4fba868fa4b1b91e1fdab776edc8cfbe6e9fb81 # v4.37.3
+        uses: github/codeql-action/upload-sarif@f205ea1c3313d32999d8d6a48b4f6530d4437b38 # v4.37.4
         if: ${{ always() && hashFiles('.tools/trivy/trivy-results.sarif') != '' }}
         with:
           sarif_file: .tools/trivy/trivy-results.sarif
@@ -207,11 +213,11 @@ jobs:
   antivirus:
     name: Antivirus
     runs-on: ubuntu-26.04
-    timeout-minutes: 10
+    timeout-minutes: 15
 
     steps:
       - name: Harden runner
-        uses: step-security/harden-runner@bf7454d06d71f1098171f2acdf0cd4708d7b5920 # v2.20.0
+        uses: step-security/harden-runner@b09bb98e06d4d774595224525879c09bc6e98c40 # v2.20.1
         with:
           egress-policy: block
           allowed-endpoints: >-
@@ -258,7 +264,7 @@ jobs:
 
     steps:
       - name: Harden runner
-        uses: step-security/harden-runner@bf7454d06d71f1098171f2acdf0cd4708d7b5920 # v2.20.0
+        uses: step-security/harden-runner@b09bb98e06d4d774595224525879c09bc6e98c40 # v2.20.1
         with:
           egress-policy: block
           allowed-endpoints: >-
@@ -353,15 +359,12 @@ jobs:
 
     steps:
       - name: Harden runner
-        uses: step-security/harden-runner@bf7454d06d71f1098171f2acdf0cd4708d7b5920 # v2.20.0
+        uses: step-security/harden-runner@b09bb98e06d4d774595224525879c09bc6e98c40 # v2.20.1
         with:
           egress-policy: block
           allowed-endpoints: >-
             ${{ env.MISE_LOCAL_ALLOWED_ENDPOINTS }}
             ${{ env.VALIDATE_MISE_INSTALL_ALLOWED_ENDPOINTS }}
-            archive.ubuntu.com:443
-            azure.archive.ubuntu.com:443
-            security.ubuntu.com:443
             api.openai.com:443
 
       - name: Checkout
@@ -375,15 +378,14 @@ jobs:
           version: ${{ env.MISE_VERSION }}
           install-tools: "false"
 
-      - name: Install Stow
-        shell: bash
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y stow
-
       - name: Deploy dotfiles
         shell: bash
-        run: stow -v --adopt --target="$HOME" dotfiles
+        run: |
+          # `mise use -g` would rewrite ~/.config/mise/config.toml, which dotter symlinks back into the repository.
+          mise install dotter
+          # dotter links dotfiles/.config onto ~/.config as a whole; the runner ships its own directory there.
+          rm -rf "$HOME/.config"
+          mise run deploy:apply
 
       - name: Install global mise toolset
         working-directory: ${{ runner.temp }}
@@ -414,63 +416,45 @@ jobs:
 
     steps:
       - name: Harden runner
-        uses: step-security/harden-runner@bf7454d06d71f1098171f2acdf0cd4708d7b5920 # v2.20.0
+        uses: step-security/harden-runner@b09bb98e06d4d774595224525879c09bc6e98c40 # v2.20.1
         with:
           egress-policy: block
           allowed-endpoints: >-
-            *.blob.core.windows.net:443
-            github.com:443
-            *.cloudfront.docker.com:443
-            *.github.com:443
+            ${{ env.MISE_LOCAL_ALLOWED_ENDPOINTS }}
             cache.nixos.org:443
-            release-assets.githubusercontent.com:443
             releases.nixos.org:443
-            mise-versions.jdx.dev:443
-            jdx.dev:443
-            *.jdx.dev:443
-            *.sigstore.dev:443
 
       - name: Checkout
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
 
+      - name: Setup mise
+        uses: ./.github/actions/setup-mise
+        with:
+          version: ${{ env.MISE_VERSION }}
+          sha256: ${{ env.MISE_SHA256 }}
+          install-tools: "false"
+
+      # Bash and Zsh are the only benchmark shells with no mise registry entry.
       - name: Install Nix
         uses: cachix/install-nix-action@630ae543ea3a38a9a4166f03376c02c50f408342 # v31
         with:
           extra_nix_config: |
             experimental-features = nix-command flakes
 
-      - name: Restore and save Nix store
-        uses: nix-community/cache-nix-action@7df957e333c1e5da7721f60227dbba6d06080569 # v7
-        with:
-          primary-key: nix-${{ runner.os }}-${{ github.job }}-${{ github.run_id }}-${{ github.run_attempt }}
-          restore-prefixes-first-match: nix-${{ runner.os }}-${{ github.job }}-
-          gc-max-store-size-linux: 1G
-          purge: true
-          purge-prefixes: nix-${{ runner.os }}-${{ github.job }}-
-          purge-created: 0
-          purge-last-accessed: P1DT12H
-          purge-primary-key: never
+      - name: Install benchmark shells
+        run: nix profile add "${NIXPKGS}#bash" "${NIXPKGS}#zsh"
 
       - name: Install benchmark dependencies
-        run: |
-          nix profile install \
-            "$NIXPKGS#just" \
-            "$NIXPKGS#hyperfine" \
-            "$NIXPKGS#bash" \
-            "$NIXPKGS#zsh" \
-            "$NIXPKGS#nushell" \
-            "$NIXPKGS#tmux" \
-            "$NIXPKGS#vendir" \
-            "$NIXPKGS#jq"
+        run: mise install hyperfine jq nushell powershell tmux vendir
 
       - name: Compare performance with baseline
         id: benchmark
         continue-on-error: true
         env:
           PERFORMANCE_REPORT: performance-report.md
-        run: just bench ci
+        run: mise run bench:ci
 
       - name: Add performance job summary
         if: always()
@@ -520,71 +504,71 @@ jobs:
           fi
           exit 1
 
-  # ==============================================================================
-  # Stage 2: Attest Build Provenance
-  # ==============================================================================
-  attest:
-    name: Attest Build
-    runs-on: ubuntu-26.04
-    timeout-minutes: 5
-    needs: docs
-    if: github.event_name != 'pull_request'
+  # # ==============================================================================
+  # # Stage 2: Attest Build Provenance
+  # # ==============================================================================
+  # attest:
+  #   name: Attest Build
+  #   runs-on: ubuntu-26.04
+  #   timeout-minutes: 5
+  #   needs: docs
+  #   if: github.event_name != 'pull_request'
 
-    permissions:
-      attestations: write # Required to create artifact attestations
-      contents: read # Required to download the build artifact
-      id-token: write # Required by Sigstore to sign attestations via OIDC
+  #   permissions:
+  #     attestations: write # Required to create artifact attestations
+  #     contents: read # Required to download the build artifact
+  #     id-token: write # Required by Sigstore to sign attestations via OIDC
 
-    steps:
-      - name: Harden runner
-        uses: step-security/harden-runner@bf7454d06d71f1098171f2acdf0cd4708d7b5920 # v2.20.0
-        with:
-          egress-policy: block
-          allowed-endpoints: >-
-            github.com:443
-            *.github.com:443
-            *.cloudfront.docker.com:443
-            *.blob.core.windows.net:443
-            *.sigstore.dev:443
-            get.anchore.io:443
-            release-assets.githubusercontent.com:443
-            starship.rs:443
-            *.starship.rs:443
-            mise-versions.jdx.dev:443
-            jdx.dev:443
-            *.jdx.dev:443
+  #   steps:
+  #     - name: Harden runner
+  #       uses: step-security/harden-runner@b09bb98e06d4d774595224525879c09bc6e98c40 # v2.20.1
+  #       with:
+  #         egress-policy: block
+  #         allowed-endpoints: >-
+  #           github.com:443
+  #           *.github.com:443
+  #           *.cloudfront.docker.com:443
+  #           *.blob.core.windows.net:443
+  #           *.sigstore.dev:443
+  #           get.anchore.io:443
+  #           release-assets.githubusercontent.com:443
+  #           starship.rs:443
+  #           *.starship.rs:443
+  #           mise-versions.jdx.dev:443
+  #           jdx.dev:443
+  #           *.jdx.dev:443
 
-      - name: Checkout
-        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-        with:
-          persist-credentials: false
+  #     - name: Checkout
+  #       uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+  #       with:
+  #         persist-credentials: false
 
-      - name: Download docs artifact
-        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
-        with:
-          name: docs-cloudflare-pages
-          path: docs/dist
+  #     - name: Download docs artifact
+  #       uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
+  #       with:
+  #         name: docs-cloudflare-pages
+  #         path: docs/dist
 
-      - name: Package docs output
-        run: tar -czf docs-build.tar.gz -C docs/dist .
+  #     - name: Package docs output
+  #       run: tar -czf docs-build.tar.gz -C docs/dist .
 
-      - name: Attest build provenance
-        uses: actions/attest-build-provenance@0f67c3f4856b2e3261c31976d6725780e5e4c373 # v4.1.1
-        with:
-          subject-path: docs-build.tar.gz
+  #     - name: Attest build provenance
+  #       uses: actions/attest-build-provenance@0f67c3f4856b2e3261c31976d6725780e5e4c373 # v4.1.1
+  #       with:
+  #         subject-path: docs-build.tar.gz
 
-      - name: Generate SBOM
-        uses: anchore/sbom-action@e22c389904149dbc22b58101806040fa8d37a610 # v0.24.0
-        with:
-          path: docs/dist
-          format: spdx-json
-          output-file: sbom.spdx.json
+  #     - name: Generate SBOM
+  #       uses: anchore/sbom-action@e22c389904149dbc22b58101806040fa8d37a610 # v0.24.0
+  #       with:
+  #         path: docs/dist
+  #         format: spdx-json
+  #         output-file: sbom.spdx.json
 
-      - name: Attest SBOM
-        uses: actions/attest@f7c74d28b9d84cb8768d0b8ca14a4bac6ef463e6 # v4.2.0
-        with:
-          subject-path: docs-build.tar.gz
-          sbom-path: sbom.spdx.json
+  #     - name: Attest SBOM
+  #       uses: actions/attest@f7c74d28b9d84cb8768d0b8ca14a4bac6ef463e6 # v4.2.0
+  #       with:
+  #         subject-path: docs-build.tar.gz
+  #         sbom-path: sbom.spdx.json
 
   # ==============================================================================
   # Stage 3: Cloudflare Preflight
@@ -605,7 +589,7 @@ jobs:
 
     steps:
       - name: Harden runner
-        uses: step-security/harden-runner@bf7454d06d71f1098171f2acdf0cd4708d7b5920 # v2.20.0
+        uses: step-security/harden-runner@b09bb98e06d4d774595224525879c09bc6e98c40 # v2.20.1
         with:
           egress-policy: block
           allowed-endpoints: >-
@@ -645,7 +629,7 @@ jobs:
 
     steps:
       - name: Harden runner
-        uses: step-security/harden-runner@bf7454d06d71f1098171f2acdf0cd4708d7b5920 # v2.20.0
+        uses: step-security/harden-runner@b09bb98e06d4d774595224525879c09bc6e98c40 # v2.20.1
         with:
           egress-policy: block
           allowed-endpoints: >-
@@ -676,21 +660,14 @@ jobs:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
           PR_NUMBER: ${{ github.event.pull_request.number }}
-        run: |
-          wrangler pages deploy docs/dist \
-            --project-name="${CF_PAGES_PROJECT}" \
-            --branch="pr-${PR_NUMBER}" \
-            --commit-dirty=true
+        run: mise run deploy:cloudflare:preview
 
       - name: Deploy production (main)
         if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' }}
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-        run: |
-          wrangler pages deploy docs/dist \
-            --project-name="${CF_PAGES_PROJECT}" \
-            --commit-dirty=true
+        run: mise run deploy:cloudflare:production
 
       - name: Update sticky PR comment
         if: ${{ github.event_name == 'pull_request' }}
@@ -738,7 +715,7 @@ jobs:
 
     steps:
       - name: Harden runner
-        uses: step-security/harden-runner@bf7454d06d71f1098171f2acdf0cd4708d7b5920 # v2.20.0
+        uses: step-security/harden-runner@b09bb98e06d4d774595224525879c09bc6e98c40 # v2.20.1
         with:
           egress-policy: block
           allowed-endpoints: >-

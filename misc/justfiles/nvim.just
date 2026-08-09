@@ -7,7 +7,7 @@
 #   XDG_CONFIG_HOME -> <repo>/dotfiles/.config (so stdpath('config') is the repo config)
 #   HOME/DATA/STATE/CACHE -> a throwaway sandbox dir (NVIM_SANDBOX, default temp)
 #
-# `[no-cd]` keeps $PWD at the repo root (matching misc/justfiles/validate.just).
+# `[no-cd]` keeps $PWD at the repo root (matching the other justfile modules).
 #
 # Quick reference:
 #   just nvim doctor        # env sanity (run this first)

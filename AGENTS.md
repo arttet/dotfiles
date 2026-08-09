@@ -11,7 +11,7 @@ This repository is a personal, cross-platform dotfiles configuration for Artyom 
 - **Repository**: `https://github.com/arttet/dotfiles`
 - **Maintainer**: `@arttet` (see `.github/CODEOWNERS`)
 - **Primary language of documentation and comments**: English
-- **Deployment model**: Symlink-based dotfiles deployed with **dotter** (`just deploy apply`) or GNU **stow** (`just deploy install`/`uninstall`)
+- **Deployment model**: Symlink-based dotfiles deployed with **dotter** (`just deploy apply` / `mise run deploy:apply`)
 - **External assets**: Plugins, themes, and wallpapers are vendored with **vendir** (`vendir.yml` + `vendir.lock.yml`, plus `vendir.lock.windows.yml` for Windows path handling)
 - **Task runners**: `just` (`Justfile`) for deployment and local recipes; `mise` (`mise.toml`) for pinned dev tools and Stage-1 CI gate tasks
 - **Documentation site**: VitePress under `docs/`, served via aube (`just docs dev`)
@@ -46,6 +46,7 @@ This repository is a personal, cross-platform dotfiles configuration for Artyom 
 │   │   ├── helix/        # editor config
 │   │   ├── hypr/         # Hyprland (Lua) + wallpapers (vendored)
 │   │   ├── kimi-code/    # Kimi Code settings
+│   │   ├── mise/         # global toolchain: config.toml + conf.d/ (numbered by priority)
 │   │   ├── nushell/      # modules/ + scripts/ + config.nu/env.nu
 │   │   ├── nvim/         # NvChad-based Neovim config
 │   │   ├── powershell/   # profile.ps1, config.ps1, aliases, functions
@@ -147,16 +148,16 @@ just deploy sync        # vendir sync --locked
 just deploy check       # dotter dry-run preview
 just deploy apply       # dotter deploy --verbose --force
 just deploy undeploy    # dotter undeploy
-just deploy install     # stow -v --target=${HOME} dotfiles  (Unix only)
-just deploy uninstall   # stow -v --delete --target=${HOME} dotfiles (Unix only)
 
 # Docs
 just docs dev      # VitePress dev server (port 5173)
 just docs build    # VitePress production build
 just docs preview  # preview production build
 
-# Performance
-just bench         # hyperfine benchmarks for bash, zsh, nu, pwsh
+# Performance (thin shim over `mise run bench:<target>`)
+just bench         # every benchmark available on the platform
+just bench zsh     # one target: nu, bash, zsh, tmux, pwsh
+just bench ci      # compare with misc/baseline.json (Linux only)
 
 # Stage-1 CI gates via mise (local CI parity)
 mise install       # install all pinned tools from mise.toml
@@ -168,8 +169,55 @@ mise run ci        # run the CI workflow locally via act (requires Docker)
 ```
 
 Stage-1 gate tasks live in `mise.toml` and are exactly what CI runs (`.github/workflows/ci.yml` calls
-`mise run fmt:all` / `lint:all` / `security:*` / `antivirus:all` / `docs:*`). Tools are pinned in
-`mise.toml` and installed in CI by the checksum-verified composite action `.github/actions/setup-mise`.
+`mise run fmt:all` / `lint:all` / `security:*` / `antivirus:all` / `docs:*`). Stage 2 and 3 follow the same
+rule: `validate:*`, `bench:*`, `deploy:*`, and `deploy:cloudflare:*` are mise tasks, and every workflow step
+is a `mise run` of one of them. Tools are pinned in `mise.toml` and installed in CI by the
+checksum-verified composite action `.github/actions/setup-mise`; CI uses neither Nix nor stow.
+
+Benchmark tools are pinned in `mise.toml` like everything else: `hyperfine`, `nushell`, `powershell`, and
+`tmux`. `bash` and `zsh` have no mise registry entry, so the performance job installs them with
+`nix profile install "${NIXPKGS}#bash" "${NIXPKGS}#zsh"` — the only remaining use of Nix in CI.
+
+The benchmark itself is pure mise: `[vars]` holds every raw/configured command, each `bench:<shell>` task is a
+single `hyperfine` call, `bench:collect` aggregates whatever exports exist in `.tools/bench/runs/`, and
+`misc/bench.jq` derives its targets from those results. The `bench:*` tasks use `shell = "nu -c"` because mise
+hands a bash task a POSIX-style `PATH`, which `hyperfine --shell=none` cannot resolve on Windows.
+
+### Global mise toolchain
+
+The machine-wide toolchain is **not** in `mise.toml`; it lives in `dotfiles/.config/mise/conf.d/*.toml`
+(deployed as a whole directory by `.dotter/global.toml` and `nixos/home.nix`), with settings and global tasks
+in `dotfiles/.config/mise/config.toml`.
+
+In the deployed `~/.config/mise/conf.d`, a **higher file number wins**: it takes precedence on version
+conflicts and lands earlier in `PATH`. Verify with `mise bin-paths | head` — the first entries must be the
+shell and the language toolchains.
+
+> Do not check this by pointing `MISE_CONFIG_DIR`/`XDG_CONFIG_HOME` at a copy of the tree: loaded that way,
+> mise walks `conf.d` in the opposite order and the measurement comes out inverted. Only the deployed
+> default path reflects reality.
+
+Files are therefore numbered by ascending priority, in visually distinct groups:
+
+| Range | Group                                                                                         |
+| ----- | --------------------------------------------------------------------------------------------- |
+| 01–09 | viewers, data, text, logs, reference, media (lowest priority)                                 |
+| 12–19 | diagnostics: archive, bench, disk, network, monitor, process, containers, remote              |
+| 24–29 | daily tools: navigation, files, version control, task runners, multiplexers, prompt           |
+| 60–69 | agents and IDE: formatters, language servers, editors, skill CLIs, MCP servers, coding agents |
+| 90–99 | languages: typst, python, zig, go, cpp, rust, javascript, shell (highest priority)            |
+
+Rules when adding a tool:
+
+- A language file is self-contained: compiler, package manager, formatter, debugger and the language's own
+  server live together, so dropping the language means dropping one file.
+- `62-lsp.toml` and `60-fmt.toml` hold servers and formatters that are not tied to a toolchain file —
+  either because no such file exists (`bash-language-server`, `marksman`, `shfmt`, `taplo`) or because the
+  server is a separate project from the toolchain (`typescript-language-server`, `cmake-language-server`).
+- `94–99` is a contiguous, reserved block (zig, go, cpp, rust, javascript, shell) — do not insert files
+  inside it; new language toolchains go at `93` or below.
+- `97-rust.toml` also puts `~/.cargo/bin` near the top of `PATH`; if a tool resolves to an unexpected
+  version, check `mise which <tool>`.
 
 ## Code Style Guidelines
 
@@ -235,24 +283,17 @@ txt file, not to the workflow.
   - `antivirus` — `mise run antivirus:all` (ClamAV via Docker image, DB cached daily)
   - `docs` — `mise run docs:install/audit/build/links` (aube install, audit, VitePress build, Lychee link check)
 - **Stage 2** (gated by Stage 1):
-  - `hyprland` — `hyprland --verify-config`
-  - `neovim` — syntax check + headless `Lazy! sync`
-  - `helix` — `hx --health all`
-  - `ghostty` — `ghostty +validate-config`
-  - `alacritty` — `alacritty migrate --dry-run`
-  - `nushell` — `nu --config ... --env-config ... -c "exit 0"`
-  - `yazi` — `yazi --debug`
-  - `starship` — `starship print-config` for all three configs
-  - `zellij` — `zellij --config ... setup --dump-config`
-  - `bash` — `bash -n` on all bash files
-  - `zsh` — `zsh -n` on all zsh files
-  - `stow` — symlink verification
+  - `validate` — deploys the dotfiles with dotter (`mise run deploy:apply`), installs the global toolchain,
+    then runs `mise run validate:all` (agents, MCP servers, editors, shells, multiplexers, CLI tools)
+  - `performance` — `mise run bench:setup` (Bash/Zsh via Nix) then `mise run bench:ci`; compares startup
+    ratios with `misc/baseline.json`
 - **Stage 3**:
-  - `deploy` — publish docs to GitHub Pages (only on `main`, not scheduled)
+  - `deploy-cf-pages` — `mise run deploy:cloudflare:preview` on PRs, `:production` on `main`
+  - `deploy-github-pages` — publish docs to GitHub Pages (only on `main`, not scheduled)
 
 ## Deployment Architecture
 
-### dotter (primary)
+### dotter
 
 `.dotter/global.toml` defines profile groups and per-tool file mappings:
 
@@ -262,11 +303,8 @@ txt file, not to the workflow.
 - `shell` → `bash`, `powershell`, `zsh`
 - `terminal` → `alacritty`, `windows-terminal`
 
-Default target type is `symbolic`. Windows-only paths use `if = "dotter.windows"`.
-
-### stow (alternative)
-
-`just deploy install` / `just deploy uninstall` run `stow` against the `dotfiles/` tree directly. The CI `stow` job verifies that expected paths are symlinks.
+Default target type is `symbolic`. Windows-only paths use `if = "dotter.windows"`. CI deploys through the same
+path (`mise run deploy:apply`), so a broken mapping fails the `validate` job.
 
 ### NixOS / Home Manager
 

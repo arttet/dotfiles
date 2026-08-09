@@ -37,7 +37,6 @@ let
     ".config/kimi-code/AGENTS.md"
     ".config/kimi-code/config.toml"
     ".config/mise/config.toml"
-    ".config/mise/mise.lock"
     ".config/mise/conf.d"
     ".config/kimi-code/mcp.json"
     ".config/kimi-code/themes/nord.json"

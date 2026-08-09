@@ -1,3 +1,5 @@
+# Tier: editors.
+
 [tools]
 helix = "25.07.1"
 neovim = "0.12.4"

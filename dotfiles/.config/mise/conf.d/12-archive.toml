@@ -1,0 +1,7 @@
+# Tier: archive and compression tools.
+
+[tool_alias]
+ouch = "github:ouch-org/ouch"
+
+[tools]
+ouch = "0.8.1"

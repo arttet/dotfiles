@@ -1,3 +1,5 @@
+# Tier: Zig toolchain.
+
 [tools]
 zig = "0.16.0"
 zls = "0.16.0"

@@ -1,9 +1,13 @@
+# Tier: Go toolchain.
+
 [tool_alias]
 delve = "go:github.com/go-delve/delve/cmd/dlv"
 goimports = "go:golang.org/x/tools/cmd/goimports"
+gopls = "go:golang.org/x/tools/gopls"
 
 [tools]
 go = "1.26.5"
 
-delve = "1.27.0"
+delve = "1.27.1"
 goimports = "0.48.0"
+gopls = "0.23.0"

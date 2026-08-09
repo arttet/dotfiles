@@ -1,0 +1,5 @@
+# Tier: container tooling.
+
+[tools]
+dive = "0.13.1"
+lazydocker = "0.25.2"

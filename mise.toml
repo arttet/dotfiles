@@ -1,45 +1,77 @@
 [tool_alias]
 selene = "aqua:Kampfkarren/selene"
+dotter = "aqua:SuperCuber/dotter"
+nushell = "aqua:nushell/nushell"
 
 [tools]
-"npm:markdownlint-cli2" = { version = "0.23.2", allow_low_downloads = true }
-"npm:stylelint" = "17.14.1"
-"npm:wrangler" = "4.116.0"
-
 act = "0.2.89"
 actionlint = "1.7.12"
-aube = "1.36.0"
+aube = "1.38.0"
+dotter = "0.13.5"
 dprint = "0.55.2"
-editorconfig-checker = "3.8.0"
-hk = "1.53.0"
-just = "1.57.0"
+editorconfig-checker = "3.11.1"
+hk = "1.54.1"
+hyperfine = "1.20.0"
+jq = "1.8.2"
+just = "1.58.0"
 lychee = "0.24.2"
-node = "26.5.1"
+node = "26.7.0"
+nushell = "0.114.1"
+powershell = "7.6.4"
 selene = "0.31.0"
 semgrep = "1.172.0"
 shellcheck = "0.11.0"
 shfmt = "3.13.1"
 stylua = "2.5.2"
 taplo = "0.10.0"
-trivy = "0.72.0"
+tmux = { version = "3.7b", os = ["linux", "macos"] }
+trivy = "0.73.0"
 trufflehog = "3.96.0"
-typos = "1.48.0"
+typos = "1.49.0"
+vendir = "0.46.0"
 yamllint = "1.38.0"
-zizmor = "1.28.0"
+yq = "4.53.3"
+zizmor = "1.29.0"
+
+"npm:@modelcontextprotocol/inspector" = "2.1.0"
+"npm:markdownlint-cli2" = { version = "0.23.2", allow_low_downloads = true }
+"npm:stylelint" = "17.14.1"
+"npm:wrangler" = "4.120.0"
 
 [env]
 AUBE_FETCH_RETRIES = "10"
 AUBE_FETCH_RETRY_FACTOR = "2"
 AUBE_FETCH_RETRY_MAXTIMEOUT = "180000"
 AUBE_FETCH_RETRY_MINTIMEOUT = "20000"
-AUBE_TRUST_POLICY_EXCLUDE = "@yarnpkg/libzip@3.2.2"
+AUBE_TRUST_POLICY_EXCLUDE = "@yarnpkg/libzip@3.2.2,pino@9.14.0"
 DPRINT_CACHE_DIR = "{{config_root}}/.tools/dprint"
 
 [vars]
 bash_targets = "dotfiles/.bashrc dotfiles/.bash_profile dotfiles/.config/bash dotfiles/.config/shell"
 clamav_db_dir = ".tools/clamav-db"
-clamav_image = "clamav/clamav:1.5.3_base"
-renovate_image = "ghcr.io/renovatebot/renovate:43.260.2@sha256:8eabe48179e3f69baf1495336c6c4fdd8b11d03dc603dd7fc5a29422a2fdd905"
+# NOTE: https://hub.docker.com/r/clamav/clamav/tags
+clamav_image = "clamav/clamav:1.5.4_base@sha256:aa2899ac82c7f9547954c8c84764c313f43029e31a36faa1ee527a2171789653"
+docs_dist = "docs/dist"
+docs_archive = "docs/dotfiles-docs-*"
+# NOTE: https://github.com/renovatebot/renovate/pkgs/container/renovate
+renovate_image = "ghcr.io/renovatebot/renovate:44.16.1@sha256:d7b833d9aae601312d9afca391212620fce22eef2faa60e8cf00a9734220a1c5"
+
+# NOTE: Performance gate.
+bench_dir = ".tools/bench"
+bench_runs = ".tools/bench/runs"
+hyperfine = "hyperfine --warmup 2 --runs 10 --shell=none"
+bench_bash_raw = "bash --noprofile --norc -c exit"
+bench_bash_configured = 'bash --noprofile --norc -i -c "source dotfiles/.config/bash/bash_profile; source dotfiles/.config/bash/bashrc; exit"'
+bench_zsh_raw = "zsh -f -c exit"
+bench_zsh_configured = "zsh --login --interactive -c exit"
+bench_nu_raw = "nu --no-config-file --no-std-lib -c exit"
+bench_nu_configured = "nu --login --interactive -c exit"
+bench_pwsh_raw = "pwsh -NoLogo -NoProfile -Command exit"
+bench_pwsh_configured = 'pwsh -NoLogo -NoProfile -Command ". ./dotfiles/.config/powershell/profile.ps1; exit"'
+bench_tmux_raw = "tmux -L dotfiles-bench-raw -f /dev/null new-session -d -s benchmark"
+bench_tmux_configured = "tmux -L dotfiles-bench-configured -f dotfiles/.config/tmux/tmux.conf new-session -d -s benchmark"
+bench_tmux_cleanup = 'sh -c "tmux -L dotfiles-bench-raw kill-server 2>/dev/null || true; tmux -L dotfiles-bench-configured kill-server 2>/dev/null || true"'
+bench_report = "jq -n --slurpfile benchmark .tools/bench/results.json --slurpfile baseline misc/baseline.json --rawfile tables .tools/bench/tables.md -f misc/bench.jq"
 
 [settings]
 auto_install = false
@@ -50,11 +82,12 @@ lockfile = true
 # ==============================================================================
 
 [tasks."deps:renovate:setup"]
-description = "TODO"
+description = "Create the Renovate cache directory"
 run = "mkdir -p .tools/renovate/cache"
 
 [tasks."deps:renovate"]
 description = "Show available dependency updates with Renovate local report"
+depends = ["deps:renovate:setup"]
 env = { LOG_LEVEL = "info", RENOVATE_GITHUB_COM_TOKEN = "{{ exec(command='gh auth token') }}", MSYS_NO_PATHCONV = "1" }
 run = """
 podman run --rm \
@@ -81,11 +114,11 @@ run = "hk run pre-commit"
 
 [tasks.check]
 description = "Run checks"
-depends = ["fmt:all", "lint:all", "security:all", "docs:all"]
+depends = ["fmt:all", "lint:all", "security:all", "docs:all", "validate:all"]
 
 [tasks."check:all"]
 description = "Run all checks"
-depends = ["fmt:all", "lint:all", "security:all", "antivirus:all", "docs:all"]
+depends = ["fmt:all", "lint:all", "security:all", "antivirus:all", "docs:all", "validate:all", "bench:ci"]
 
 [tasks.ci]
 description = "Run GitHub Actions locally with act"
@@ -100,6 +133,26 @@ description = "List GitHub Actions jobs available via act"
 run = "act --list"
 
 # ==============================================================================
+# Deployment Gate
+# ==============================================================================
+
+[tasks."deploy:sync"]
+description = "Synchronize vendored plugins and themes"
+run = "vendir sync --locked --lock-file {% if os() == 'windows' %}vendir.lock.windows.yml{% else %}vendir.lock.yml{% endif %}"
+
+[tasks."deploy:check"]
+description = "Preview the dotfiles deployment"
+run = "dotter deploy --verbose --dry-run"
+
+[tasks."deploy:apply"]
+description = "Deploy dotfiles with dotter"
+run = "dotter deploy --verbose --force"
+
+[tasks."deploy:undeploy"]
+description = "Undeploy dotfiles with dotter"
+run = "dotter undeploy --verbose --noconfirm --force"
+
+# ==============================================================================
 # Format Quality Gate
 # ==============================================================================
 
@@ -108,7 +161,7 @@ description = "Format source files"
 run = [
   "dprint fmt",
   "stylua --allow-hidden .",
-  "shfmt --write --language-dialect=bash --simplify {{vars.bash_targets}}",
+  "shfmt --write {{vars.bash_targets}}",
   "just --fmt",
 ]
 
@@ -153,9 +206,9 @@ run = "actionlint"
 [tasks."lint:bash"]
 description = "Shell lint"
 shell = "bash -c"
-run = '''
+run = """
 shellcheck --shell=bash --external-sources $(shfmt --find {{vars.bash_targets}})
-'''
+"""
 
 [tasks."lint:css"]
 description = "CSS lint"
@@ -189,21 +242,15 @@ run = "typos"
 description = "YAML lint"
 run = "yamllint ."
 
-[tasks."lint:lua"]
-description = "All Lua lint checks"
-run = [
-  "mise run lint:lua:hyprland",
-  "mise run lint:lua:nvim",
-  "mise run lint:lua:wezterm",
-]
-
 [tasks."lint:all"]
 description = "All lint checks"
 depends = [
   "lint:actions",
   "lint:bash",
   "lint:css",
-  "lint:lua",
+  "lint:lua:hyprland",
+  "lint:lua:nvim",
+  "lint:lua:wezterm",
   "lint:markdown",
   "lint:toml",
   "lint:typos",
@@ -244,16 +291,17 @@ depends = ["security:trivy:setup"]
 
 [tasks."security:trivy:table"]
 description = "Convert Trivy report to table"
+depends = ["security:trivy"]
 run = """
 trivy convert \
   --scanners vuln,secret,misconfig \
   --format table \
   .tools/trivy/trivy.json
 """
-depends = ["security:trivy"]
 
 [tasks."security:trivy:sarif"]
 description = "Convert Trivy report to SARIF"
+depends = ["security:trivy"]
 run = """
 trivy convert \
   --scanners vuln,secret,misconfig \
@@ -261,7 +309,6 @@ trivy convert \
   --output .tools/trivy/trivy-results.sarif \
   .tools/trivy/trivy.json
 """
-depends = ["security:trivy"]
 
 [tasks."security:zizmor"]
 description = "GitHub Actions security audit"
@@ -288,12 +335,12 @@ run = "mkdir -p {{vars.clamav_db_dir}}"
 
 [tasks."antivirus:update"]
 description = "Update ClamAV database into CLAMAV_DB_DIR"
+depends = ["antivirus:setup"]
 env = { MSYS_NO_PATHCONV = "1" }
 run = """
 podman run --rm -v "{{vars.clamav_db_dir}}:/var/lib/clamav" "{{vars.clamav_image}}" \
   sh -c "sed -i '/^NotifyClamd/d' /etc/clamav/freshclam.conf; exec freshclam --foreground"
 """
-depends = ["antivirus:setup"]
 
 [tasks."antivirus:scan"]
 description = "Malware scan of the working tree"
@@ -307,7 +354,10 @@ podman run --rm --entrypoint clamscan -v "$PWD:/scandir:ro" -v "{{vars.clamav_db
 
 [tasks."antivirus:all"]
 description = "All antivirus checks"
-run = ["mise run antivirus:update", "mise run antivirus:scan"]
+run = [
+  { task = "antivirus:update" },
+  { task = "antivirus:scan" },
+]
 
 # ==============================================================================
 # Documentation Gate
@@ -346,16 +396,33 @@ lychee \
 
 [tasks."docs:pack"]
 description = "Pack documentation package archive"
+dir = "docs"
 run = "aube pack"
+
+[tasks."docs:unpack:setup"]
+description = "Reset the documentation output directory"
+env = { DOCS_DIST = "{{vars.docs_dist}}" }
+run = """
+rm -rf "${DOCS_DIST}"
+mkdir -p "${DOCS_DIST}"
+"""
+
+[tasks."docs:unpack"]
+description = "Unpack the packed documentation archive into the output directory"
+depends = ["docs:unpack:setup"]
+env = { DOCS_DIST = "{{vars.docs_dist}}", DOCS_ARCHIVE = "{{vars.docs_archive}}" }
+run = """
+tar -xzvf ${DOCS_ARCHIVE} -C "${DOCS_DIST}"
+"""
 
 [tasks."docs:all"]
 description = "All documentation checks"
 run = [
-  "mise run docs:ci",
-  "mise run docs:audit",
-  "mise run docs:build",
-  "mise run docs:links",
-  "mise run docs:pack",
+  { task = "docs:install" },
+  { task = "docs:audit" },
+  { task = "docs:build" },
+  { task = "docs:links" },
+  { task = "docs:pack" },
 ]
 
 # ==============================================================================
@@ -366,38 +433,58 @@ run = [
 # Stage 2: AI Agents
 # ==============================================================================
 
-[tasks."validate:claude"]
+[tasks."validate:agent:claude"]
 description = "Validate Claude Code configuration"
 env = { CLAUDE_CONFIG_DIR = "{{config_root}}/dotfiles/.config/claude" }
 run = "claude doctor"
 
-[tasks."validate:codex"]
+[tasks."validate:agent:codex"]
 description = "Validate Codex configuration"
 env = { CODEX_HOME = "{{config_root}}/dotfiles/.config/codex", OPENAI_API_KEY = "-" }
 run = "codex doctor"
 
-[tasks."validate:kimi"]
+[tasks."validate:agent:kimi"]
 description = "Validate Kimi Code configuration"
 env = { KIMI_CODE_HOME = "{{config_root}}/dotfiles/.config/kimi-code" }
 run = "kimi doctor"
 
-[tasks."validate:opencode"]
+[tasks."validate:agent:opencode"]
 description = "Validate OpenCode configuration"
 env = { OPENCODE_CONFIG_DIR = "{{config_root}}/dotfiles/.config/opencode" }
 run = "opencode debug config --pure"
 
 # ==============================================================================
+# Stage 2: Model Context Protocol server
+# ==============================================================================
+
+[tasks."validate:mcp:context7"]
+description = "Check Context7 MCP through Inspector"
+run = "mcp-inspector --cli --config ${PWD}/misc/mcp.json --server context7 --method tools/list"
+
+[tasks."validate:mcp:playwright"]
+description = "Check Playwright MCP through Inspector"
+run = "mcp-inspector --cli --config ${PWD}/misc/mcp.json --server playwright --method tools/list"
+
+[tasks."validate:mcp:serena"]
+description = "Check Serena MCP through Inspector"
+run = "mcp-inspector --cli --config ${PWD}/misc/mcp.json --server serena --method tools/list"
+
+[tasks."validate:mcp:graphify"]
+description = "Check Graphify MCP through Inspector in a project with graphify-out/graph.json"
+run = "mcp-inspector --cli --config ${PWD}/misc/mcp.json --server graphify --method tools/list"
+
+# ==============================================================================
 # Stage 2: Editors
 # ==============================================================================
 
-[tasks."validate:helix"]
+[tasks."validate:editor:helix"]
 description = "Validate Helix configuration"
 shell = "nu -c"
 run = """
 hx --config '{{config_root}}/dotfiles/.config/helix/config.toml' --health all
 """
 
-[tasks."validate:neovim"]
+[tasks."validate:editor:neovim"]
 description = "Validate Neovim configuration"
 run = "nvim --headless -c 'qa!'"
 
@@ -405,15 +492,15 @@ run = "nvim --headless -c 'qa!'"
 # Stage 2: Shell
 # ==============================================================================
 
-[tasks."validate:bash"]
+[tasks."validate:shell:bash"]
 description = "Validate Bash configuration"
 run = "bash -x -i -c 'echo OK'"
 
-[tasks."validate:nu"]
+[tasks."validate:shell:nu"]
 description = "Validate Nushell configuration"
 run = "nu --log-level debug --login --interactive -c 'exit 0'"
 
-[tasks."validate:pwsh"]
+[tasks."validate:shell:pwsh"]
 description = "Validate PowerShell configuration"
 env = { PWSH_TRACE = "1" }
 run = [
@@ -421,7 +508,7 @@ run = [
   "pwsh -NoLogo -Command exit",
 ]
 
-[tasks."validate:zsh"]
+[tasks."validate:shell:zsh"]
 description = "Validate Zsh configuration"
 shell = "nu -c"
 env = { HOME = "{{config_root}}/dotfiles" }
@@ -435,7 +522,7 @@ if (which zsh | is-not-empty) {
 # Stage 2: Multiplexers
 # ==============================================================================
 
-[tasks."validate:herdr"]
+[tasks."validate:multiplexer:herdr"]
 description = "Validate Herdr configuration"
 env = { HERDR_CONFIG_PATH = "{{config_root}}/dotfiles/.config/herdr/config.toml" }
 run = [
@@ -443,7 +530,7 @@ run = [
   "herdr config check",
 ]
 
-[tasks."validate:tmux"]
+[tasks."validate:multiplexer:tmux"]
 description = "Validate Tmux configuration"
 shell = "nu -c"
 run = """
@@ -488,7 +575,7 @@ if (which tmux | is-not-empty) {
 }
 """
 
-[tasks."validate:zellij"]
+[tasks."validate:multiplexer:zellij"]
 description = "Validate Zellij configuration"
 env = { ZELLIJ_CONFIG_DIR = "{{config_root}}/dotfiles/.config/zellij" }
 run = "zellij setup --check"
@@ -497,12 +584,12 @@ run = "zellij setup --check"
 # Stage 2: CLI Tools
 # ==============================================================================
 
-[tasks."validate:git"]
+[tasks."validate:cli:git"]
 description = "Validate Git config"
 env = { GIT_CONFIG_GLOBAL = "{{config_root}}/dotfiles/.config/git/config" }
 run = "git --no-pager config --list --show-origin --show-scope --global"
 
-[tasks."validate:starship:default"]
+[tasks."validate:cli:starship:default"]
 description = "Validate Starship config"
 env = { STARSHIP_LOG = "trace", STARSHIP_CONFIG = "{{config_root}}/dotfiles/.config/starship.toml" }
 run = [
@@ -511,7 +598,7 @@ run = [
   "starship timings",
 ]
 
-[tasks."validate:starship:tmux"]
+[tasks."validate:cli:starship:tmux"]
 description = "Validate Starship Tmux config"
 env = { STARSHIP_LOG = "trace", STARSHIP_CONFIG = "{{config_root}}/dotfiles/.config/starship.tmux.toml" }
 run = [
@@ -520,8 +607,8 @@ run = [
   "starship timings",
 ]
 
-[tasks."validate:starship:zellij"]
-description = "Validate Starship Tmux config"
+[tasks."validate:cli:starship:zellij"]
+description = "Validate Starship Zellij config"
 env = { STARSHIP_LOG = "trace", STARSHIP_CONFIG = "{{config_root}}/dotfiles/.config/starship.zellij.toml" }
 run = [
   "starship print-config",
@@ -529,7 +616,7 @@ run = [
   "starship timings",
 ]
 
-[tasks."validate:yazi"]
+[tasks."validate:cli:yazi"]
 description = "Validate Yazi config"
 env = { YAZI_CONFIG_HOME = "{{config_root}}/dotfiles/.config/yazi" }
 shell = "nu -c"
@@ -543,30 +630,187 @@ run = "yazi --debug"
 description = "Validate all deployed dotfiles configurations"
 depends = [
   # AI Agents
-  "validate:claude",
-  "validate:codex",
-  "validate:kimi",
-  "validate:opencode",
+  "validate:agent:claude",
+  "validate:agent:codex",
+  "validate:agent:kimi",
+  "validate:agent:opencode",
+
+  # MCP Server
+  "validate:mcp:context7",
+  "validate:mcp:playwright",
+  "validate:mcp:serena",
+  "validate:mcp:graphify",
 
   # Editors
-  "validate:helix",
-  "validate:neovim",
+  "validate:editor:helix",
+  "validate:editor:neovim",
 
   # Shell
-  "validate:bash",
-  "validate:nu",
-  "validate:pwsh",
-  "validate:zsh",
+  "validate:shell:bash",
+  "validate:shell:nu",
+  "validate:shell:pwsh",
+  "validate:shell:zsh",
 
   # Multiplexers
-  "validate:herdr",
-  "validate:tmux",
-  "validate:zellij",
+  "validate:multiplexer:herdr",
+  "validate:multiplexer:tmux",
+  "validate:multiplexer:zellij",
 
   # CLI Tools
-  "validate:git",
-  "validate:starship:default",
-  "validate:starship:tmux",
-  "validate:starship:zellij",
-  "validate:yazi",
+  "validate:cli:git",
+  "validate:cli:starship:default",
+  "validate:cli:starship:tmux",
+  "validate:cli:starship:zellij",
+  "validate:cli:yazi",
 ]
+
+# ==============================================================================
+# Stage 2: Performance Gate
+# ==============================================================================
+
+[tasks."bench:setup"]
+description = "Create the benchmark output directory"
+run = "mkdir -p {{vars.bench_runs}}"
+
+[tasks."bench:bash"]
+description = "Benchmark Bash startup (raw vs configured)"
+depends = ["bench:setup"]
+shell = "nu -c"
+env = { HOME = "{{config_root}}/dotfiles", XDG_CONFIG_HOME = "{{config_root}}/dotfiles/.config" }
+run = """
+(
+  ^{{vars.hyperfine}}
+    --export-json {{vars.bench_runs}}/bash.json
+    --export-markdown {{vars.bench_runs}}/bash.md
+    --command-name bash.raw '{{vars.bench_bash_raw}}'
+    --command-name bash.configured '{{vars.bench_bash_configured}}'
+)
+"""
+
+[tasks."bench:zsh"]
+description = "Benchmark Zsh startup (raw vs configured)"
+depends = ["bench:setup"]
+shell = "nu -c"
+env = { HOME = "{{config_root}}/dotfiles", XDG_CONFIG_HOME = "{{config_root}}/dotfiles/.config" }
+run = """
+(
+  ^{{vars.hyperfine}}
+    --export-json {{vars.bench_runs}}/zsh.json
+    --export-markdown {{vars.bench_runs}}/zsh.md
+    --command-name zsh.raw '{{vars.bench_zsh_raw}}'
+    --command-name zsh.configured '{{vars.bench_zsh_configured}}'
+)
+"""
+
+[tasks."bench:nu"]
+description = "Benchmark Nushell startup (raw vs configured)"
+depends = ["bench:setup"]
+shell = "nu -c"
+env = { XDG_CONFIG_HOME = "{{config_root}}/dotfiles/.config" }
+run = """
+(
+  ^{{vars.hyperfine}}
+    --export-json {{vars.bench_runs}}/nu.json
+    --export-markdown {{vars.bench_runs}}/nu.md
+    --command-name nu.raw '{{vars.bench_nu_raw}}'
+    --command-name nu.configured '{{vars.bench_nu_configured}}'
+)
+"""
+
+[tasks."bench:pwsh"]
+description = "Benchmark PowerShell startup (raw vs configured)"
+depends = ["bench:setup"]
+shell = "nu -c"
+env = { HOME = "{{config_root}}/dotfiles", XDG_CONFIG_HOME = "{{config_root}}/dotfiles/.config" }
+run = """
+(
+  ^{{vars.hyperfine}}
+    --export-json {{vars.bench_runs}}/pwsh.json
+    --export-markdown {{vars.bench_runs}}/pwsh.md
+    --command-name pwsh.raw '{{vars.bench_pwsh_raw}}'
+    --command-name pwsh.configured '{{vars.bench_pwsh_configured}}'
+)
+"""
+
+[tasks."bench:tmux"]
+description = "Benchmark Tmux startup (raw vs configured)"
+depends = ["bench:setup"]
+shell = "nu -c"
+env = { HOME = "{{config_root}}/dotfiles", XDG_CONFIG_HOME = "{{config_root}}/dotfiles/.config" }
+run = """
+(
+  ^{{vars.hyperfine}}
+    --export-json {{vars.bench_runs}}/tmux.json
+    --export-markdown {{vars.bench_runs}}/tmux.md
+    --prepare '{{vars.bench_tmux_cleanup}}'
+    --conclude '{{vars.bench_tmux_cleanup}}'
+    --command-name tmux.raw '{{vars.bench_tmux_raw}}'
+    --command-name tmux.configured '{{vars.bench_tmux_configured}}'
+)
+"""
+
+[tasks."bench:all"]
+description = "Run every benchmark, one shell at a time"
+run = [
+  { task = "bench:nu" },
+  { task = "bench:bash" },
+  { task = "bench:zsh" },
+  { task = "bench:pwsh" },
+  { task = "bench:tmux" },
+]
+
+[tasks."bench:collect"]
+description = "Aggregate the benchmark exports into a report input"
+run = """
+jq -s '{results: [.[].results[]]}' {{vars.bench_runs}}/*.json >{{vars.bench_dir}}/results.json
+for export in {{vars.bench_runs}}/*.md; do
+  printf '### %s\\n\\n' "$(basename "$export" .md)"
+  cat "$export"
+  printf '\\n'
+done >{{vars.bench_dir}}/tables.md
+"""
+
+[tasks."bench:ci"]
+description = "Compare startup performance with the committed baseline"
+run = [
+  { task = "deploy:sync" },
+  { task = "bench:all" },
+  { task = "bench:collect" },
+  "{{vars.bench_report}} --arg mode check >{{vars.bench_dir}}/report.json",
+  "jq -r '.report' {{vars.bench_dir}}/report.json | tee \"${PERFORMANCE_REPORT:-performance-report.md}\"",
+  "jq -e '.passed' {{vars.bench_dir}}/report.json >/dev/null",
+]
+
+[tasks."bench:update"]
+description = "Regenerate the performance baseline [run on the platform the gate runs on]"
+run = [
+  { task = "deploy:sync" },
+  { task = "bench:all" },
+  { task = "bench:collect" },
+  "{{vars.bench_report}} --arg mode update >{{vars.bench_dir}}/report.json",
+  "jq '.baseline' {{vars.bench_dir}}/report.json >{{vars.bench_dir}}/baseline.json",
+  "mv -- {{vars.bench_dir}}/baseline.json misc/baseline.json",
+]
+
+# ==============================================================================
+# Stage 3: Deploy documentation
+# ==============================================================================
+
+[tasks."deploy:cloudflare:preview"]
+description = "Deploy the built docs to a Cloudflare Pages preview [needs CF_PAGES_PROJECT, PR_NUMBER]"
+env = { CF_PAGES_DIST = "{{vars.docs_dist}}" }
+run = """
+wrangler pages deploy "${CF_PAGES_DIST}" \
+  --project-name="${CF_PAGES_PROJECT}" \
+  --branch="pr-${PR_NUMBER}" \
+  --commit-dirty=false
+"""
+
+[tasks."deploy:cloudflare:production"]
+description = "Deploy the built docs to Cloudflare Pages production [needs CF_PAGES_PROJECT]"
+env = { CF_PAGES_DIST = "{{vars.docs_dist}}" }
+run = """
+wrangler pages deploy "${CF_PAGES_DIST}" \
+  --project-name="${CF_PAGES_PROJECT}" \
+  --commit-dirty=false
+"""

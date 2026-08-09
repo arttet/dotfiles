@@ -1,0 +1,4 @@
+# Tier: text stream manipulation.
+
+[tools]
+sd = "1.1.0"

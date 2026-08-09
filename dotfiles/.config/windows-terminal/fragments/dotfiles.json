@@ -12,9 +12,8 @@
     {
       "guid": "{f8aeb8d1-ec01-46d8-b386-47a54183713c}",
       "name": "Nushell",
-      "commandline": "\"C:\\Program Files\\nu\\bin\\nu.exe\"",
+      "commandline": "nu.exe",
       "startingDirectory": "%USERPROFILE%",
-      "icon": "C:\\Program Files\\nu\\nu.ico",
       "font": {
         "face": "IosevkaTerm Nerd Font"
       }

@@ -1,0 +1,28 @@
+{
+  "mcpServers": {
+    "context7": {
+      "command": "context7-mcp",
+      "args": []
+    },
+    "playwright": {
+      "command": "playwright-mcp",
+      "args": []
+    },
+    "serena": {
+      "command": "serena-agent",
+      "args": [
+        "start-mcp-server",
+        "--context=agent",
+        "--project-from-cwd",
+        "--open-web-dashboard=false"
+      ],
+      "env": {
+        "PYTHONUNBUFFERED": "1"
+      }
+    },
+    "graphify": {
+      "command": "graphify-mcp",
+      "args": ["graphify-out/graph.json"]
+    }
+  }
+}

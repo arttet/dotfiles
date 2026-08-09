@@ -85,9 +85,7 @@
       "type": "local",
       "enabled": true,
       "command": [
-        "python",
-        "-m",
-        "graphify.serve",
+        "graphify-mcp",
         "graphify-out/graph.json",
       ],
       "timeout": 30000,

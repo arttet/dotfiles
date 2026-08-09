@@ -1,0 +1,5 @@
+# Tier: prompt and shell completions.
+
+[tools]
+carapace = "1.7.3"
+starship = "1.26.0"
