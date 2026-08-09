@@ -92,8 +92,10 @@ mod docs 'misc/justfiles/docs.just'
 # Performance
 # ==============================================================================
 
+[doc('Run benchmarks [target: all, nu, bash, zsh, tmux, pwsh, ci, update]')]
 [group('Performance')]
-mod bench 'misc/justfiles/bench.just'
+bench target="all":
+    mise run bench:{{ target }}
 
 # ==============================================================================
 # Neovim

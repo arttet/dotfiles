@@ -1,11 +1,11 @@
 {
   "schemaVersion": 1,
-  "platform": "linux",
   "threshold": 0.2,
   "metrics": {
-    "bash": 8.517,
-    "zsh": 9.409,
-    "nu": 10.287,
-    "tmux": 40.094
+    "bash": 1,
+    "nu": 1,
+    "pwsh": 1,
+    "tmux": 1,
+    "zsh": 1
   }
 }

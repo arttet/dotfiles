@@ -1,5 +1,6 @@
-def targets:
-  ["bash", "zsh", "nu", "tmux"];
+# Targets come from the collected results, so a partial run reports on exactly what it measured.
+def targets($results):
+  $results | map(.command | split(".")[0]) | unique;
 
 def round3:
   (. * 1000 | round) / 1000;
@@ -8,7 +9,7 @@ def round2:
   (. * 100 | round) / 100;
 
 def measurements($results):
-  reduce targets[] as $target ({};
+  reduce targets($results)[] as $target ({};
     ($results | map(select(.command == ($target + ".raw")) | .median) | first) as $raw
     | ($results | map(select(.command == ($target + ".configured")) | .median) | first) as $configured
     | if ($raw | type) != "number" or ($configured | type) != "number" or $raw <= 0 or $configured <= 0 then
@@ -18,11 +19,10 @@ def measurements($results):
       end
   );
 
-def validate_baseline($baseline):
+def validate_baseline($baseline; $targets):
   if ($baseline.schemaVersion != 1) then error("unsupported baseline schema")
-  elif ($baseline.platform != "linux") then error("baseline platform must be linux")
   elif (($baseline.threshold | type) != "number") or $baseline.threshold < 0 then error("invalid baseline threshold")
-  elif (targets | all($baseline.metrics[.] | type == "number" and . > 0) | not) then error("missing or invalid baseline metrics")
+  elif ($targets | all($baseline.metrics[.] | type == "number" and . > 0) | not) then error("missing or invalid baseline metrics")
   else $baseline
   end;
 
@@ -30,7 +30,7 @@ def measurement_table($measurements):
   [
     "| Target | Raw median | Configured median | Ratio |",
     "| --- | ---: | ---: | ---: |",
-    (targets[] as $target
+    ($measurements | keys[] as $target
       | $measurements[$target]
       | "| \($target) | \(.raw * 1000 | round2) ms | \(.configured * 1000 | round2) ms | \(.ratio | round3)x |")
   ] | join("\n");
@@ -44,20 +44,20 @@ def comparison_table($rows):
   ] | join("\n");
 
 ($benchmark[0].results | measurements(.)) as $measurements
+| ($measurements | keys) as $targets
 | ($measurements | with_entries(.value = .value.ratio)) as $current
 | {
     schemaVersion: 1,
-    platform: "linux",
     threshold: 0.2,
     metrics: $current
   } as $candidate
 | if $mode == "update" then
     {baseline: $candidate}
   elif $mode == "check" then
-    (validate_baseline($baseline[0])) as $base
-    | (targets | all($base.metrics[.] == 1)) as $bootstrap
+    (validate_baseline($baseline[0]; $targets)) as $base
+    | ($targets | all($base.metrics[.] == 1)) as $bootstrap
     | [
-        targets[] as $target
+        $targets[] as $target
         | (($current[$target] - $base.metrics[$target]) / $base.metrics[$target]) as $change
         | {
             target: $target,
@@ -77,7 +77,7 @@ def comparison_table($rows):
               + "### Current measurements\n\n"
               + measurement_table($measurements)
               + "\n\n### Baseline candidate\n\n"
-              + "Commit the following values through `just bench update` on Linux:\n\n"
+              + "Commit the following values through `mise run bench:update`:\n\n"
               + "```json\n"
               + ($candidate | tojson)
               + "\n```\n\n"
