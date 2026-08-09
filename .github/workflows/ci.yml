@@ -213,7 +213,7 @@ jobs:
   antivirus:
     name: Antivirus
     runs-on: ubuntu-26.04
-    timeout-minutes: 10
+    timeout-minutes: 15
 
     steps:
       - name: Harden runner
@@ -444,7 +444,7 @@ jobs:
             experimental-features = nix-command flakes
 
       - name: Install benchmark shells
-        run: nix profile install "${NIXPKGS}#bash" "${NIXPKGS}#zsh"
+        run: nix profile add "${NIXPKGS}#bash" "${NIXPKGS}#zsh"
 
       - name: Install benchmark dependencies
         run: mise install hyperfine jq nushell powershell tmux vendir

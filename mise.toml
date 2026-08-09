@@ -56,8 +56,7 @@ docs_archive = "docs/dotfiles-docs-*"
 # NOTE: https://github.com/renovatebot/renovate/pkgs/container/renovate
 renovate_image = "ghcr.io/renovatebot/renovate:44.16.1@sha256:d7b833d9aae601312d9afca391212620fce22eef2faa60e8cf00a9734220a1c5"
 
-# NOTE: Performance gate. Every bench task points HOME and XDG_CONFIG_HOME at dotfiles/, so the
-# measurement covers the repository configuration even where it is not deployed, such as CI.
+# NOTE: Performance gate.
 bench_dir = ".tools/bench"
 bench_runs = ".tools/bench/runs"
 hyperfine = "hyperfine --warmup 2 --runs 10 --shell=none"
