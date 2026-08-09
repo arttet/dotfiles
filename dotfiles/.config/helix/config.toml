@@ -56,6 +56,12 @@ end-of-line-diagnostics = "hint"
 # editor table. If your build supports it, prefer enabling it in ~/.config/helix
 # after checking `hx --health` / release notes for the exact key name.
 
+[editor.clipboard-provider.custom]
+yank = { command = "clip.exe", args = [] }
+# Вставка через clip.exe в Windows не поддерживается напрямую,
+# поэтому для вставки задействуем PowerShell:
+paste = { command = "powershell.exe", args = ["-Command", "Get-Clipboard"] }
+
 [editor.statusline]
 left = ["mode", "spinner", "file-name", "read-only-indicator", "file-modification-indicator"]
 center = ["version-control"]

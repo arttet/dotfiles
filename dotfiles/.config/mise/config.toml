@@ -12,8 +12,15 @@ package_manager = "aube"
 [tasks.setup]
 description = "Apply safe, idempotent global mise setup"
 depends = [
+  "setup:gh-dash",
   "setup:go-telemetry",
 ]
+
+[tasks."setup:gh-dash"]
+description = "Install Github Dash"
+run = """
+gh extension install dlvhdr/gh-dash
+"""
 
 [tasks."setup:go-telemetry"]
 description = "Disable Go telemetry"

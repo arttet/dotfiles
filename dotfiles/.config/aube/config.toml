@@ -1,2 +1,5 @@
 # Central supply-chain delay; change this value to alter the policy.
 minimumReleaseAge = 1440
+
+# Keep npm package files in each installation so native Node can read them on Windows.
+enableGlobalVirtualStore = false

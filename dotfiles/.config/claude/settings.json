@@ -162,16 +162,15 @@
       "toolTimeoutMs": 120000
     },
     "graphify": {
-      "command": "python",
+      "command": "graphify-mcp",
       "args": [
-        "-m",
-        "graphify.serve",
         "graphify-out/graph.json"
       ],
       "startupTimeoutMs": 60000,
       "toolTimeoutMs": 120000
     },
     "vikunja": {
+      "disabled": true,
       "command": "vikunja-mcp",
       "args": [],
       "env": {
