@@ -1,0 +1,4 @@
+# Tier: remote access.
+
+[tools]
+lazyssh = "0.3.0"

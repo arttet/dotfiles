@@ -1,2 +1,4 @@
+# Tier: audio and video processing.
+
 [tools]
 ffmpeg = { version = "8.1.2", os = ["linux", "macos"] }

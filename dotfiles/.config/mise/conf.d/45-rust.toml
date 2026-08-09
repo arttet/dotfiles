@@ -1,4 +1,0 @@
-[tools]
-rust = "1.97.1"
-rust-analyzer = "2026-07-27"
-sccache = "0.17.0"

@@ -1,0 +1,9 @@
+# Tier: Rust toolchain.
+#
+# Note: the `rust` tool also contributes ~/.cargo/bin to `PATH`.
+
+[tools]
+rust = "1.97.1"
+sccache = "0.17.0"
+
+rust-analyzer = "2026-08-03"

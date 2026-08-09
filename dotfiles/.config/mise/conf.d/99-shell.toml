@@ -1,0 +1,8 @@
+# Tier: shells.
+
+[tool_alias]
+nushell = "aqua:nushell/nushell"
+
+[tools]
+nushell = "0.114.1"
+powershell = "7.6.4"

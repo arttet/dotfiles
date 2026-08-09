@@ -1,0 +1,8 @@
+# Tier: CLIs driven by agent skills.
+
+[tools]
+# NOTE: https://context7.com/
+"npm:ctx7" = "0.5.7"
+
+# NOTE: https://playwright.dev
+"npm:@playwright/cli" = "0.1.18"

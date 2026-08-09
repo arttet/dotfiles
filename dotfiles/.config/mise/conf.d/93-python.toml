@@ -1,0 +1,10 @@
+# Tier: Python toolchain.
+
+[tools]
+python = "3.14.7"
+
+ruff = "0.16.2"
+uv = "0.12.3"
+
+"npm:pyright" = "1.1.411"
+"pipx:ty" = "0.0.69"

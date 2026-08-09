@@ -1,3 +1,5 @@
+# Tier: network diagnostics.
+
 [tools]
 gping = "1.20.4"
 qdns = "0.19.12"
