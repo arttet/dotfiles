@@ -1,6 +1,6 @@
 # Tier: disk usage and filesystem inspection.
 
 [tools]
-dua = "2.41.1"
+dua = "2.42.1"
 duf = "0.9.1"
-dust = "1.2.4"
+dust = "1.2.5"

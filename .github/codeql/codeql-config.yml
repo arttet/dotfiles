@@ -1,0 +1,7 @@
+name: Dotfiles CodeQL configuration
+
+paths-ignore:
+  - .tools
+  - docs/dist
+  - docs/node_modules
+  - docs/.vitepress/dist

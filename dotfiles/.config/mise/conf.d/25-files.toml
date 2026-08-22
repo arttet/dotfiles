@@ -5,4 +5,4 @@ superfile = "github:yorukot/superfile"
 
 [tools]
 superfile = "1.6.0"
-yazi = "26.5.6"
+yazi = "26.8.15"

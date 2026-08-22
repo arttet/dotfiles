@@ -7,4 +7,4 @@ herdrw = "github:ogulcancelik/herdr"
 herdr = { version = "0.7.5", os = ["linux", "macos"] }
 herdrw = { version = "preview-2026-07-21-0f10e1453a7f", os = ["windows"] }
 tmux = { version = "3.7b", os = ["linux", "macos"] }
-zellij = "0.44.3"
+zellij = "0.45.0"

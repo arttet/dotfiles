@@ -1,0 +1,10 @@
+exclude:
+  - ./.tools/**
+  - ./.git/**
+
+# fail-on-severity: high
+
+ignore:
+  - vex-status: not_affected
+
+show-suppressed: true

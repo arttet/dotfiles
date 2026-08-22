@@ -1,0 +1,8 @@
+{
+  "@context": "https://openvex.dev/ns/v0.2.0",
+  "@id": "https://github.com/arttet/dotfiles/misc/vex/dotfiles.openvex.json",
+  "author": "Artyom Tetyukhin",
+  "timestamp": "2026-08-22T00:00:00Z",
+  "version": 1,
+  "statements": []
+}

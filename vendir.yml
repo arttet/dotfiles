@@ -11,7 +11,6 @@ directories:
         git:
           url: https://github.com/alacritty/alacritty-theme
           ref: master
-          depth: 20
           lfsSkipSmudge: true
           skipInitSubmodules: true
         includePaths:
@@ -51,7 +50,6 @@ directories:
         git:
           url: https://github.com/tmux-plugins/tmux-resurrect
           ref: master
-          depth: 20
           lfsSkipSmudge: true
           skipInitSubmodules: true
         includePaths:
@@ -66,7 +64,6 @@ directories:
         git:
           url: https://github.com/tmux-plugins/tmux-continuum
           ref: master
-          depth: 20
           lfsSkipSmudge: true
           skipInitSubmodules: true
         includePaths:
@@ -92,7 +89,6 @@ directories:
         git:
           url: https://github.com/tmux-plugins/tmux-yank
           ref: master
-          depth: 20
           lfsSkipSmudge: true
           skipInitSubmodules: true
         includePaths:
@@ -105,7 +101,6 @@ directories:
         git:
           url: https://github.com/sainnhe/tmux-fzf
           ref: master
-          depth: 20
           lfsSkipSmudge: true
           skipInitSubmodules: true
         includePaths:
@@ -118,7 +113,6 @@ directories:
         git:
           url: https://github.com/2KAbhishek/tmux2k
           ref: main
-          depth: 20
           lfsSkipSmudge: true
           skipInitSubmodules: true
         includePaths:
@@ -144,7 +138,6 @@ directories:
         git:
           url: https://github.com/orangci/walls-catppuccin-mocha
           ref: master
-          depth: 20
           lfsSkipSmudge: true
           skipInitSubmodules: false
         includePaths:
@@ -161,7 +154,6 @@ directories:
         git:
           url: https://github.com/vinceliuice/Graphite-gtk-theme
           ref: main
-          depth: 20
           lfsSkipSmudge: true
           skipInitSubmodules: true
         includePaths:
@@ -176,7 +168,6 @@ directories:
         git:
           url: https://github.com/vinceliuice/Graphite-gtk-theme
           ref: main
-          depth: 20
           lfsSkipSmudge: true
           skipInitSubmodules: true
         includePaths:
@@ -194,7 +185,6 @@ directories:
         git:
           url: https://github.com/linuxdotexe/nordic-wallpapers
           ref: master
-          depth: 20
           lfsSkipSmudge: true
           skipInitSubmodules: true
         includePaths:
@@ -211,7 +201,6 @@ directories:
         git:
           url: https://github.com/vinceliuice/WhiteSur-wallpapers
           ref: main
-          depth: 20
           lfsSkipSmudge: true
           skipInitSubmodules: true
         includePaths:
@@ -225,7 +214,6 @@ directories:
         git:
           url: https://github.com/vinceliuice/WhiteSur-wallpapers
           ref: main
-          depth: 20
           lfsSkipSmudge: true
           skipInitSubmodules: true
         includePaths:
@@ -241,7 +229,6 @@ directories:
         git:
           url: https://github.com/vinceliuice/MacTahoe-gtk-theme
           ref: main
-          depth: 20
           lfsSkipSmudge: true
           skipInitSubmodules: true
         includePaths:
@@ -262,7 +249,6 @@ directories:
         git:
           url: https://github.com/yazi-rs/flavors.git
           ref: main
-          depth: 20
           lfsSkipSmudge: true
           skipInitSubmodules: true
         includePaths:
@@ -276,7 +262,6 @@ directories:
         git:
           url: https://github.com/yazi-rs/flavors.git
           ref: main
-          depth: 20
           lfsSkipSmudge: true
           skipInitSubmodules: true
         includePaths:
@@ -294,7 +279,6 @@ directories:
         git:
           url: https://github.com/yazi-rs/plugins.git
           ref: main
-          depth: 20
           lfsSkipSmudge: true
           skipInitSubmodules: true
         includePaths:
@@ -308,7 +292,6 @@ directories:
         git:
           url: https://github.com/yazi-rs/plugins.git
           ref: main
-          depth: 20
           lfsSkipSmudge: true
           skipInitSubmodules: true
         includePaths:
@@ -322,7 +305,6 @@ directories:
         git:
           url: https://github.com/yazi-rs/plugins.git
           ref: main
-          depth: 20
           lfsSkipSmudge: true
           skipInitSubmodules: true
         includePaths:
@@ -336,7 +318,6 @@ directories:
         git:
           url: https://github.com/yazi-rs/plugins.git
           ref: main
-          depth: 20
           lfsSkipSmudge: true
           skipInitSubmodules: true
         includePaths:
@@ -350,7 +331,6 @@ directories:
         git:
           url: https://github.com/yazi-rs/plugins.git
           ref: main
-          depth: 20
           lfsSkipSmudge: true
           skipInitSubmodules: true
         includePaths:
@@ -367,7 +347,6 @@ directories:
         git:
           url: https://github.com/AnirudhG07/plugins-yazi.git
           ref: main
-          depth: 20
           lfsSkipSmudge: true
           skipInitSubmodules: true
         includePaths:
@@ -381,7 +360,6 @@ directories:
         git:
           url: https://github.com/ndtoan96/ouch.yazi.git
           ref: main
-          depth: 20
           lfsSkipSmudge: true
           skipInitSubmodules: true
         includePaths:
@@ -394,7 +372,6 @@ directories:
         git:
           url: https://github.com/Rolv-Apneseth/starship.yazi.git
           ref: main
-          depth: 20
           lfsSkipSmudge: true
           skipInitSubmodules: true
         includePaths:
@@ -407,7 +384,6 @@ directories:
         git:
           url: https://github.com/kirasok/torrent-preview.yazi.git
           ref: main
-          depth: 20
           lfsSkipSmudge: true
           skipInitSubmodules: true
         includePaths:
@@ -420,7 +396,6 @@ directories:
         git:
           url: https://github.com/llanosrocas/yaziline.yazi.git
           ref: main
-          depth: 20
           lfsSkipSmudge: true
           skipInitSubmodules: true
         includePaths:

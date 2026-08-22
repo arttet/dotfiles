@@ -1,0 +1,7 @@
+name: Dotfiles CodeQL configuration (JavaScript/TypeScript)
+
+paths:
+  - docs/.vitepress
+
+paths-ignore:
+  - docs/.vitepress/dist

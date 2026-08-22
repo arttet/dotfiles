@@ -1,0 +1,6 @@
+license:
+  full: true
+
+  ignored:
+    - MIT
+    - Apache-2.0

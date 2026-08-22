@@ -10,13 +10,6 @@ overrides:
 importers:
 
   .:
-    dependencies:
-      postcss:
-        specifier: ^8
-        version: 8.5.26
-      typescript:
-        specifier: ^5.0.0
-        version: 7.0.2
     devDependencies:
       '@catppuccin/vitepress':
         specifier: ^0.1.2
@@ -27,12 +20,15 @@ importers:
       oxc-minify:
         specifier: ^0.143.0
         version: 0.143.0
+      typescript:
+        specifier: ^5.0.0
+        version: 7.0.2
       vitepress:
         specifier: ^2.0.0-alpha.19
         version: 2.0.0-alpha.19(postcss@8.5.26)
       vitepress-plugin-llms:
-        specifier: ^1.13.4
-        version: 1.13.4
+        specifier: ^1.13.5
+        version: 1.13.5
 
 packages:
 
@@ -1141,8 +1137,8 @@ packages:
       yaml:
         optional: true
 
-  vitepress-plugin-llms@1.13.4:
-    resolution: {integrity: sha512-3/L1ceexjpJirWWGlfvqx2hmaDTFGSkSHrn3y2C7RZm6lNa/vmvU49Ayr4GxLYQfOFfo9CP6rsWdD+6rEbnIxA==}
+  vitepress-plugin-llms@1.13.5:
+    resolution: {integrity: sha512-CTiDkKRs0h64J5rdiICdHmXH4pM1gBu2S/MJ+OxSAm+vM72srBkHr86ZubzfMJbGJh4AMVKff4R3oCu8etI1ww==}
     engines: {node: '>=18'}
 
   vitepress@2.0.0-alpha.19:
@@ -2224,7 +2220,7 @@ snapshots:
     optionalDependencies:
       fsevents: 2.3.3
 
-  vitepress-plugin-llms@1.13.4:
+  vitepress-plugin-llms@1.13.5:
     dependencies:
       '@11ty/gray-matter': 2.1.0
       markdown-it: 14.3.0

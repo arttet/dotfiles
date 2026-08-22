@@ -238,13 +238,45 @@ GitHub Actions (`.github/workflows/ci.yml`) runs in three stages.
 
 All jobs run in parallel and must pass before Stage 2.
 
-| Job         | Purpose                                                          |
-| :---------- | :--------------------------------------------------------------- |
-| `fmt`       | Check dprint, stylua, shfmt, and Justfile formatting             |
-| `lint`      | Run yamllint, actionlint, shellcheck, selene, markdownlint, etc. |
-| `security`  | TruffleHog secret scan + Trivy filesystem scan                   |
-| `antivirus` | ClamAV malware scan                                              |
-| `docs`      | aube install/audit, VitePress build, Lychee link check           |
+| Job                 | Purpose                                                                       |
+| :------------------ | :---------------------------------------------------------------------------- |
+| `guard`             | Classify the run as trusted or fork; every other job depends on it            |
+| `fmt`               | Check dprint, stylua, shfmt, and Justfile formatting                          |
+| `lint`              | Run yamllint, actionlint, shellcheck, selene, markdownlint, etc.              |
+| `security`          | Secrets, SAST, HTML/SVG rules, Trivy, OSV, Grype, Grant, OPA policies, zizmor |
+| `codeql`            | Semantic analysis of GitHub Actions workflows and TypeScript sources          |
+| `dependency-review` | Block dependency changes with known high-severity advisories (pull requests)  |
+| `antivirus`         | ClamAV malware scan                                                           |
+| `docs`              | aube install/audit, VitePress build, Lychee link check, site hardening checks |
+
+`guard` publishes a `trusted` output that gates every privileged step. A fork runs all of the above and
+none of the steps that write to the repository — no SARIF upload, no pull-request comment, no deploy.
+
+### Vulnerabilities, licenses and exploitability
+
+Three questions, three tools, one document that says when an answer does not apply here:
+
+| Question                  | Tool                                | Configuration                    |
+| :------------------------ | :---------------------------------- | :------------------------------- |
+| What is in it?            | Syft (from the artifact pipeline)   | —                                |
+| Is it vulnerable?         | Trivy, OSV and Grype                | `.grype.yaml`                    |
+| Which licenses are in it? | Grant, plus Trivy's license scanner | `.grant.yaml`                    |
+| Does it apply to us?      | OpenVEX                             | `misc/vex/dotfiles.openvex.json` |
+
+Findings are never silenced with an ignore file. A suppression is a VEX statement with an author, a
+timestamp, the affected package and an OpenVEX justification, and `policy/vex.rego` fails the build if
+one of those is missing.
+
+The license question is answered for the whole deployment, not just the committed tree. `vendir` pulls
+in tmux plugins, yazi flavors and wallpapers that are gitignored but end up in `$HOME`, so the security
+job syncs them and `mise run security:licenses` reports every component with its license and origin,
+warning on anything outside MIT and Apache-2.0. The check refuses to run against an unsynced tree
+instead of quietly reporting on half of it.
+
+The documentation site is covered too: `docs/src/public/_headers` ships a Content-Security-Policy and
+the usual hardening headers, `misc/semgrep/web.yaml` rejects executable markup in SVG and Markdown,
+and `mise run docs:security` proves the headers reached `docs/dist` and that no bundled JavaScript
+carries a known advisory.
 
 ### Stage 2: Validation and Performance
 

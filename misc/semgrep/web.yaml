@@ -1,0 +1,91 @@
+# HTML and SVG hardening rules for `mise run security:semgrep:web` and `mise run docs:security`.
+#
+# Generic mode is used on purpose: these are markup files, not a language Semgrep parses, and the
+# checks are structural enough that a regex is the honest tool. The same ruleset runs over committed
+# sources and over the built site, so a payload introduced by a dependency is caught too.
+rules:
+  - id: svg-embedded-script
+    message: >-
+      This SVG carries executable markup. An SVG served from the site origin runs with that origin's
+      privileges, so an embedded <script> or <foreignObject> is a stored XSS primitive.
+    severity: ERROR
+    languages: [generic]
+    paths:
+      include:
+        - "*.svg"
+    patterns:
+      - pattern-either:
+          - pattern-regex: '<\s*script[\s/>]'
+          - pattern-regex: '<\s*foreignObject[\s/>]'
+
+  - id: svg-event-handler
+    message: >-
+      This SVG declares an inline event handler. Handlers such as onload= execute when the image is
+      rendered inline and survive most sanitizers that only strip <script>.
+    severity: ERROR
+    languages: [generic]
+    paths:
+      include:
+        - "*.svg"
+    pattern-regex: '\son(load|error|click|mouseover|focus|begin|end|repeat)\s*='
+
+  # VitePress renders raw HTML embedded in Markdown, so `.md` is as much an HTML surface as `.html`.
+  - id: markdown-inline-script
+    message: >-
+      Raw <script> in Markdown is rendered verbatim by VitePress and executes on the documentation
+      origin. Move the behaviour into the theme, where it goes through the build.
+    severity: ERROR
+    languages: [generic]
+    paths:
+      include:
+        - "*.md"
+    pattern-regex: '<\s*script[\s/>]'
+
+  - id: dangerous-uri-scheme
+    message: >-
+      A javascript: or data:text/html URI executes in the page origin when followed. Use a real URL
+      or, for embedded assets, a non-executable media type.
+    severity: ERROR
+    languages: [generic]
+    paths:
+      include:
+        - "*.svg"
+        - "*.html"
+        - "*.htm"
+        - "*.vue"
+        - "*.md"
+    pattern-either:
+      - pattern-regex: '(href|src|xlink:href|action|formaction)\s*=\s*["'']?\s*javascript:'
+      - pattern-regex: '(href|src|xlink:href)\s*=\s*["'']?\s*data:text/html'
+
+  - id: external-script-source
+    message: >-
+      This script is loaded from a third-party origin. The documentation site ships a
+      `default-src 'self'` CSP and has no third-party scripts by design; vendor the code instead.
+    severity: ERROR
+    languages: [generic]
+    paths:
+      include:
+        - "*.html"
+        - "*.htm"
+        - "*.svg"
+        - "*.vue"
+        - "*.md"
+    patterns:
+      - pattern-regex: '<\s*script[^>]*\ssrc\s*=\s*["'']https?://'
+      - pattern-not-regex: '<\s*script[^>]*\ssrc\s*=\s*["'']https?://[^"'']*\$\{'
+
+  - id: target-blank-without-noopener
+    message: >-
+      A target="_blank" link without rel="noopener" (or rel="noreferrer") hands the opened page a
+      window.opener handle back into this document.
+    severity: ERROR
+    languages: [generic]
+    paths:
+      include:
+        - "*.html"
+        - "*.htm"
+        - "*.vue"
+    patterns:
+      - pattern-regex: '<\s*a\s[^>]*target\s*=\s*["'']?_blank["'']?[^>]*>'
+      - pattern-not-regex: '<\s*a\s[^>]*rel\s*=\s*["''][^"'']*(noopener|noreferrer)'
