@@ -166,6 +166,14 @@ mise tasks         # list individual gate tasks (fmt:all, lint:all, security:all
 mise run deps:outdated  # Renovate local report of available dependency updates
 mise run ci:list   # list GitHub Actions jobs runnable locally via act
 mise run ci        # run the CI workflow locally via act (requires Docker)
+
+# Security gate (each task is also a CI step)
+mise run security:all       # secrets, SAST, web, Trivy, licenses, OSV, Grype, Grant, policy, zizmor
+mise run security:codeql    # CodeQL for actions + javascript-typescript (~1 GB on first run)
+mise run security:conftest  # OPA/Rego policies over workflows, mise.toml and the VEX document
+mise run security:licenses  # license inventory of the repo + every vendored component (needs deploy:sync)
+mise run security:grype:images  # scan the digest-pinned ClamAV and Renovate images (nightly in CI)
+mise run docs:security      # hardening checks over the built site (needs docs:build first)
 ```
 
 Stage-1 gate tasks live in `mise.toml` and are exactly what CI runs (`.github/workflows/ci.yml` calls
@@ -173,6 +181,43 @@ Stage-1 gate tasks live in `mise.toml` and are exactly what CI runs (`.github/wo
 rule: `validate:*`, `bench:*`, `deploy:*`, and `deploy:cloudflare:*` are mise tasks, and every workflow step
 is a `mise run` of one of them. Tools are pinned in `mise.toml` and installed in CI by the
 checksum-verified composite action `.github/actions/setup-mise`; CI uses neither Nix nor stow.
+
+### Fork trust model
+
+Pull requests from forks are welcome and run every read-only gate. What they never get is anything that
+could act on this repository: no secrets, no OIDC token, no write to the Security tab, no pull-request
+comment, no deployment. That decision is made once by the `guard` job, which publishes a `trusted`
+output, and every privileged step carries `if: needs.guard.outputs.trusted == 'true'`.
+
+Two rules in `policy/workflows.rego` keep it from drifting: every job must list `guard` in `needs`, and
+any job holding a write permission or reading a real secret must reference
+`needs.guard.outputs.trusted`. `pull_request_target` is rejected outright — it is the usual way a
+repository hands a fork both its secrets and its write token.
+
+### License inventory
+
+`mise run security:licenses` lists every component that reaches `$HOME` — this repository plus the
+third-party trees `vendir` fetches — and warns on anything outside `MIT,Apache-2.0` (`vars.licenses_allowed`
+in `mise.toml`). It reports rather than blocks: these are components already in use, several of them
+carrying GPL-3.0 or AGPL-3.0, and the useful output is visibility, not a red build.
+
+It refuses to run against an unsynced tree. The vendored plugins are gitignored, so without
+`mise run deploy:sync` the inventory would silently omit two thirds of its subjects and claim the rest
+is the whole picture; the CI job runs the sync as its own step for the same reason.
+
+### Suppressing a finding
+
+Do not add `.trivyignore`, `[[IgnoredVulns]]`, or a severity downgrade. The only sanctioned mechanism is
+a statement in `misc/vex/dotfiles.openvex.json`, which records who asserted it, when, about which
+package, and on what grounds; `policy/vex.rego` rejects a `not_affected` statement with no OpenVEX
+justification. The document ships with the release archive and is signed with it.
+
+Two mechanics are easy to get wrong. Grype treats a VEX document as annotation only — the
+`ignore: [{vex-status: not_affected}]` rule in `.grype.yaml` is what turns a statement into
+suppression, and `show-suppressed: true` keeps the entry visible in the output instead of vanishing.
+And for a directory scan Grype derives the product identity as `pkg:generic/<name>@<version>`, which it
+cannot build without a version, so statements identify the vulnerable package itself as the product:
+`"products": [{"@id": "pkg:golang/stdlib@1.26.4"}]`.
 
 Benchmark tools are pinned in `mise.toml` like everything else: `hyperfine`, `nushell`, `powershell`, and
 `tmux`. `bash` and `zsh` have no mise registry entry, so the performance job installs them with

@@ -27,11 +27,6 @@ env:
   MISE_DATA_DIR: ${{ github.workspace }}/.tools/mise
   MISE_INSTALL_PATH: ${{ github.workspace }}/.tools/mise/bin/mise
   DPRINT_CACHE_DIR: ${{ github.workspace }}/.tools/dprint
-  # pino 9.14.0 is the last 9.x release and was published by the pino lead maintainer instead of the
-  # project's release workflow, so it carries a registry signature but no provenance attestation while
-  # 10.x does — aube reports that as a trust downgrade. @modelcontextprotocol/inspector pins ^9.14.0,
-  # so there is no patched 9.x to move to. mise drops the per-tool `trust_policy_excludes` option, and
-  # a config `[env]` block is not applied to tool installs; only the process environment reaches aube.
   AUBE_TRUST_POLICY_EXCLUDE: pino@9.14.0
   MISE_LOCAL_ALLOWED_ENDPOINTS: >-
     *.blob.core.windows.net:443
@@ -80,12 +75,31 @@ env:
 
 jobs:
   # ==============================================================================
+  # Stage 0: Trust classification
+  # ==============================================================================
+  guard:
+    name: Guard
+    runs-on: ubuntu-26.04
+    timeout-minutes: 2
+
+    outputs:
+      trusted: ${{ steps.check.outputs.trusted }}
+
+    steps:
+      - name: Classify the run
+        id: check
+        env:
+          TRUSTED: ${{ github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository }}
+        run: echo "trusted=$TRUSTED" >> "$GITHUB_OUTPUT"
+
+  # ==============================================================================
   # Stage 1: Format Quality Gate
   # ==============================================================================
   fmt:
     name: Format
     runs-on: ubuntu-26.04
     timeout-minutes: 5
+    needs: guard
 
     steps:
       - name: Harden runner
@@ -116,6 +130,7 @@ jobs:
     name: Lint
     runs-on: ubuntu-26.04
     timeout-minutes: 5
+    needs: guard
 
     steps:
       - name: Harden runner
@@ -148,11 +163,15 @@ jobs:
   security:
     name: Security
     runs-on: ubuntu-26.04
-    timeout-minutes: 5
+    timeout-minutes: 10
+    needs: guard
 
     permissions:
       contents: read # Default read-only for this job
       security-events: write # Required to upload security scan results to GitHub Security tab.
+
+    env:
+      GITHUB_TOKEN: ${{ github.token }}
 
     steps:
       - name: Harden runner
@@ -162,10 +181,13 @@ jobs:
           allowed-endpoints: >-
             ${{ env.MISE_LOCAL_ALLOWED_ENDPOINTS }}
             api.cloudflare.com:443
+            api.deps.dev:443
             ghcr.io:443
+            grype.anchore.io:443
             mirror.gcr.io:443
             pkg-containers.githubusercontent.com:443
             semgrep.dev:443
+            toolbox-data.anchore.io:443
 
       - name: Checkout
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -187,25 +209,52 @@ jobs:
           restore-keys: |
             trivy-${{ runner.os }}-
 
-      - name: Secret scanning
-        run: mise run security:trufflehog
+      - name: Restore aube cache
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: ~/.local/share/aube/store
+          key: ${{ runner.os }}-aube-${{ hashFiles('docs/aube-workspace.yaml', 'docs/aube-lock.yaml') }}
+          restore-keys: |
+            ${{ runner.os }}-aube-
 
-      - name: SAST scan
-        run: mise run security:semgrep
+      - name: Restore CodeQL query pack cache
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: ~/.codeql
+          key: codeql-${{ runner.os }}-${{ hashFiles('mise.lock') }}
+          restore-keys: |
+            codeql-${{ runner.os }}-
 
-      - name: Trivy filesystem scan
-        run: mise run security:trivy:table
+      - name: Install docs dependencies
+        env:
+          MISE_CONFIG_DIR: ${{ github.workspace }}/dotfiles/.config/mise
+        run: mise run docs:install
 
-      - name: Trivy SARIF
-        if: always()
-        continue-on-error: true
-        run: mise run security:trivy:sarif
+      - name: Sync vendored components
+        run: mise run deploy:sync
+
+      - name: Security gate
+        run: mise run security:all
 
       - name: Upload Trivy SARIF
         uses: github/codeql-action/upload-sarif@f205ea1c3313d32999d8d6a48b4f6530d4437b38 # v4.37.4
-        if: ${{ always() && hashFiles('.tools/trivy/trivy-results.sarif') != '' }}
+        if: ${{ needs.guard.outputs.trusted == 'true' && hashFiles('.tools/trivy/trivy-results.sarif') != '' }}
         with:
           sarif_file: .tools/trivy/trivy-results.sarif
+
+      - name: Upload CodeQL SARIF (actions)
+        uses: github/codeql-action/upload-sarif@f205ea1c3313d32999d8d6a48b4f6530d4437b38 # v4.37.4
+        if: ${{ needs.guard.outputs.trusted == 'true' && hashFiles('.tools/codeql/actions.sarif') != '' }}
+        with:
+          sarif_file: .tools/codeql/actions.sarif
+          category: actions
+
+      - name: Upload CodeQL SARIF (javascript)
+        uses: github/codeql-action/upload-sarif@f205ea1c3313d32999d8d6a48b4f6530d4437b38 # v4.37.4
+        if: ${{ needs.guard.outputs.trusted == 'true' && hashFiles('.tools/codeql/javascript.sarif') != '' }}
+        with:
+          sarif_file: .tools/codeql/javascript.sarif
+          category: javascript
 
   # ==============================================================================
   # Stage 1: Antivirus
@@ -214,6 +263,7 @@ jobs:
     name: Antivirus
     runs-on: ubuntu-26.04
     timeout-minutes: 15
+    needs: guard
 
     steps:
       - name: Harden runner
@@ -252,6 +302,8 @@ jobs:
             clamav-${{ runner.os }}-
 
       - name: Update ClamAV database and scan for malware
+        env:
+          CLAMAV_EXCLUDE_DIR: '^/scandir/(\.git|\.tools)$'
         run: mise run antivirus:all
 
   # ==============================================================================
@@ -260,7 +312,12 @@ jobs:
   docs:
     name: Documentation
     runs-on: ubuntu-26.04
-    timeout-minutes: 5
+    timeout-minutes: 10
+    needs: guard
+
+    permissions:
+      contents: read
+      security-events: write # Required to upload the CodeQL results for the documentation sources.
 
     steps:
       - name: Harden runner
@@ -269,6 +326,9 @@ jobs:
           egress-policy: block
           allowed-endpoints: >-
             ${{ env.MISE_LOCAL_ALLOWED_ENDPOINTS }}
+            ghcr.io:443
+            pkg-containers.githubusercontent.com:443
+            raw.githubusercontent.com:443
             specifications.freedesktop.org:443
             www.nushell.sh:443
 
@@ -291,6 +351,14 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-aube-
 
+      - name: Restore CodeQL query pack cache
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: ~/.codeql
+          key: codeql-javascript-${{ runner.os }}-${{ hashFiles('mise.lock') }}
+          restore-keys: |
+            codeql-javascript-${{ runner.os }}-
+
       - name: Restore lychee cache
         uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
@@ -299,26 +367,18 @@ jobs:
           restore-keys: |
             lychee-
 
-      - name: Install docs dependencies
-        env:
-          MISE_CONFIG_DIR: ${{ github.workspace }}/dotfiles/.config/mise
-        run: mise run docs:install
-
-      - name: Audit docs dependencies
-        env:
-          MISE_CONFIG_DIR: ${{ github.workspace }}/dotfiles/.config/mise
-        run: mise run docs:audit
-
-      - name: Build docs (Cloudflare Pages)
+      - name: Documentation gate
         env:
           MISE_CONFIG_DIR: ${{ github.workspace }}/dotfiles/.config/mise
           CI_BASE_URL: /
-        run: mise run docs:build
+        run: mise run docs:all
 
-      - name: Link Check
-        env:
-          MISE_CONFIG_DIR: ${{ github.workspace }}/dotfiles/.config/mise
-        run: mise run docs:links
+      - name: Upload CodeQL SARIF (javascript)
+        uses: github/codeql-action/upload-sarif@f205ea1c3313d32999d8d6a48b4f6530d4437b38 # v4.37.4
+        if: ${{ always() && needs.guard.outputs.trusted == 'true' && hashFiles('.tools/codeql/javascript.sarif') != '' }}
+        with:
+          sarif_file: .tools/codeql/javascript.sarif
+          category: javascript
 
       - name: Upload docs artifact
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
@@ -345,7 +405,7 @@ jobs:
     name: Validate (${{ matrix.os }})
     runs-on: ${{ matrix.os }}
     timeout-minutes: 15
-    needs: [fmt, lint, security, docs]
+    needs: [guard, fmt, lint, security, docs]
     permissions:
       contents: read
 
@@ -381,9 +441,7 @@ jobs:
       - name: Deploy dotfiles
         shell: bash
         run: |
-          # `mise use -g` would rewrite ~/.config/mise/config.toml, which dotter symlinks back into the repository.
-          mise install dotter
-          # dotter links dotfiles/.config onto ~/.config as a whole; the runner ships its own directory there.
+          mise use -g dotter
           rm -rf "$HOME/.config"
           mise run deploy:apply
 
@@ -407,8 +465,7 @@ jobs:
     name: Performance
     runs-on: ubuntu-26.04
     timeout-minutes: 10
-    needs: [fmt, lint, security, docs]
-    if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository
+    needs: [guard, fmt, lint, security, docs]
 
     permissions:
       contents: read
@@ -436,9 +493,8 @@ jobs:
           sha256: ${{ env.MISE_SHA256 }}
           install-tools: "false"
 
-      # Bash and Zsh are the only benchmark shells with no mise registry entry.
       - name: Install Nix
-        uses: cachix/install-nix-action@630ae543ea3a38a9a4166f03376c02c50f408342 # v31
+        uses: cachix/install-nix-action@630ae543ea3a38a9a4166f03376c02c50f408342 # v31.11.0
         with:
           extra_nix_config: |
             experimental-features = nix-command flakes
@@ -470,7 +526,7 @@ jobs:
           fi
 
       - name: Publish performance report
-        if: always() && github.event_name == 'pull_request'
+        if: always() && github.event_name == 'pull_request' && needs.guard.outputs.trusted == 'true'
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           GH_REPO: ${{ github.repository }}
@@ -577,12 +633,12 @@ jobs:
     name: Cloudflare Preflight
     runs-on: ubuntu-26.04
     timeout-minutes: 5
-    needs: [fmt, lint, security, antivirus, docs, validate, performance]
+    needs: [guard, fmt, lint, security, antivirus, docs, validate, performance]
 
     if: |
+      needs.guard.outputs.trusted == 'true' &&
       github.event_name != 'schedule' &&
-      github.actor != 'dependabot[bot]' &&
-      (github.event_name != 'pull_request' || github.event.pull_request.head.repo.fork != true)
+      github.actor != 'dependabot[bot]'
 
     outputs:
       enabled: ${{ steps.check.outputs.enabled }}
@@ -618,8 +674,8 @@ jobs:
     name: Deploy Cloudflare Pages
     runs-on: ubuntu-26.04
     timeout-minutes: 5
-    if: needs.cf-preflight.outputs.enabled == 'true'
-    needs: cf-preflight
+    if: needs.guard.outputs.trusted == 'true' && needs.cf-preflight.outputs.enabled == 'true'
+    needs: [guard, cf-preflight]
 
     permissions:
       pull-requests: write # Required to post the Cloudflare Pages preview URL comment on PRs
@@ -698,8 +754,8 @@ jobs:
     runs-on: ubuntu-26.04
     timeout-minutes: 5
 
-    if: github.ref == 'refs/heads/main' && github.event_name != 'schedule'
-    needs: cf-preflight
+    if: needs.guard.outputs.trusted == 'true' && github.ref == 'refs/heads/main' && github.event_name != 'schedule'
+    needs: [guard, cf-preflight]
 
     permissions:
       pages: write # Required to deploy the docs site to GitHub Pages

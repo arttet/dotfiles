@@ -1,0 +1,15 @@
+# Response headers for Cloudflare Pages. VitePress copies `src/public/` verbatim into `dist/`, and
+# Cloudflare reads `_headers` from the deploy root; `mise run docs:security` asserts it arrived.
+#
+# `script-src` carries 'unsafe-inline' because VitePress emits two inline bootstrap scripts
+# (`check-dark-mode`, `check-mac-os`) whose content changes with the framework, so pinning hashes here
+# would break on every upgrade rather than on a real problem. What that concession does not cover —
+# script and style loaded from a foreign origin — is denied by `default-src 'self'` and additionally
+# caught in source by the `external-script-source` rule in misc/semgrep/web.yaml.
+/*
+  Content-Security-Policy: default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self'; connect-src 'self'; object-src 'none'; base-uri 'none'; frame-ancestors 'none'; form-action 'none'; upgrade-insecure-requests
+  X-Content-Type-Options: nosniff
+  Referrer-Policy: strict-origin-when-cross-origin
+  X-Frame-Options: DENY
+  Permissions-Policy: accelerometer=(), camera=(), geolocation=(), gyroscope=(), magnetometer=(), microphone=(), payment=(), usb=()
+  Cross-Origin-Opener-Policy: same-origin

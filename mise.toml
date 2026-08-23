@@ -1,62 +1,86 @@
 [tool_alias]
-selene = "aqua:Kampfkarren/selene"
 dotter = "aqua:SuperCuber/dotter"
+grant = "github:anchore/grant"
 nushell = "aqua:nushell/nushell"
+selene = "aqua:Kampfkarren/selene"
+vexctl = "aqua:openvex/vexctl"
 
 [tools]
 act = "0.2.89"
 actionlint = "1.7.12"
-aube = "1.38.0"
+aube = "1.41.0"
+codeql = "2.26.3"
+conftest = "0.69.0"
 dotter = "0.13.5"
-dprint = "0.55.2"
+dprint = "0.56.1"
 editorconfig-checker = "3.11.1"
-hk = "1.54.1"
+grant = { version = "0.6.8", os = ["linux", "macos"] }
+grype = "0.117.0"
+hk = "1.56.0"
 hyperfine = "1.20.0"
 jq = "1.8.2"
 just = "1.58.0"
 lychee = "0.24.2"
 node = "26.7.0"
-nushell = "0.114.1"
-powershell = "7.6.4"
+nushell = "0.115.0"
+osv-scanner = "2.5.1"
+powershell = "7.6.5"
 selene = "0.31.0"
-semgrep = "1.172.0"
+semgrep = "1.174.0"
 shellcheck = "0.11.0"
 shfmt = "3.13.1"
 stylua = "2.5.2"
 taplo = "0.10.0"
 tmux = { version = "3.7b", os = ["linux", "macos"] }
-trivy = "0.73.0"
-trufflehog = "3.96.0"
+trivy = "0.74.0"
+trufflehog = "3.97.0"
 typos = "1.49.0"
 vendir = "0.46.0"
+vexctl = "0.4.4"
 yamllint = "1.38.0"
-yq = "4.53.3"
+yq = "4.53.6"
 zizmor = "1.29.0"
 
-"npm:@modelcontextprotocol/inspector" = "2.1.0"
+"npm:@modelcontextprotocol/inspector" = "2.3.0"
 "npm:markdownlint-cli2" = { version = "0.23.2", allow_low_downloads = true }
+"npm:retire" = "5.5.0"
 "npm:stylelint" = "17.14.1"
-"npm:wrangler" = "4.120.0"
+"npm:wrangler" = "4.125.0"
 
 [env]
 AUBE_FETCH_RETRIES = "10"
 AUBE_FETCH_RETRY_FACTOR = "2"
 AUBE_FETCH_RETRY_MAXTIMEOUT = "180000"
 AUBE_FETCH_RETRY_MINTIMEOUT = "20000"
-AUBE_TRUST_POLICY_EXCLUDE = "@yarnpkg/libzip@3.2.2,pino@9.14.0"
+AUBE_TRUST_POLICY_EXCLUDE = "pino@9.14.0"
 DPRINT_CACHE_DIR = "{{config_root}}/.tools/dprint"
 
 [vars]
+# NOTE: Deployment Gate
+# NOTE: https://github.com/renovatebot/renovate/pkgs/container/renovate
+renovate_image = "ghcr.io/renovatebot/renovate:44.39.2@sha256:e6b93e709ca64495ab9307350b260064276ee02d15c6886387fd2d42c926623b"
+
+# NOTE: Format Quality Gate
 bash_targets = "dotfiles/.bashrc dotfiles/.bash_profile dotfiles/.config/bash dotfiles/.config/shell"
+
+# NOTE: Security Gate
+codeql_dir = ".tools/codeql"
+licenses_dir = ".tools/licenses"
+codeql_config = ".github/codeql/codeql-config.yml"
+codeql_config_javascript = ".github/codeql/javascript.yml"
+semgrep_web = "misc/semgrep/web.yaml"
+vex_file = "misc/vex/dotfiles.openvex.json"
+
+# NOTE: Antivirus Gate
 clamav_db_dir = ".tools/clamav-db"
 # NOTE: https://hub.docker.com/r/clamav/clamav/tags
 clamav_image = "clamav/clamav:1.5.4_base@sha256:aa2899ac82c7f9547954c8c84764c313f43029e31a36faa1ee527a2171789653"
+
+# NOTE: Documentation Gate
 docs_dist = "docs/dist"
 docs_archive = "docs/dotfiles-docs-*"
-# NOTE: https://github.com/renovatebot/renovate/pkgs/container/renovate
-renovate_image = "ghcr.io/renovatebot/renovate:44.16.1@sha256:d7b833d9aae601312d9afca391212620fce22eef2faa60e8cf00a9734220a1c5"
 
-# NOTE: Performance gate.
+# NOTE: Performance Gate
 bench_dir = ".tools/bench"
 bench_runs = ".tools/bench/runs"
 hyperfine = "hyperfine --warmup 2 --runs 10 --shell=none"
@@ -118,7 +142,15 @@ depends = ["fmt:all", "lint:all", "security:all", "docs:all", "validate:all"]
 
 [tasks."check:all"]
 description = "Run all checks"
-depends = ["fmt:all", "lint:all", "security:all", "antivirus:all", "docs:all", "validate:all", "bench:ci"]
+depends = [
+  "fmt:all",
+  "lint:all",
+  "security:all",
+  "antivirus:all",
+  "docs:all",
+  "validate:all",
+  "bench:ci",
+]
 
 [tasks.ci]
 description = "Run GitHub Actions locally with act"
@@ -261,37 +293,112 @@ depends = [
 # Security Gate
 # ==============================================================================
 
-[tasks."security:trufflehog"]
-description = "Secret scanning over git history"
-run = "trufflehog git file://. --results=verified,unknown --fail"
+[tasks."security:codeql:setup"]
+description = "Create the CodeQL working directory"
+run = "mkdir -p {{vars.codeql_dir}}"
+
+[tasks."security:codeql:db:actions"]
+description = "Build or refresh the CodeQL database for the GitHub Actions workflows"
+depends = ["security:codeql:setup"]
+run = """
+codeql database create {{vars.codeql_dir}}/db-actions \
+  --language=actions \
+  --source-root=. \
+  --build-mode=none \
+  --codescanning-config={{vars.codeql_config}} \
+  --overwrite
+"""
+
+[tasks."security:codeql:actions"]
+description = "CodeQL analysis of the GitHub Actions workflows"
+depends = ["security:codeql:db:actions"]
+run = [
+  """
+  codeql database analyze {{vars.codeql_dir}}/db-actions codeql/actions-queries \
+    --download \
+    --format=sarif-latest \
+    --sarif-category=actions \
+    --output={{vars.codeql_dir}}/actions.sarif
+  """,
+  """
+  codeql database interpret-results {{vars.codeql_dir}}/db-actions \
+    --format=csv \
+    --output={{vars.codeql_dir}}/actions.csv
+  """,
+  """
+  if [ -z "${CI:-}" ]; then
+    nu -c 'let rows = (open --raw {{vars.codeql_dir}}/actions.csv | from csv --noheaders)
+      if ($rows | is-empty) {
+        print "CodeQL actions: no findings."
+      } else {
+        $rows |
+          rename rule description severity message file line col end_line end_col |
+          select severity rule file line message |
+          to md --pretty
+      }'
+  fi
+  """,
+]
+
+[tasks."security:conftest"]
+description = "Repository policy checks (OPA/Rego)"
+run = [
+  "conftest test --policy misc/policy/workflows.rego --namespace workflows .github/workflows .github/actions",
+  "conftest test --policy misc/policy/mise.rego --namespace mise mise.toml",
+  "conftest test --policy misc/policy/vex.rego --namespace vex {{vars.vex_file}}",
+]
+
+[tasks."security:grant"]
+description = "License inventory of the deployed tree"
+run = "grant check dir:dotfiles --config .grant.yaml"
+run_windows = ""
+
+[tasks."security:grype"]
+description = "Grype vulnerability scan of the source tree"
+run = "grype dir:. --name dotfiles -c .grype.yaml --verbose"
+
+[tasks."security:grype:images"]
+description = "Grype scan of the container images pinned for CI"
+run = [
+  "grype {{vars.clamav_image}} -c .grype.yaml",
+  "grype {{vars.renovate_image}} -c .grype.yaml",
+]
+
+[tasks."security:osv"]
+description = "OSV vulnerability scan of the source tree"
+run = "osv-scanner scan source --recursive --allow-no-lockfiles --all-packages --all-vulns"
 
 [tasks."security:semgrep"]
 description = "SAST scan (OSS rules)"
 run = "semgrep scan --config p/ci --oss-only --metrics=off --error --verbose"
 
-[tasks."security:trivy:setup"]
-description = "Setup Trivy"
-run = "mkdir -p .tools/docker .tools/trivy"
+[tasks."security:semgrep:web"]
+description = "XSS and client-side injection rules over committed HTML, SVG, Vue and Markdown"
+run = "semgrep scan --config {{vars.semgrep_web}} --metrics=off --error dotfiles docs/src"
 
-[tasks."security:trivy"]
-description = "Trivy scan"
+[tasks."security:trivy:setup"]
+description = "Prepare the Trivy cache and report directories"
+run = "mkdir -p .tools/docker .tools/trivy {{vars.licenses_dir}}"
+
+[tasks."security:trivy:scan"]
+description = "Scan the committed tree for vulnerabilities, secrets and misconfiguration"
+depends = ["security:trivy:setup"]
 env = { DOCKER_CONFIG = "{{config_root}}/.tools/docker" }
 run = """
 trivy fs \
   --scanners vuln,secret,misconfig \
   --include-dev-deps \
+  --skip-dirs .tools \
   --format json \
   --output .tools/trivy/trivy.json \
   --exit-code 0 \
-  --include-dev-deps \
-  --timeout 10m \
+  --timeout 5m \
   .
 """
-depends = ["security:trivy:setup"]
 
 [tasks."security:trivy:table"]
-description = "Convert Trivy report to table"
-depends = ["security:trivy"]
+description = "Render the Trivy scan report as a table"
+depends = ["security:trivy:scan"]
 run = """
 trivy convert \
   --scanners vuln,secret,misconfig \
@@ -300,8 +407,8 @@ trivy convert \
 """
 
 [tasks."security:trivy:sarif"]
-description = "Convert Trivy report to SARIF"
-depends = ["security:trivy"]
+description = "Render the Trivy scan report as SARIF for code scanning"
+depends = ["security:trivy:scan"]
 run = """
 trivy convert \
   --scanners vuln,secret,misconfig \
@@ -309,6 +416,25 @@ trivy convert \
   --output .tools/trivy/trivy-results.sarif \
   .tools/trivy/trivy.json
 """
+
+[tasks."security:trivy:license"]
+description = "Scan license is not allowed"
+depends = ["security:trivy:setup"]
+env = { DOCKER_CONFIG = "{{config_root}}/.tools/docker" }
+run = """
+trivy fs \
+  --config misc/trivy/license.yaml \
+  --scanners license \
+  --skip-dirs .tools \
+  --format table \
+  --exit-code 0 \
+  --timeout 5m \
+  .
+"""
+
+[tasks."security:trufflehog"]
+description = "Secret scanning over git history"
+run = "trufflehog git file://. --results=verified,unknown --fail"
 
 [tasks."security:zizmor"]
 description = "GitHub Actions security audit"
@@ -318,10 +444,17 @@ run = "zizmor --persona pedantic .github/"
 [tasks."security:all"]
 description = "All security checks"
 depends = [
-  "security:trufflehog",
+  "security:codeql:actions",
+  "security:conftest",
+  "security:grant",
+  "security:grype",
+  "security:osv",
   "security:semgrep",
-  "security:trivy:table",
+  "security:semgrep:web",
+  "security:trivy:license",
   "security:trivy:sarif",
+  "security:trivy:table",
+  "security:trufflehog",
   "security:zizmor",
 ]
 
@@ -349,6 +482,7 @@ run = """
 podman run --rm --entrypoint clamscan -v "$PWD:/scandir:ro" -v "{{vars.clamav_db_dir}}:/var/lib/clamav:ro" "{{vars.clamav_image}}" \
   --recursive \
   --infected \
+  ${CLAMAV_EXCLUDE_DIR:+--exclude-dir="$CLAMAV_EXCLUDE_DIR"} \
   /scandir
 """
 
@@ -394,6 +528,59 @@ lychee \
   "{{config_root}}/docs/dist"
 """
 
+[tasks."docs:codeql:db"]
+description = "Build or refresh the CodeQL database for the documentation TypeScript sources"
+run = [
+  "mkdir -p {{vars.codeql_dir}}",
+  """
+  codeql database create {{vars.codeql_dir}}/db-javascript \
+    --language=javascript-typescript \
+    --source-root=. \
+    --build-mode=none \
+    --codescanning-config={{vars.codeql_config_javascript}} \
+    --overwrite
+  """,
+]
+
+[tasks."docs:codeql"]
+description = "CodeQL analysis of the documentation TypeScript sources"
+depends = ["docs:codeql:db"]
+run = [
+  """
+  codeql database analyze {{vars.codeql_dir}}/db-javascript codeql/javascript-queries \
+    --download \
+    --format=sarif-latest \
+    --sarif-category=javascript \
+    --output={{vars.codeql_dir}}/javascript.sarif
+  """,
+  """
+  codeql database interpret-results {{vars.codeql_dir}}/db-javascript \
+    --format=csv \
+    --output={{vars.codeql_dir}}/javascript.csv
+  """,
+  """
+  if [ -z "${CI:-}" ]; then
+    nu -c 'let rows = (open --raw {{vars.codeql_dir}}/javascript.csv | from csv --noheaders)
+      if ($rows | is-empty) {
+        print "CodeQL javascript: no findings."
+      } else {
+        $rows |
+          rename rule description severity message file line col end_line end_col |
+          select severity rule file line message |
+          to md --pretty
+      }'
+  fi
+  """,
+]
+
+[tasks."docs:security"]
+description = "Harden checks over the built documentation"
+env = { DOCS_DIST = "{{vars.docs_dist}}" }
+run = [
+  "semgrep scan --config {{vars.semgrep_web}} --metrics=off --error --project-root {{vars.docs_dist}} {{vars.docs_dist}}",
+  "retire --path {{vars.docs_dist}} --severity high --outputformat text",
+]
+
 [tasks."docs:pack"]
 description = "Pack documentation package archive"
 dir = "docs"
@@ -422,6 +609,8 @@ run = [
   { task = "docs:audit" },
   { task = "docs:build" },
   { task = "docs:links" },
+  { task = "docs:codeql" },
+  { task = "docs:security" },
   { task = "docs:pack" },
 ]
 

@@ -42,6 +42,10 @@ trim_trailing_whitespace = false
 [{Makefile,*.mk}]
 indent_style = tab
 
+# Rego — `opa fmt` emits tabs, so spaces here would be reverted by the formatter
+[*.rego]
+indent_style = tab
+
 # Justfile — recipe bodies use the indentation just expects
 [Justfile]
 indent_size = 4

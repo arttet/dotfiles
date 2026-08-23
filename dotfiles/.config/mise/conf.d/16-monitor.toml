@@ -6,4 +6,4 @@ btop4win = "github:aristocratos/btop4win"
 [tools]
 btop = { version = "1.4.7", os = ["linux", "macos"] }
 btop4win = { version = "1.0.5", os = ["windows"] }
-fastfetch = "2.67.0"
+fastfetch = "2.67.1"

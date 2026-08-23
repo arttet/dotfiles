@@ -3,7 +3,7 @@
   "version": "0.0.1",
   "private": true,
   "type": "module",
-  "packageManager": "aube@1.38.0",
+  "packageManager": "aube@1.41.0",
   "files": [
     "dist"
   ],
@@ -17,7 +17,7 @@
     "@types/node": "^26.2.0",
     "oxc-minify": "^0.143.0",
     "vitepress": "^2.0.0-alpha.19",
-    "vitepress-plugin-llms": "^1.13.4"
+    "vitepress-plugin-llms": "^1.13.5"
   },
   "overrides": {
     "typescript": "^7.0.2"
