@@ -61,7 +61,7 @@ clean:
     rm -rf .tools
     rm -rf dotfiles/.config/alacritty/themes
     rm -rf dotfiles/.config/tmux/plugins
-    rm -rf dotfiles/.config/hypr/wallpapers
+    rm -rf dotfiles/.local/share/backgrounds
     rm -rf dotfiles/.config/yazi/flavors
     rm -rf dotfiles/.config/yazi/plugins
     @just docs clean

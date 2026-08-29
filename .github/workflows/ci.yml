@@ -27,7 +27,7 @@ env:
   MISE_DATA_DIR: ${{ github.workspace }}/.tools/mise
   MISE_INSTALL_PATH: ${{ github.workspace }}/.tools/mise/bin/mise
   DPRINT_CACHE_DIR: ${{ github.workspace }}/.tools/dprint
-  AUBE_TRUST_POLICY_EXCLUDE: pino@9.14.0
+  AUBE_TRUST_POLICY_EXCLUDE: pino@9.14.0,fastq@1.20.2
   MISE_LOCAL_ALLOWED_ENDPOINTS: >-
     *.blob.core.windows.net:443
     github.com:443
@@ -231,7 +231,7 @@ jobs:
         run: mise run docs:install
 
       - name: Sync vendored components
-        run: mise run deploy:sync
+        run: mise run deploy:sync:config
 
       - name: Security gate
         run: mise run security:all
@@ -452,7 +452,7 @@ jobs:
         run: time mise install
 
       - name: Sync vendored dependencies
-        run: vendir sync --locked
+        run: mise run deploy:sync:config
 
       - name: Validate dotfiles configurations
         run: mise run validate:all

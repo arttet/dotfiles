@@ -42,7 +42,7 @@ yq = "4.53.6"
 zizmor = "1.29.0"
 
 "npm:@modelcontextprotocol/inspector" = "2.3.0"
-"npm:markdownlint-cli2" = { version = "0.23.2", allow_low_downloads = true }
+"npm:markdownlint-cli2" = "0.23.1"
 "npm:retire" = "5.5.0"
 "npm:stylelint" = "17.14.1"
 "npm:wrangler" = "4.125.0"
@@ -52,13 +52,16 @@ AUBE_FETCH_RETRIES = "10"
 AUBE_FETCH_RETRY_FACTOR = "2"
 AUBE_FETCH_RETRY_MAXTIMEOUT = "180000"
 AUBE_FETCH_RETRY_MINTIMEOUT = "20000"
-AUBE_TRUST_POLICY_EXCLUDE = "pino@9.14.0"
+AUBE_TRUST_POLICY_EXCLUDE = "pino@9.14.0,fastq@1.20.2"
 DPRINT_CACHE_DIR = "{{config_root}}/.tools/dprint"
 
 [vars]
 # NOTE: Deployment Gate
 # NOTE: https://github.com/renovatebot/renovate/pkgs/container/renovate
 renovate_image = "ghcr.io/renovatebot/renovate:44.39.2@sha256:e6b93e709ca64495ab9307350b260064276ee02d15c6886387fd2d42c926623b"
+# NOTE: vendir on Windows normalizes lock paths to backslashes, hence a lock file per platform.
+vendir_lock = "{% if os() == 'windows' %}vendir.lock.windows.yml{% else %}vendir.lock.yml{% endif %}"
+vendir_wallpapers_lock = "{% if os() == 'windows' %}vendir.lock.wallpapers.windows.yml{% else %}vendir.lock.wallpapers.yml{% endif %}"
 
 # NOTE: Format Quality Gate
 bash_targets = "dotfiles/.bashrc dotfiles/.bash_profile dotfiles/.config/bash dotfiles/.config/shell"
@@ -168,9 +171,20 @@ run = "act --list"
 # Deployment Gate
 # ==============================================================================
 
+[tasks."deploy:sync:config"]
+description = "Synchronize vendored plugins"
+run = "vendir sync --locked --lock-file {{vars.vendir_lock}}"
+
+[tasks."deploy:sync:wallpapers"]
+description = "Synchronize the wallpaper collections"
+run = "vendir sync --locked --file vendir.wallpapers.yml --lock-file {{vars.vendir_wallpapers_lock}}"
+
 [tasks."deploy:sync"]
-description = "Synchronize vendored plugins and themes"
-run = "vendir sync --locked --lock-file {% if os() == 'windows' %}vendir.lock.windows.yml{% else %}vendir.lock.yml{% endif %}"
+description = "Synchronize vendored plugins and wallpapers"
+run = [
+  { task = "deploy:sync:config" },
+  { task = "deploy:sync:wallpapers" },
+]
 
 [tasks."deploy:check"]
 description = "Preview the dotfiles deployment"
@@ -962,7 +976,7 @@ done >{{vars.bench_dir}}/tables.md
 [tasks."bench:ci"]
 description = "Compare startup performance with the committed baseline"
 run = [
-  { task = "deploy:sync" },
+  { task = "deploy:sync:config" },
   { task = "bench:all" },
   { task = "bench:collect" },
   "{{vars.bench_report}} --arg mode check >{{vars.bench_dir}}/report.json",
@@ -973,7 +987,7 @@ run = [
 [tasks."bench:update"]
 description = "Regenerate the performance baseline [run on the platform the gate runs on]"
 run = [
-  { task = "deploy:sync" },
+  { task = "deploy:sync:config" },
   { task = "bench:all" },
   { task = "bench:collect" },
   "{{vars.bench_report}} --arg mode update >{{vars.bench_dir}}/report.json",

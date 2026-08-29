@@ -14,6 +14,9 @@
     "target/**"
   ],
   "labels": ["dependencies"],
+  "vendir": {
+    "managerFilePatterns": ["/(^|/)vendir\\.yml$/", "/(^|/)vendir\\.wallpapers\\.yml$/"]
+  },
   "lockFileMaintenance": {
     "enabled": false
   },

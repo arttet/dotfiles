@@ -1,7 +1,7 @@
 #!/bin/sh
 # Wallpaper switcher for hyprpaper
 
-WALLPAPER_DIR="${XDG_CONFIG_HOME:-$HOME/.config}/hypr/wallpapers"
+WALLPAPER_DIR="${XDG_DATA_HOME:-$HOME/.local/share}/backgrounds"
 
 # Find all image files in wallpaper directories
 list_wallpapers() {

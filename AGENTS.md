@@ -12,7 +12,7 @@ This repository is a personal, cross-platform dotfiles configuration for Artyom 
 - **Maintainer**: `@arttet` (see `.github/CODEOWNERS`)
 - **Primary language of documentation and comments**: English
 - **Deployment model**: Symlink-based dotfiles deployed with **dotter** (`just deploy apply` / `mise run deploy:apply`)
-- **External assets**: Plugins, themes, and wallpapers are vendored with **vendir** (`vendir.yml` + `vendir.lock.yml`, plus `vendir.lock.windows.yml` for Windows path handling)
+- **External assets**: Plugins and themes are vendored with **vendir** (`vendir.yml`); wallpapers live in a separate `vendir.wallpapers.yml` and land in `dotfiles/.local/share/backgrounds/`. Each config has its own lock file, plus a `*.windows.yml` variant for Windows path handling
 - **Task runners**: `just` (`Justfile`) for deployment and local recipes; `mise` (`mise.toml`) for pinned dev tools and Stage-1 CI gate tasks
 - **Documentation site**: VitePress under `docs/`, served via aube (`just docs dev`)
 - **NixOS integration**: `nixos/home.nix` links selected dotfiles into a Home Manager generation
@@ -44,7 +44,7 @@ This repository is a personal, cross-platform dotfiles configuration for Artyom 
 │   │   ├── ghostty/      # terminal config
 │   │   ├── git/          # gitconfig, allowed_signers, ignore
 │   │   ├── helix/        # editor config
-│   │   ├── hypr/         # Hyprland (Lua) + wallpapers (vendored)
+│   │   ├── hypr/         # Hyprland (Lua), hyprpaper, wallpaper switcher script
 │   │   ├── kimi-code/    # Kimi Code settings
 │   │   ├── mise/         # global toolchain: config.toml + conf.d/ (numbered by priority)
 │   │   ├── nushell/      # modules/ + scripts/ + config.nu/env.nu
@@ -60,6 +60,8 @@ This repository is a personal, cross-platform dotfiles configuration for Artyom 
 │   │   ├── zed/
 │   │   ├── zellij/
 │   │   └── zsh/          # zsh-specific scripts
+│   ├── .local/share/     # XDG_DATA_HOME tree
+│   │   └── backgrounds/  # vendored wallpaper collections (~1.1 GB, opt-in)
 │   └── .ssh/config
 ├── misc/                 # additional Just modules
 │   └── justfiles/docs.just
@@ -67,9 +69,9 @@ This repository is a personal, cross-platform dotfiles configuration for Artyom 
 │   └── home.nix          # Home Manager links for NixOS
 ├── Justfile              # primary task definitions
 ├── mise.toml             # pinned dev tools + Stage-1 CI gate tasks (fmt/lint/security/antivirus/docs)
-├── vendir.yml            # external dependency specifications
-├── vendir.lock.yml       # pinned external dependency versions
-├── vendir.lock.windows.yml # Windows-specific lock file (backslash paths)
+├── vendir.yml            # external dependency specifications (plugins, themes)
+├── vendir.wallpapers.yml # wallpaper collections, synced separately
+├── vendir.lock*.yml      # pinned versions; *.windows.yml variants use backslash paths
 ├── dprint.json           # formatter config
 ├── .stylua.toml          # Lua formatter config
 ├── selene.toml           # Lua linter config
@@ -144,7 +146,9 @@ just ci            # delegates to `mise run ci` (GitHub Actions locally via act)
 just clean         # remove vendir deps, .tools caches, docs artifacts
 
 # Dotfiles deployment (deploy module)
-just deploy sync        # vendir sync --locked
+just deploy sync             # vendir sync --locked, wallpapers included (~1.1 GB)
+just deploy config           # same, minus the wallpapers (what CI runs)
+just deploy wallpapers       # wallpaper collections only
 just deploy check       # dotter dry-run preview
 just deploy apply       # dotter deploy --verbose --force
 just deploy undeploy    # dotter undeploy
@@ -169,9 +173,10 @@ mise run ci        # run the CI workflow locally via act (requires Docker)
 
 # Security gate (each task is also a CI step)
 mise run security:all       # secrets, SAST, web, Trivy, licenses, OSV, Grype, Grant, policy, zizmor
-mise run security:codeql    # CodeQL for actions + javascript-typescript (~1 GB on first run)
+mise run security:codeql:actions  # CodeQL over the workflows (~1 GB on first run); docs:codeql covers TypeScript
 mise run security:conftest  # OPA/Rego policies over workflows, mise.toml and the VEX document
-mise run security:licenses  # license inventory of the repo + every vendored component (needs deploy:sync)
+mise run security:trivy:license # licenses of the deployed tree (needs deploy:sync:config)
+mise run security:grant     # license policy over the deployed tree (Linux/macOS only)
 mise run security:grype:images  # scan the digest-pinned ClamAV and Renovate images (nightly in CI)
 mise run docs:security      # hardening checks over the built site (needs docs:build first)
 ```
@@ -196,14 +201,14 @@ repository hands a fork both its secrets and its write token.
 
 ### License inventory
 
-`mise run security:licenses` lists every component that reaches `$HOME` — this repository plus the
-third-party trees `vendir` fetches — and warns on anything outside `MIT,Apache-2.0` (`vars.licenses_allowed`
-in `mise.toml`). It reports rather than blocks: these are components already in use, several of them
-carrying GPL-3.0 or AGPL-3.0, and the useful output is visibility, not a red build.
+`mise run security:trivy:license` and `mise run security:grant` look at the deployed tree, not just the
+committed one: several vendored components carry GPL-3.0 or AGPL-3.0, and the useful output is
+visibility, not a red build.
 
-It refuses to run against an unsynced tree. The vendored plugins are gitignored, so without
-`mise run deploy:sync` the inventory would silently omit two thirds of its subjects and claim the rest
-is the whole picture; the CI job runs the sync as its own step for the same reason.
+Both need a synced tree. The vendored plugins are gitignored, so without `mise run deploy:sync:config`
+the inventory would silently omit two thirds of its subjects and claim the rest is the whole picture;
+the CI job runs the sync as its own step for the same reason. Wallpapers are outside that sync — their
+licenses belong to the wallpaper release set, not to the configuration gate.
 
 ### Suppressing a finding
 
@@ -360,13 +365,30 @@ path (`mise run deploy:apply`), so a broken mapping fails the `validate` job.
 `vendir.yml` pins external repositories into `dotfiles/.config/`:
 
 - Alacritty Catppuccin themes
-- Tmux Plugin Manager (TPM)
+- Tmux plugins (resurrect, continuum, yank, fzf, tmux2k)
 - Yazi flavors and plugins (catppuccin, chmod, copy-file-contents, full-border, git, ouch, piper, starship, toggle-pane, torrent-preview, yaziline)
-- Hyprland wallpapers (catppuccin, graphite, nord, whitesur, mactahoe)
 
-**Rule**: update these with `just deploy sync` / `just vendir update`, not by hand. `just deploy sync` uses `--locked` for reproducibility; `just vendir update` re-resolves refs and rewrites `vendir.lock.yml` (and `vendir.lock.windows.yml` on Windows). Run `just vendir outdated` to see which pinned commits are behind their upstream HEAD. Vendored paths are excluded from formatting and linting.
+`vendir.wallpapers.yml` pins the wallpaper collections into `dotfiles/.local/share/backgrounds/` (catppuccin, graphite, graphite-nord, nord, whitesur, whitesur-nord, mactahoe).
 
-> `vendir.lock.windows.yml` is kept because `vendir` on Windows normalizes paths to backslashes while the committed `vendir.lock.yml` uses forward slashes. `just deploy sync` selects the appropriate lock file automatically.
+**Rule**: update these with `just deploy sync` / `just vendir update`, not by hand. `just deploy sync` uses `--locked` for reproducibility; `just vendir update` re-resolves refs and rewrites both lock files for the platform. Run `just vendir outdated` to see which pinned commits are behind their upstream HEAD — it reports on both configs. Vendored paths are excluded from formatting and linting.
+
+### Partial sync
+
+The wallpaper collections are ~1.1 GB — roughly the entire size of a synced `dotfiles/` tree — and nothing in CI needs them, so there are three sync commands:
+
+| Command                  | Config                  | Lock files                                                          |
+| :----------------------- | :---------------------- | :------------------------------------------------------------------ |
+| `just deploy sync`       | both                    | both pairs                                                          |
+| `just deploy config`     | `vendir.yml`            | `vendir.lock.yml` / `vendir.lock.windows.yml`                       |
+| `just deploy wallpapers` | `vendir.wallpapers.yml` | `vendir.lock.wallpapers.yml` / `vendir.lock.wallpapers.windows.yml` |
+
+The split is by config file, not by flag: `vendir.yml` holds the plugins and themes, `vendir.wallpapers.yml` holds the images, and each has its own pair of lock files. `just deploy config` is therefore just a plain `vendir sync` of the default config, and CI runs `mise run deploy:sync:config` everywhere.
+
+Splitting by `vendir sync --directory` was tried and rejected: `--directory` matches `directories[].path` joined with `contents[].path` **exactly** — no prefix, no globs — so it would need one flag per component, kept in step with `vendir.yml` by hand. Nor can a parent like `dotfiles/.config` be declared as a `directories[].path`: vendir owns that path outright and deletes everything in it that the config does not declare.
+
+Deployment is split the same way: `dotfiles/.local/share/backgrounds` belongs to the `wallpapers` dotter package, which is deliberately outside `default`. A desktop that wants them runs `just deploy wallpapers` and adds `"wallpapers"` to `packages` in `.dotter/local.toml`.
+
+> The `*.windows.yml` lock files are kept because `vendir` on Windows normalizes paths to backslashes while the committed ones use forward slashes. The sync tasks select the appropriate lock file automatically.
 
 > Known issue (see `TODO.md`): `vendir sync` can fail on Windows with access-denied errors on its temp clone.
 
