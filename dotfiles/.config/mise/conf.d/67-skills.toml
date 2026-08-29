@@ -2,7 +2,7 @@
 
 [tools]
 # NOTE: https://context7.com/
-"npm:ctx7" = "0.5.8"
+"npm:ctx7" = "0.5.9"
 
 # NOTE: https://playwright.dev
 "npm:@playwright/cli" = "0.1.18"

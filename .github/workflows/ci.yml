@@ -103,7 +103,7 @@ jobs:
 
     steps:
       - name: Harden runner
-        uses: step-security/harden-runner@b09bb98e06d4d774595224525879c09bc6e98c40 # v2.20.1
+        uses: step-security/harden-runner@05e31511f85b41b11d1cf0ef85d0992719546e2c # v2.21.0
         with:
           egress-policy: block
           allowed-endpoints: >-
@@ -134,7 +134,7 @@ jobs:
 
     steps:
       - name: Harden runner
-        uses: step-security/harden-runner@b09bb98e06d4d774595224525879c09bc6e98c40 # v2.20.1
+        uses: step-security/harden-runner@05e31511f85b41b11d1cf0ef85d0992719546e2c # v2.21.0
         with:
           egress-policy: block
           allowed-endpoints: >-
@@ -175,7 +175,7 @@ jobs:
 
     steps:
       - name: Harden runner
-        uses: step-security/harden-runner@b09bb98e06d4d774595224525879c09bc6e98c40 # v2.20.1
+        uses: step-security/harden-runner@05e31511f85b41b11d1cf0ef85d0992719546e2c # v2.21.0
         with:
           egress-policy: block
           allowed-endpoints: >-
@@ -237,20 +237,20 @@ jobs:
         run: mise run security:all
 
       - name: Upload Trivy SARIF
-        uses: github/codeql-action/upload-sarif@f205ea1c3313d32999d8d6a48b4f6530d4437b38 # v4.37.4
+        uses: github/codeql-action/upload-sarif@ff2f1c621b7f889edc0d3c761ac2e6a3f8cdb0dd # v4.37.7
         if: ${{ needs.guard.outputs.trusted == 'true' && hashFiles('.tools/trivy/trivy-results.sarif') != '' }}
         with:
           sarif_file: .tools/trivy/trivy-results.sarif
 
       - name: Upload CodeQL SARIF (actions)
-        uses: github/codeql-action/upload-sarif@f205ea1c3313d32999d8d6a48b4f6530d4437b38 # v4.37.4
+        uses: github/codeql-action/upload-sarif@ff2f1c621b7f889edc0d3c761ac2e6a3f8cdb0dd # v4.37.7
         if: ${{ needs.guard.outputs.trusted == 'true' && hashFiles('.tools/codeql/actions.sarif') != '' }}
         with:
           sarif_file: .tools/codeql/actions.sarif
           category: actions
 
       - name: Upload CodeQL SARIF (javascript)
-        uses: github/codeql-action/upload-sarif@f205ea1c3313d32999d8d6a48b4f6530d4437b38 # v4.37.4
+        uses: github/codeql-action/upload-sarif@ff2f1c621b7f889edc0d3c761ac2e6a3f8cdb0dd # v4.37.7
         if: ${{ needs.guard.outputs.trusted == 'true' && hashFiles('.tools/codeql/javascript.sarif') != '' }}
         with:
           sarif_file: .tools/codeql/javascript.sarif
@@ -267,7 +267,7 @@ jobs:
 
     steps:
       - name: Harden runner
-        uses: step-security/harden-runner@b09bb98e06d4d774595224525879c09bc6e98c40 # v2.20.1
+        uses: step-security/harden-runner@05e31511f85b41b11d1cf0ef85d0992719546e2c # v2.21.0
         with:
           egress-policy: block
           allowed-endpoints: >-
@@ -321,7 +321,7 @@ jobs:
 
     steps:
       - name: Harden runner
-        uses: step-security/harden-runner@b09bb98e06d4d774595224525879c09bc6e98c40 # v2.20.1
+        uses: step-security/harden-runner@05e31511f85b41b11d1cf0ef85d0992719546e2c # v2.21.0
         with:
           egress-policy: block
           allowed-endpoints: >-
@@ -374,7 +374,7 @@ jobs:
         run: mise run docs:all
 
       - name: Upload CodeQL SARIF (javascript)
-        uses: github/codeql-action/upload-sarif@f205ea1c3313d32999d8d6a48b4f6530d4437b38 # v4.37.4
+        uses: github/codeql-action/upload-sarif@ff2f1c621b7f889edc0d3c761ac2e6a3f8cdb0dd # v4.37.7
         if: ${{ always() && needs.guard.outputs.trusted == 'true' && hashFiles('.tools/codeql/javascript.sarif') != '' }}
         with:
           sarif_file: .tools/codeql/javascript.sarif
@@ -419,13 +419,15 @@ jobs:
 
     steps:
       - name: Harden runner
-        uses: step-security/harden-runner@b09bb98e06d4d774595224525879c09bc6e98c40 # v2.20.1
+        uses: step-security/harden-runner@05e31511f85b41b11d1cf0ef85d0992719546e2c # v2.21.0
         with:
           egress-policy: block
           allowed-endpoints: >-
             ${{ env.MISE_LOCAL_ALLOWED_ENDPOINTS }}
             ${{ env.VALIDATE_MISE_INSTALL_ALLOWED_ENDPOINTS }}
             api.openai.com:443
+            chatgpt.com:443
+            persistent.oaistatic.com:443
 
       - name: Checkout
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -473,7 +475,7 @@ jobs:
 
     steps:
       - name: Harden runner
-        uses: step-security/harden-runner@b09bb98e06d4d774595224525879c09bc6e98c40 # v2.20.1
+        uses: step-security/harden-runner@05e31511f85b41b11d1cf0ef85d0992719546e2c # v2.21.0
         with:
           egress-policy: block
           allowed-endpoints: >-
@@ -494,7 +496,7 @@ jobs:
           install-tools: "false"
 
       - name: Install Nix
-        uses: cachix/install-nix-action@630ae543ea3a38a9a4166f03376c02c50f408342 # v31.11.0
+        uses: cachix/install-nix-action@13d8dd58da0234aa297dedd986986ccb8e7f3e24 # v31.11.1
         with:
           extra_nix_config: |
             experimental-features = nix-command flakes
@@ -577,7 +579,7 @@ jobs:
 
   #   steps:
   #     - name: Harden runner
-  #       uses: step-security/harden-runner@b09bb98e06d4d774595224525879c09bc6e98c40 # v2.20.1
+  #       uses: step-security/harden-runner@05e31511f85b41b11d1cf0ef85d0992719546e2c # v2.21.0
   #       with:
   #         egress-policy: block
   #         allowed-endpoints: >-
@@ -645,7 +647,7 @@ jobs:
 
     steps:
       - name: Harden runner
-        uses: step-security/harden-runner@b09bb98e06d4d774595224525879c09bc6e98c40 # v2.20.1
+        uses: step-security/harden-runner@05e31511f85b41b11d1cf0ef85d0992719546e2c # v2.21.0
         with:
           egress-policy: block
           allowed-endpoints: >-
@@ -685,7 +687,7 @@ jobs:
 
     steps:
       - name: Harden runner
-        uses: step-security/harden-runner@b09bb98e06d4d774595224525879c09bc6e98c40 # v2.20.1
+        uses: step-security/harden-runner@05e31511f85b41b11d1cf0ef85d0992719546e2c # v2.21.0
         with:
           egress-policy: block
           allowed-endpoints: >-
@@ -771,7 +773,7 @@ jobs:
 
     steps:
       - name: Harden runner
-        uses: step-security/harden-runner@b09bb98e06d4d774595224525879c09bc6e98c40 # v2.20.1
+        uses: step-security/harden-runner@05e31511f85b41b11d1cf0ef85d0992719546e2c # v2.21.0
         with:
           egress-policy: block
           allowed-endpoints: >-
