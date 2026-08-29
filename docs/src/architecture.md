@@ -77,6 +77,27 @@ home.file = builtins.listToAttrs (
 
 This path is useful when the Nix flake is the source of truth for the machine, but it covers only the Linux/Wayland subset of the dotfiles.
 
+### Partial sync
+
+`vendir` fetches two very different kinds of thing: a couple of megabytes of plugins and themes, and
+about 1.1 GB of wallpaper images. Nothing in CI needs the second kind, so they live in separate configs.
+
+| Command                  | Config                  | Lock files                                                          |
+| :----------------------- | :---------------------- | :------------------------------------------------------------------ |
+| `just deploy sync`       | both                    | both pairs                                                          |
+| `just deploy config`     | `vendir.yml`            | `vendir.lock.yml` / `vendir.lock.windows.yml`                       |
+| `just deploy wallpapers` | `vendir.wallpapers.yml` | `vendir.lock.wallpapers.yml` / `vendir.lock.wallpapers.windows.yml` |
+
+Splitting by file rather than by `vendir sync --directory` is deliberate. `--directory` matches
+`directories[].path` joined with `contents[].path` **exactly** — no prefix, no globs — so it would take
+one flag per component, maintained by hand alongside `vendir.yml`. And a parent such as
+`dotfiles/.config` cannot simply be declared as a `directories[].path`, because vendir owns that path
+outright: it deletes everything under it that the config does not declare.
+
+Deployment splits the same way. `dotfiles/.local/share/backgrounds` belongs to the `wallpapers` dotter
+package, deliberately outside `default`; a desktop that wants them runs `just deploy wallpapers` and
+adds `"wallpapers"` to `packages` in `.dotter/local.toml`.
+
 ### Windows vs Linux Differences
 
 | Concern     | Linux / macOS                                    | Windows                               |
@@ -102,10 +123,15 @@ $env.XDG_STATE_HOME  = ($env.XDG_STATE_HOME?  | default ($nu.home-dir | path joi
 | Purpose       | Default path     | Example contents                              |
 | :------------ | :--------------- | :-------------------------------------------- |
 | Config        | `~/.config`      | Editor, shell, terminal, AI tool configs      |
-| Data          | `~/.local/share` | Tool data, plugin state, vendored assets      |
+| Data          | `~/.local/share` | Tool data, plugin state, wallpapers           |
 | Cache         | `~/.cache`       | Generated completions, download caches        |
 | State         | `~/.local/state` | History, persistent sessions                  |
 | User binaries | `~/.local/bin`   | Personal scripts and manually installed tools |
+
+Wallpapers follow that split: they are data, not configuration, so `vendir` fetches them into
+`dotfiles/.local/share/backgrounds/` and `hyprpaper.conf` reads `~/.local/share/backgrounds/active`.
+Keeping them out of `~/.config` is also what lets CI skip a 1.1 GB download — see
+[Partial sync](#partial-sync).
 
 Sensitive files such as SSH keys and OAuth tokens are stored outside the repository and referenced by path, never embedded in config files.
 
@@ -267,11 +293,11 @@ Findings are never silenced with an ignore file. A suppression is a VEX statemen
 timestamp, the affected package and an OpenVEX justification, and `policy/vex.rego` fails the build if
 one of those is missing.
 
-The license question is answered for the whole deployment, not just the committed tree. `vendir` pulls
-in tmux plugins, yazi flavors and wallpapers that are gitignored but end up in `$HOME`, so the security
-job syncs them and `mise run security:licenses` reports every component with its license and origin,
-warning on anything outside MIT and Apache-2.0. The check refuses to run against an unsynced tree
-instead of quietly reporting on half of it.
+The license question is answered for the deployed tree, not just the committed one. `vendir` pulls in
+tmux plugins and yazi flavors that are gitignored but end up in `$HOME`, so the security job runs
+`mise run deploy:sync:config` first and then asks `mise run security:trivy:license` and
+`mise run security:grant` about the result. Wallpapers are not part of that sync (see
+[Partial sync](#partial-sync)); their licenses are covered when the wallpaper set is released.
 
 The documentation site is covered too: `docs/src/public/_headers` ships a Content-Security-Policy and
 the usual hardening headers, `misc/semgrep/web.yaml` rejects executable markup in SVG and Markdown,

@@ -1,0 +1,55 @@
+apiVersion: vendir.k14s.io/v1alpha1
+directories:
+- contents:
+  - git:
+      commitTitle: 'Merge pull request #6 from KrisAphalon/master'
+      sha: 7bfdf10d16ad3a689f9f0cf3a0930da3d1a245a8
+    path: .
+  path: dotfiles/.local/share/backgrounds/catppuccin
+- contents:
+  - git:
+      commitTitle: update
+      sha: 57028b0bfcc0cfee1ba42273c545e4e269973433
+      tags:
+      - 2025-07-06-10-g57028b0
+    path: .
+  path: dotfiles/.local/share/backgrounds/graphite
+- contents:
+  - git:
+      commitTitle: update
+      sha: 57028b0bfcc0cfee1ba42273c545e4e269973433
+      tags:
+      - 2025-07-06-10-g57028b0
+    path: .
+  path: dotfiles/.local/share/backgrounds/graphite-nord
+- contents:
+  - git:
+      commitTitle: 'upd: change links to ign'
+      sha: 7a8e3bcabafbefd1c5b19229841b9bf377a4b765
+    path: .
+  path: dotfiles/.local/share/backgrounds/nord
+- contents:
+  - git:
+      commitTitle: 'Merge pull request #11 from sam-itt/patch-1...'
+      sha: 5c1d7ca20b8de0a7efe443792c19e49277262e02
+      tags:
+      - 2023-06-11-4-g5c1d7ca
+    path: .
+  path: dotfiles/.local/share/backgrounds/whitesur
+- contents:
+  - git:
+      commitTitle: 'Merge pull request #11 from sam-itt/patch-1...'
+      sha: 5c1d7ca20b8de0a7efe443792c19e49277262e02
+      tags:
+      - 2023-06-11-4-g5c1d7ca
+    path: .
+  path: dotfiles/.local/share/backgrounds/whitesur-nord
+- contents:
+  - git:
+      commitTitle: Fixed firefox issues
+      sha: 3267b3dfd9b6c3e775ad9b1f3079f848fc076bf6
+      tags:
+      - 2026-05-24-16-g3267b3d
+    path: .
+  path: dotfiles/.local/share/backgrounds/mactahoe
+kind: LockConfig

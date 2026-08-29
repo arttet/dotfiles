@@ -1,3 +1,5 @@
+# Plugins and themes deployed to XDG_CONFIG_HOME. Wallpapers live in vendir.wallpapers.yml so that
+# `just deploy config` -- the sync CI runs -- does not pull ~1.1 GB of images nobody there needs.
 apiVersion: vendir.k14s.io/v1alpha1
 kind: Config
 
@@ -70,7 +72,6 @@ directories:
           - continuum.tmux
           - scripts/**
         excludePaths:
-          # Symlink into the (excluded) docs/ tree; not needed at runtime.
           - scripts/handle_tmux_automatic_start/README.md
 
   # - path: dotfiles/.config/tmux/plugins/tmux-sessionist
@@ -107,6 +108,10 @@ directories:
           - main.sh
           - scripts/**
 
+  # ---------------------------------------------------------------------------
+  # Tmux status line framework
+  # ---------------------------------------------------------------------------
+
   - path: dotfiles/.config/tmux/plugins/tmux2k
     contents:
       - path: .
@@ -120,121 +125,6 @@ directories:
           - main.sh
           - lib/**
           - plugins/**
-
-  # ---------------------------------------------------------------------------
-  # Tmux status line framework
-  # ---------------------------------------------------------------------------
-
-  # ===========================================================================
-  # Wallpapers
-  # ===========================================================================
-
-  # ---------------------------------------------------------------------------
-  # Wallpapers / Catppuccin
-  # ---------------------------------------------------------------------------
-  - path: dotfiles/.config/hypr/wallpapers/catppuccin
-    contents:
-      - path: .
-        git:
-          url: https://github.com/orangci/walls-catppuccin-mocha
-          ref: master
-          lfsSkipSmudge: true
-          skipInitSubmodules: false
-        includePaths:
-          - "**/*.png"
-          - "**/*.jpg"
-          - "**/*.jpeg"
-
-  # ---------------------------------------------------------------------------
-  # Wallpapers / Graphite
-  # ---------------------------------------------------------------------------
-  - path: dotfiles/.config/hypr/wallpapers/graphite
-    contents:
-      - path: .
-        git:
-          url: https://github.com/vinceliuice/Graphite-gtk-theme
-          ref: main
-          lfsSkipSmudge: true
-          skipInitSubmodules: true
-        includePaths:
-          - wallpaper/wallpapers/wave-color.jpg
-          - wallpaper/wallpapers/wave-Dark.jpg
-          - wallpaper/wallpapers/wave-Light.jpg
-        newRootPath: wallpaper/wallpapers
-
-  - path: dotfiles/.config/hypr/wallpapers/graphite-nord
-    contents:
-      - path: .
-        git:
-          url: https://github.com/vinceliuice/Graphite-gtk-theme
-          ref: main
-          lfsSkipSmudge: true
-          skipInitSubmodules: true
-        includePaths:
-          - wallpaper/wallpapers-nord/wave-color-nord.jpg
-          - wallpaper/wallpapers-nord/wave-Dark-nord.jpg
-          - wallpaper/wallpapers-nord/wave-Light-nord.jpg
-        newRootPath: wallpaper/wallpapers-nord
-
-  # ---------------------------------------------------------------------------
-  # Wallpapers / Nord
-  # ---------------------------------------------------------------------------
-  - path: dotfiles/.config/hypr/wallpapers/nord
-    contents:
-      - path: .
-        git:
-          url: https://github.com/linuxdotexe/nordic-wallpapers
-          ref: master
-          lfsSkipSmudge: true
-          skipInitSubmodules: true
-        includePaths:
-          - "**/*.png"
-          - "**/*.jpg"
-          - "**/*.jpeg"
-
-  # ---------------------------------------------------------------------------
-  # Wallpapers / WhiteSur
-  # ---------------------------------------------------------------------------
-  - path: dotfiles/.config/hypr/wallpapers/whitesur
-    contents:
-      - path: .
-        git:
-          url: https://github.com/vinceliuice/WhiteSur-wallpapers
-          ref: main
-          lfsSkipSmudge: true
-          skipInitSubmodules: true
-        includePaths:
-          - "1080p/*.jpg"
-          - "2k/*.jpg"
-          - "4k/*.jpg"
-
-  - path: dotfiles/.config/hypr/wallpapers/whitesur-nord
-    contents:
-      - path: .
-        git:
-          url: https://github.com/vinceliuice/WhiteSur-wallpapers
-          ref: main
-          lfsSkipSmudge: true
-          skipInitSubmodules: true
-        includePaths:
-          - "Wallpaper-nord/*.png"
-        newRootPath: Wallpaper-nord
-
-  # ---------------------------------------------------------------------------
-  # Wallpapers / MacTahoe
-  # ---------------------------------------------------------------------------
-  - path: dotfiles/.config/hypr/wallpapers/mactahoe
-    contents:
-      - path: .
-        git:
-          url: https://github.com/vinceliuice/MacTahoe-gtk-theme
-          ref: main
-          lfsSkipSmudge: true
-          skipInitSubmodules: true
-        includePaths:
-          - wallpaper/MacTahoe-day.jpeg
-          - wallpaper/MacTahoe-night.jpeg
-        newRootPath: wallpaper
 
   # ===========================================================================
   # Yazi

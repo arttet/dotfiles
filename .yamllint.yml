@@ -13,8 +13,7 @@ rules:
     check-keys: false
 
 ignore: |
-  vendir.lock.yml
-  vendir.lock.windows.yml
+  vendir.lock*.yml
   .serena/
   node_modules/
   .tools/

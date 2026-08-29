@@ -4,10 +4,20 @@
 # `[no-cd]` keeps the working directory at the invocation root (repo root) so
 # dotter/just vendir resolve paths correctly from a submodule.
 
-[doc('Synchronize external plugins and dependencies')]
+[doc('Synchronize external dependencies and wallpapers')]
 [no-cd]
 sync:
     mise run deploy:sync
+
+[doc('Synchronize external dependencies')]
+[no-cd]
+config:
+    mise run deploy:sync:config
+
+[doc('Synchronize the wallpaper collections only')]
+[no-cd]
+wallpapers:
+    mise run deploy:sync:wallpapers
 
 [doc('Preview dotfiles deployment (dotter dry-run)')]
 [no-cd]

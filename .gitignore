@@ -14,12 +14,12 @@ dotfiles/.config/nushell/history.sqlite3*
 # tmux
 dotfiles/.config/tmux/plugins
 
-# wallpapers
-dotfiles/.config/hypr/wallpapers
-
 # yazi
 dotfiles/.config/yazi/flavors
 dotfiles/.config/yazi/plugins
+
+# wallpapers
+dotfiles/.local/share/backgrounds
 
 # zsh
 dotfiles/.config/zsh/.zcompdump*

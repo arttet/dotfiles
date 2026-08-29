@@ -1,0 +1,110 @@
+apiVersion: vendir.k14s.io/v1alpha1
+kind: Config
+
+directories:
+  # ===========================================================================
+  # Wallpapers / Catppuccin
+  # ===========================================================================
+  - path: dotfiles/.local/share/backgrounds/catppuccin
+    contents:
+      - path: .
+        git:
+          url: https://github.com/orangci/walls-catppuccin-mocha
+          ref: master
+          lfsSkipSmudge: true
+          skipInitSubmodules: false
+        includePaths:
+          - "**/*.png"
+          - "**/*.jpg"
+          - "**/*.jpeg"
+
+  # ===========================================================================
+  # Wallpapers / Graphite
+  # ===========================================================================
+  - path: dotfiles/.local/share/backgrounds/graphite
+    contents:
+      - path: .
+        git:
+          url: https://github.com/vinceliuice/Graphite-gtk-theme
+          ref: main
+          lfsSkipSmudge: true
+          skipInitSubmodules: true
+        includePaths:
+          - wallpaper/wallpapers/wave-color.jpg
+          - wallpaper/wallpapers/wave-Dark.jpg
+          - wallpaper/wallpapers/wave-Light.jpg
+        newRootPath: wallpaper/wallpapers
+
+  - path: dotfiles/.local/share/backgrounds/graphite-nord
+    contents:
+      - path: .
+        git:
+          url: https://github.com/vinceliuice/Graphite-gtk-theme
+          ref: main
+          lfsSkipSmudge: true
+          skipInitSubmodules: true
+        includePaths:
+          - wallpaper/wallpapers-nord/wave-color-nord.jpg
+          - wallpaper/wallpapers-nord/wave-Dark-nord.jpg
+          - wallpaper/wallpapers-nord/wave-Light-nord.jpg
+        newRootPath: wallpaper/wallpapers-nord
+
+  # ===========================================================================
+  # Wallpapers / Nord
+  # ===========================================================================
+  - path: dotfiles/.local/share/backgrounds/nord
+    contents:
+      - path: .
+        git:
+          url: https://github.com/linuxdotexe/nordic-wallpapers
+          ref: master
+          lfsSkipSmudge: true
+          skipInitSubmodules: true
+        includePaths:
+          - "**/*.png"
+          - "**/*.jpg"
+          - "**/*.jpeg"
+
+  # ===========================================================================
+  # Wallpapers / WhiteSur
+  # ===========================================================================
+  - path: dotfiles/.local/share/backgrounds/whitesur
+    contents:
+      - path: .
+        git:
+          url: https://github.com/vinceliuice/WhiteSur-wallpapers
+          ref: main
+          lfsSkipSmudge: true
+          skipInitSubmodules: true
+        includePaths:
+          - "1080p/*.jpg"
+          - "2k/*.jpg"
+          - "4k/*.jpg"
+
+  - path: dotfiles/.local/share/backgrounds/whitesur-nord
+    contents:
+      - path: .
+        git:
+          url: https://github.com/vinceliuice/WhiteSur-wallpapers
+          ref: main
+          lfsSkipSmudge: true
+          skipInitSubmodules: true
+        includePaths:
+          - "Wallpaper-nord/*.png"
+        newRootPath: Wallpaper-nord
+
+  # ===========================================================================
+  # Wallpapers / MacTahoe
+  # ===========================================================================
+  - path: dotfiles/.local/share/backgrounds/mactahoe
+    contents:
+      - path: .
+        git:
+          url: https://github.com/vinceliuice/MacTahoe-gtk-theme
+          ref: main
+          lfsSkipSmudge: true
+          skipInitSubmodules: true
+        includePaths:
+          - wallpaper/MacTahoe-day.jpeg
+          - wallpaper/MacTahoe-night.jpeg
+        newRootPath: wallpaper
