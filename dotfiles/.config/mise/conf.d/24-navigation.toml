@@ -1,9 +1,9 @@
 # Tier: filesystem navigation and search.
 
 [tools]
-ast-grep = "0.45.1"
+ast-grep = "0.45.2"
 eza = "0.23.5"
-fd = "10.4.2"
+fd = "10.5.0"
 fzf = "0.74.3"
 lsd = "1.2.0"
 rg = "15.2.0"

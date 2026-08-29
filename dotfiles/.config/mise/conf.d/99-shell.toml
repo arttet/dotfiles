@@ -4,5 +4,5 @@
 nushell = "aqua:nushell/nushell"
 
 [tools]
-nushell = "0.115.0"
+nushell = "0.115.1"
 powershell = "7.6.5"
