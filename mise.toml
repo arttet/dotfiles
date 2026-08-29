@@ -357,7 +357,7 @@ run = [
 [tasks."security:conftest"]
 description = "Repository policy checks (OPA/Rego)"
 run = [
-  "conftest test --policy misc/policy/workflows.rego --namespace workflows .github/workflows .github/actions",
+  "conftest test --policy misc/policy/workflows.rego --namespace workflows .github/workflows",
   "conftest test --policy misc/policy/mise.rego --namespace mise mise.toml",
   "conftest test --policy misc/policy/vex.rego --namespace vex {{vars.vex_file}}",
 ]

@@ -22,10 +22,8 @@ defaults:
 
 env:
   NIXPKGS: github:NixOS/nixpkgs/nixos-unstable # Only the performance job: Bash and Zsh are not in the mise registry
-  MISE_VERSION: v2026.7.17
-  MISE_SHA256: 71b4a7720cf8f1e22adbc31fed6f0094e84b16d6e365a19c4afae354f1493b3a # mise-v2026.7.17-linux-x64-musl.tar.gz
+  MISE_VERSION: v2026.8.14
   MISE_DATA_DIR: ${{ github.workspace }}/.tools/mise
-  MISE_INSTALL_PATH: ${{ github.workspace }}/.tools/mise/bin/mise
   DPRINT_CACHE_DIR: ${{ github.workspace }}/.tools/dprint
   AUBE_TRUST_POLICY_EXCLUDE: pino@9.14.0,fastq@1.20.2
   MISE_LOCAL_ALLOWED_ENDPOINTS: >-
@@ -115,10 +113,10 @@ jobs:
           persist-credentials: false
 
       - name: Setup mise
-        uses: ./.github/actions/setup-mise
+        uses: jdx/mise-action@c2a87611a18de5b3828c5652fe268e992400cb5c # v4.3.0
         with:
           version: ${{ env.MISE_VERSION }}
-          sha256: ${{ env.MISE_SHA256 }}
+          reshim: true
 
       - name: Format checks
         run: mise run fmt:all
@@ -149,10 +147,10 @@ jobs:
           persist-credentials: false
 
       - name: Setup mise
-        uses: ./.github/actions/setup-mise
+        uses: jdx/mise-action@c2a87611a18de5b3828c5652fe268e992400cb5c # v4.3.0
         with:
           version: ${{ env.MISE_VERSION }}
-          sha256: ${{ env.MISE_SHA256 }}
+          reshim: true
 
       - name: Lint checks
         run: mise run lint:all
@@ -196,10 +194,10 @@ jobs:
           persist-credentials: false
 
       - name: Setup mise
-        uses: ./.github/actions/setup-mise
+        uses: jdx/mise-action@c2a87611a18de5b3828c5652fe268e992400cb5c # v4.3.0
         with:
           version: ${{ env.MISE_VERSION }}
-          sha256: ${{ env.MISE_SHA256 }}
+          reshim: true
 
       - name: Restore Trivy cache
         uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
@@ -284,10 +282,10 @@ jobs:
           persist-credentials: false
 
       - name: Setup mise
-        uses: ./.github/actions/setup-mise
+        uses: jdx/mise-action@c2a87611a18de5b3828c5652fe268e992400cb5c # v4.3.0
         with:
           version: ${{ env.MISE_VERSION }}
-          sha256: ${{ env.MISE_SHA256 }}
+          reshim: true
 
       - name: Get current date
         id: date
@@ -338,10 +336,10 @@ jobs:
           persist-credentials: false
 
       - name: Setup mise
-        uses: ./.github/actions/setup-mise
+        uses: jdx/mise-action@c2a87611a18de5b3828c5652fe268e992400cb5c # v4.3.0
         with:
           version: ${{ env.MISE_VERSION }}
-          sha256: ${{ env.MISE_SHA256 }}
+          reshim: true
 
       - name: Restore aube cache
         uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
@@ -435,10 +433,10 @@ jobs:
           persist-credentials: false
 
       - name: Setup mise
-        uses: ./.github/actions/setup-mise
+        uses: jdx/mise-action@c2a87611a18de5b3828c5652fe268e992400cb5c # v4.3.0
         with:
           version: ${{ env.MISE_VERSION }}
-          install-tools: "false"
+          install: false
 
       - name: Deploy dotfiles
         shell: bash
@@ -489,11 +487,10 @@ jobs:
           persist-credentials: false
 
       - name: Setup mise
-        uses: ./.github/actions/setup-mise
+        uses: jdx/mise-action@c2a87611a18de5b3828c5652fe268e992400cb5c # v4.3.0
         with:
           version: ${{ env.MISE_VERSION }}
-          sha256: ${{ env.MISE_SHA256 }}
-          install-tools: "false"
+          install: false
 
       - name: Install Nix
         uses: cachix/install-nix-action@13d8dd58da0234aa297dedd986986ccb8e7f3e24 # v31.11.1
@@ -701,10 +698,10 @@ jobs:
           persist-credentials: false
 
       - name: Setup mise
-        uses: ./.github/actions/setup-mise
+        uses: jdx/mise-action@c2a87611a18de5b3828c5652fe268e992400cb5c # v4.3.0
         with:
           version: ${{ env.MISE_VERSION }}
-          sha256: ${{ env.MISE_SHA256 }}
+          reshim: true
 
       - name: Download docs artifact
         uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1

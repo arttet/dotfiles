@@ -17,10 +17,8 @@ defaults:
     shell: bash
 
 env:
-  MISE_VERSION: v2026.7.17
-  MISE_SHA256: 71b4a7720cf8f1e22adbc31fed6f0094e84b16d6e365a19c4afae354f1493b3a # mise-v2026.7.17-linux-x64-musl.tar.gz
+  MISE_VERSION: v2026.8.14
   MISE_DATA_DIR: ${{ github.workspace }}/.tools/mise
-  MISE_INSTALL_PATH: ${{ github.workspace }}/.tools/mise/bin/mise
 
 jobs:
   vendir-status:
@@ -53,11 +51,10 @@ jobs:
           persist-credentials: false
 
       - name: Setup mise
-        uses: ./.github/actions/setup-mise
+        uses: jdx/mise-action@c2a87611a18de5b3828c5652fe268e992400cb5c # v4.3.0
         with:
           version: ${{ env.MISE_VERSION }}
-          sha256: ${{ env.MISE_SHA256 }}
-          install-tools: "false"
+          install: false
 
       # Only what `just vendir outdated-summary` needs; the full toolset would pull npm and pypi endpoints.
       - name: Install tools
@@ -108,11 +105,10 @@ jobs:
           persist-credentials: false
 
       - name: Setup mise
-        uses: ./.github/actions/setup-mise
+        uses: jdx/mise-action@c2a87611a18de5b3828c5652fe268e992400cb5c # v4.3.0
         with:
           version: ${{ env.MISE_VERSION }}
-          sha256: ${{ env.MISE_SHA256 }}
-          install-tools: "false"
+          install: false
 
       - name: Install tools
         run: mise install grype

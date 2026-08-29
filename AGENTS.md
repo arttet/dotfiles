@@ -24,8 +24,7 @@ This repository is a personal, cross-platform dotfiles configuration for Artyom 
 ├── .dotter/              # dotter deployment configuration
 │   └── global.toml       # package/profiles and file mappings
 ├── .github/              # CI/CD workflows and Dependabot config
-│   ├── actions/setup-mise/ # pinned, checksum-verified mise installer with tool cache
-│   ├── harden-runner/      # allowed-endpoints lists loaded by CI jobs
+│   ├── codeql/           # CodeQL scan configuration (actions, javascript)
 │   └── workflows/ci.yml  # validation, security, docs, deployment
 ├── docs/                 # VitePress documentation site
 │   ├── package.json      # aube-managed dev dependencies
@@ -184,8 +183,14 @@ mise run docs:security      # hardening checks over the built site (needs docs:b
 Stage-1 gate tasks live in `mise.toml` and are exactly what CI runs (`.github/workflows/ci.yml` calls
 `mise run fmt:all` / `lint:all` / `security:*` / `antivirus:all` / `docs:*`). Stage 2 and 3 follow the same
 rule: `validate:*`, `bench:*`, `deploy:*`, and `deploy:cloudflare:*` are mise tasks, and every workflow step
-is a `mise run` of one of them. Tools are pinned in `mise.toml` and installed in CI by the
-checksum-verified composite action `.github/actions/setup-mise`; CI uses neither Nix nor stow.
+is a `mise run` of one of them. Tools are pinned in `mise.toml`; mise itself is installed in CI by
+`jdx/mise-action`, pinned to a commit SHA. CI uses neither Nix nor stow.
+
+That pin is what makes the install trustworthy. The action carries a minisign public key in its own
+source, so pinning the commit pins the key; it then verifies `SHASUMS256.txt` from the mise release
+against that key and checks the downloaded asset against those checksums. Do not set the action's
+`sha256` input: it verifies the extracted binary instead and makes the action skip the signature
+check entirely.
 
 ### Fork trust model
 
