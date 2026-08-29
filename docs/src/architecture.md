@@ -304,14 +304,46 @@ the usual hardening headers, `misc/semgrep/web.yaml` rejects executable markup i
 and `mise run docs:security` proves the headers reached `docs/dist` and that no bundled JavaScript
 carries a known advisory.
 
-### Stage 2: Validation and Performance
+### Stage 2: Validation, Performance and Release
 
-Both jobs run only after Stage 1 succeeds and use tools pinned by mise — no Nix, no stow.
+All three jobs run only after Stage 1 succeeds and use tools pinned by mise — no Nix, no stow.
 
 | Job           | Purpose                                                                                          |
 | :------------ | :----------------------------------------------------------------------------------------------- |
 | `validate`    | `mise run deploy:apply` (dotter), install the global toolchain, then `mise run validate:all`     |
 | `performance` | `mise run bench:setup` then `mise run bench:ci`; compares shell startup ratios with the baseline |
+| `artifact`    | `mise run artifact:all`; packs, describes, scans and verifies the release set                    |
+
+#### Release artifact
+
+`dotfiles/` is published as something you can check rather than trust:
+
+| File               | Answers                                             |
+| :----------------- | :-------------------------------------------------- |
+| `dotfiles.tar.gz`  | the bytes themselves                                |
+| `sbom.spdx.json`   | what is inside                                      |
+| `licenses.json`    | where each component came from and under what terms |
+| `vex.openvex.json` | which findings do not apply here, and why           |
+| `manifest.json`    | which commit and which vendir state produced this   |
+| `checksums.sha256` | that nothing changed in transit                     |
+
+Wallpapers are a separate set, built only on pushes to `main` — ~1.1 GB of images that no pull request
+needs. Both sets are reproducible: entries are sorted, ownership zeroed, timestamps taken from the
+commit, and `gzip -n` runs as its own step because `tar --gzip` would stamp the current time.
+
+To check a downloaded set:
+
+```sh
+gh run download --name dotfiles-artifacts
+sha256sum --check checksums.sha256
+jq -r '.source.commit, .build.vendir.lock.sha256' manifest.json
+jq -r '.warnings[]' licenses.json
+grype sbom:sbom.spdx.json --vex vex.openvex.json
+tar -xzf dotfiles.tar.gz
+```
+
+The license inventory reports rather than blocks. Some vendored components are GPL-3.0 or AGPL-3.0
+while this repository is MIT; they are used deliberately, so the point is that you can see them.
 
 `validate:all` covers AI agents, MCP servers, editors, shells, multiplexers, and CLI tools; for example
 `hx --health all` for Helix, `zellij setup --check` for Zellij, and `yazi --debug` for Yazi.

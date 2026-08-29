@@ -146,6 +146,19 @@ version = "2.26.4"
 backend = "github:github/codeql-cli-binaries"
 
 [tools.codeql.options]
+asset_pattern = "codeql-win64.zip"
+
+[tools.codeql."platforms.windows-x64"]
+checksum = "sha256:7066f60be9393bdefe2d34676c0b4f071920a79fdbe78caff3c7ea31fb0da808"
+url = "https://github.com/github/codeql-cli-binaries/releases/download/v2.26.4/codeql-win64.zip"
+url_api = "https://api.github.com/repos/github/codeql-cli-binaries/releases/assets/523666876"
+provenance = "github-attestations"
+
+[[tools.codeql]]
+version = "2.26.4"
+backend = "github:github/codeql-cli-binaries"
+
+[tools.codeql.options]
 asset_pattern = "codeql-linux64.zip"
 
 [tools.codeql."platforms.linux-x64"]
@@ -177,19 +190,6 @@ provenance = "github-attestations"
 checksum = "sha256:b65e8c65fc66ffca1976f73268ffe2cacaf91c4941efab22b0f2a189787bb899"
 url = "https://github.com/github/codeql-cli-binaries/releases/download/v2.26.4/codeql-osx64.zip"
 url_api = "https://api.github.com/repos/github/codeql-cli-binaries/releases/assets/523666873"
-provenance = "github-attestations"
-
-[[tools.codeql]]
-version = "2.26.4"
-backend = "github:github/codeql-cli-binaries"
-
-[tools.codeql.options]
-asset_pattern = "codeql-win64.zip"
-
-[tools.codeql."platforms.windows-x64"]
-checksum = "sha256:7066f60be9393bdefe2d34676c0b4f071920a79fdbe78caff3c7ea31fb0da808"
-url = "https://github.com/github/codeql-cli-binaries/releases/download/v2.26.4/codeql-win64.zip"
-url_api = "https://api.github.com/repos/github/codeql-cli-binaries/releases/assets/523666876"
 provenance = "github-attestations"
 
 [[tools.conftest]]
@@ -953,6 +953,45 @@ url_api = "https://api.github.com/repos/JohnnyMorganz/StyLua/releases/assets/421
 checksum = "sha256:e77d0ea1226b8b389b43f702240091249a96eea25857281f90ea24d0eb9eb969"
 url = "https://github.com/JohnnyMorganz/StyLua/releases/download/v2.5.2/stylua-windows-x86_64.zip"
 url_api = "https://api.github.com/repos/JohnnyMorganz/StyLua/releases/assets/421902292"
+
+[[tools.syft]]
+version = "1.51.1"
+backend = "aqua:anchore/syft"
+
+[tools.syft."platforms.linux-arm64"]
+checksum = "sha256:a7fd2b784e6664acd44719270574f6cd8c6864fc2b1700bf9099bd1cccda7d7f"
+url = "https://github.com/anchore/syft/releases/download/v1.51.1/syft_1.51.1_linux_arm64.tar.gz"
+url_api = "https://api.github.com/repos/anchore/syft/releases/assets/532610134"
+
+[tools.syft."platforms.linux-arm64-musl"]
+checksum = "sha256:a7fd2b784e6664acd44719270574f6cd8c6864fc2b1700bf9099bd1cccda7d7f"
+url = "https://github.com/anchore/syft/releases/download/v1.51.1/syft_1.51.1_linux_arm64.tar.gz"
+url_api = "https://api.github.com/repos/anchore/syft/releases/assets/532610134"
+
+[tools.syft."platforms.linux-x64"]
+checksum = "sha256:8fcb33017a0dc1058298c923c436d19dfa68ae93968e0b423248542e3afb9fc3"
+url = "https://github.com/anchore/syft/releases/download/v1.51.1/syft_1.51.1_linux_amd64.tar.gz"
+url_api = "https://api.github.com/repos/anchore/syft/releases/assets/532610151"
+
+[tools.syft."platforms.linux-x64-musl"]
+checksum = "sha256:8fcb33017a0dc1058298c923c436d19dfa68ae93968e0b423248542e3afb9fc3"
+url = "https://github.com/anchore/syft/releases/download/v1.51.1/syft_1.51.1_linux_amd64.tar.gz"
+url_api = "https://api.github.com/repos/anchore/syft/releases/assets/532610151"
+
+[tools.syft."platforms.macos-arm64"]
+checksum = "sha256:ac063af3b9874769deb7ea1e6d76841e68f9e3bb50cd654226fc977de65532c1"
+url = "https://github.com/anchore/syft/releases/download/v1.51.1/syft_1.51.1_darwin_arm64.tar.gz"
+url_api = "https://api.github.com/repos/anchore/syft/releases/assets/532610139"
+
+[tools.syft."platforms.macos-x64"]
+checksum = "sha256:0e186ce1d4351ec276126851ca3ff258ed070e93e73574ed64858d4fc2339867"
+url = "https://github.com/anchore/syft/releases/download/v1.51.1/syft_1.51.1_darwin_amd64.tar.gz"
+url_api = "https://api.github.com/repos/anchore/syft/releases/assets/532610142"
+
+[tools.syft."platforms.windows-x64"]
+checksum = "sha256:5e4bc3e6b6344b4625de0f7aa5351aaa72856d11d78462972de0a101ee2c1c8f"
+url = "https://github.com/anchore/syft/releases/download/v1.51.1/syft_1.51.1_windows_amd64.zip"
+url_api = "https://api.github.com/repos/anchore/syft/releases/assets/532610136"
 
 [[tools.taplo]]
 version = "0.10.0"

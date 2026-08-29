@@ -178,6 +178,11 @@ mise run security:trivy:license # licenses of the deployed tree (needs deploy:sy
 mise run security:grant     # license policy over the deployed tree (Linux/macOS only)
 mise run security:grype:images  # scan the digest-pinned ClamAV and Renovate images (nightly in CI)
 mise run docs:security      # hardening checks over the built site (needs docs:build first)
+
+# Release artifact (Stage 2)
+just artifact              # build, describe, scan and verify the dotfiles set
+just artifact verify       # re-check an existing set: checksums + manifest commit
+mise run artifact:wallpapers:all  # the ~1.1 GB wallpapers set (main only in CI)
 ```
 
 Stage-1 gate tasks live in `mise.toml` and are exactly what CI runs (`.github/workflows/ci.yml` calls
@@ -214,6 +219,29 @@ Both need a synced tree. The vendored plugins are gitignored, so without `mise r
 the inventory would silently omit two thirds of its subjects and claim the rest is the whole picture;
 the CI job runs the sync as its own step for the same reason. Wallpapers are outside that sync — their
 licenses belong to the wallpaper release set, not to the configuration gate.
+
+### Release artifact
+
+The `artifact` job publishes `dotfiles/` as something a consumer can check rather than trust. The set is
+`dotfiles.tar.gz` plus an SPDX SBOM, the VEX document, a license inventory, a manifest and
+`checksums.sha256`. Wallpapers are a second, separate set built only on pushes to `main`: they are
+~1.1 GB of images and nothing on a pull request needs them.
+
+The archive is packed from the working tree by an explicit file list, not by `git archive`: the vendored
+plugins are gitignored yet ship to `$HOME`, so a git-only archive would omit exactly the third-party code
+that runs in production. Packing by list also keeps shell history, `.zcompdump` and dotter caches out by
+construction rather than by exclusion patterns. It is reproducible — `--mtime` from the commit, zeroed
+ownership, sorted entries, and `gzip -n` as its own step because `tar --gzip` stamps the current time.
+
+`manifest.json` is where identity lives, which is why the commit SHA is not baked into file names. It
+records the commit, the tree, and the SHA-256 of both the vendir config and its lock file: the same
+commit with a different lock yields different bytes, and that pair is also what distinguishes the two
+sets without any exclusion list.
+
+`licenses.json` reports rather than blocks. Several vendored components carry GPL-3.0 (`tmux2k`) or
+AGPL-3.0 (`torrent-preview.yazi`) while this repository is MIT; they are used deliberately, so the useful
+output is visibility. A component with no license file is recorded as a finding too instead of being
+dropped. For the same reason `grant` runs report-only over the SBOM.
 
 ### Suppressing a finding
 
