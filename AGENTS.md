@@ -390,8 +390,20 @@ txt file, not to the workflow.
     not from the mise toolset
 - **Stage 3**:
   - `artifact` — `mise run artifact:dotfiles:all`; the wallpapers set only on pushes to `main`
-  - `deploy-cf-pages` — `mise run deploy:cloudflare:preview` on PRs, `:production` on `main`
+  - `deploy-cf-pages` — verify and unpack the docs package, then `mise run deploy:cloudflare:preview`
+    on PRs, `:production` on `main`
   - `deploy-github-pages` — publish docs to GitHub Pages (only on `main`, not scheduled)
+
+The `docs` job hands the deploy job a packed archive plus `checksums.sha256` (`docs-package`) rather
+than the raw `docs/dist` tree, and `deploy-cf-pages` runs `docs:verify:hash` before `docs:unpack`.
+Nothing reaches Cloudflare without the bytes being checked first — the same shape the dotfiles release
+set already uses. GitHub Pages keeps its own path: `upload-pages-artifact` and `deploy-pages` travel
+through a channel GitHub verifies itself.
+
+`aube pack` writes an npm-style archive, so the site sits two levels down at `package/dist`. `docs:unpack`
+strips both levels and takes only that subtree, which also keeps `package.json` out of the published
+site. Getting this wrong publishes an empty site rather than failing, which is why the deploy verifies
+and unpacks in separate, reproducible steps.
 
 `.github/workflows/release.yml` is separate and runs on `v*` tags. It has no `guard` job because the
 tag itself is the trust boundary — only a maintainer can push one — and it rebuilds the set from the

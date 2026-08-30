@@ -364,6 +364,11 @@ while this repository is MIT; they are used deliberately, so the point is that y
 Pull requests get a Cloudflare Pages preview (`mise run deploy:cloudflare:preview`). On pushes to `main`
 (not scheduled), the docs go to Cloudflare Pages production and to GitHub Pages.
 
+The site travels as a packed archive with a `checksums.sha256` beside it, not as a raw directory, so the
+deploy job can check what it is about to publish: `docs:verify:hash` runs before `docs:unpack`, and a
+corrupted archive stops the deploy instead of reaching the internet. GitHub Pages uses its own verified
+channel and is unaffected.
+
 ## Adding New Tools
 
 When adding a new tool config, follow this checklist to keep deployment, validation, and documentation in sync:

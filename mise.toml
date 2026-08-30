@@ -83,6 +83,9 @@ clamav_image = "clamav/clamav:1.5.4_base@sha256:aa2899ac82c7f9547954c8c84764c313
 # NOTE: Documentation Gate
 docs_dist = "docs/dist"
 docs_archive = "docs/dotfiles-docs-*"
+# NOTE: The two below are relative to docs/, where the pack, checksum and verify tasks run.
+docs_archive_name = "dotfiles-docs-*.tgz"
+docs_checksums = "checksums.sha256"
 
 # NOTE: Performance Gate
 bench_dir = ".tools/bench"
@@ -692,6 +695,17 @@ description = "Pack documentation package archive"
 dir = "docs"
 run = "aube pack"
 
+[tasks."docs:checksum"]
+description = "Write a SHA-256 checksum for the packed documentation archive"
+depends = ["docs:pack"]
+dir = "docs"
+run = "sha256sum {{vars.docs_archive_name}} >{{vars.docs_checksums}}"
+
+[tasks."docs:verify:hash"]
+description = "Check the packed documentation archive against its checksum"
+dir = "docs"
+run = "sha256sum --check {{vars.docs_checksums}}"
+
 [tasks."docs:unpack:setup"]
 description = "Reset the documentation output directory"
 env = { DOCS_DIST = "{{vars.docs_dist}}" }
@@ -701,11 +715,14 @@ mkdir -p "${DOCS_DIST}"
 """
 
 [tasks."docs:unpack"]
+# `aube pack` writes an npm-style archive: everything sits under `package/`, and the site itself two
+# levels down at `package/dist`. Both levels are stripped and only that subtree is taken, so
+# `package.json` stays out of the published site. Without this the deploy would serve an empty site.
 description = "Unpack the packed documentation archive into the output directory"
 depends = ["docs:unpack:setup"]
 env = { DOCS_DIST = "{{vars.docs_dist}}", DOCS_ARCHIVE = "{{vars.docs_archive}}" }
 run = """
-tar -xzvf ${DOCS_ARCHIVE} -C "${DOCS_DIST}"
+tar -xzf ${DOCS_ARCHIVE} -C "${DOCS_DIST}" --strip-components=2 package/dist
 """
 
 [tasks."docs:all"]
@@ -718,6 +735,7 @@ run = [
   { task = "docs:codeql" },
   { task = "docs:security" },
   { task = "docs:pack" },
+  { task = "docs:checksum" },
 ]
 
 # ==============================================================================
