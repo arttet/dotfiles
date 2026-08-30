@@ -3,7 +3,7 @@
   "version": "0.0.1",
   "private": true,
   "type": "module",
-  "packageManager": "aube@1.41.0",
+  "packageManager": "aube@2.2.0",
   "files": [
     "dist"
   ],
@@ -13,8 +13,8 @@
     "docs:preview": "vitepress preview"
   },
   "devDependencies": {
-    "@catppuccin/vitepress": "^0.1.2",
-    "@types/node": "^26.2.0",
+    "@catppuccin/vitepress": "^0.1.4",
+    "@types/node": "^26.4.0",
     "oxc-minify": "^0.143.0",
     "vitepress": "^2.0.0-alpha.19",
     "vitepress-plugin-llms": "^1.13.5"
