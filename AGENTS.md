@@ -179,10 +179,11 @@ mise run security:grant     # license policy over the deployed tree (Linux/macOS
 mise run security:grype:images  # scan the digest-pinned ClamAV and Renovate images (nightly in CI)
 mise run docs:security      # hardening checks over the built site (needs docs:build first)
 
-# Release artifact (Stage 2)
-just artifact              # build, describe, scan and verify the dotfiles set
-just artifact verify       # re-check an existing set: checksums + manifest commit
-mise run artifact:wallpapers:all  # the ~1.1 GB wallpapers set (main only in CI)
+# Release artifact (Stage 3)
+just artifact dotfiles:all          # build, describe, scan and verify the dotfiles set
+just artifact dotfiles:verify:hash  # re-check an existing set against its own checksums
+just artifact dotfiles:verify:commit # re-check that its manifest describes this commit
+just artifact wallpapers:all        # the ~1.1 GB wallpapers set (main only in CI)
 ```
 
 Stage-1 gate tasks live in `mise.toml` and are exactly what CI runs (`.github/workflows/ci.yml` calls
@@ -204,7 +205,7 @@ could act on this repository: no secrets, no OIDC token, no write to the Securit
 comment, no deployment. That decision is made once by the `guard` job, which publishes a `trusted`
 output, and every privileged step carries `if: needs.guard.outputs.trusted == 'true'`.
 
-Two rules in `policy/workflows.rego` keep it from drifting: every job must list `guard` in `needs`, and
+Two rules in `misc/policy/workflows.rego` keep it from drifting: every job must list `guard` in `needs`, and
 any job holding a write permission or reading a real secret must reference
 `needs.guard.outputs.trusted`. `pull_request_target` is rejected outright — it is the usual way a
 repository hands a fork both its secrets and its write token.
@@ -247,7 +248,7 @@ dropped. For the same reason `grant` runs report-only over the SBOM.
 
 Do not add `.trivyignore`, `[[IgnoredVulns]]`, or a severity downgrade. The only sanctioned mechanism is
 a statement in `misc/vex/dotfiles.openvex.json`, which records who asserted it, when, about which
-package, and on what grounds; `policy/vex.rego` rejects a `not_affected` statement with no OpenVEX
+package, and on what grounds; `misc/policy/vex.rego` rejects a `not_affected` statement with no OpenVEX
 justification. The document ships with the release archive and is signed with it.
 
 Two mechanics are easy to get wrong. Grype treats a VEX document as annotation only — the
@@ -403,7 +404,7 @@ path (`mise run deploy:apply`), so a broken mapping fails the `validate` job.
 
 `vendir.wallpapers.yml` pins the wallpaper collections into `dotfiles/.local/share/backgrounds/` (catppuccin, graphite, graphite-nord, nord, whitesur, whitesur-nord, mactahoe).
 
-**Rule**: update these with `just deploy sync` / `just vendir update`, not by hand. `just deploy sync` uses `--locked` for reproducibility; `just vendir update` re-resolves refs and rewrites both lock files for the platform. Run `just vendir outdated` to see which pinned commits are behind their upstream HEAD — it reports on both configs. Vendored paths are excluded from formatting and linting.
+**Rule**: update these with `just deploy sync` / `mise run deps:vendir:update`, not by hand. `just deploy sync` uses `--locked` for reproducibility; `mise run deps:vendir:update` re-resolves refs and rewrites both lock files for the platform. Run `mise run deps:vendir:outdated` to see which pinned commits are behind their upstream HEAD — it reports on both configs. Both come in `:config` and `:wallpapers` variants that touch one lock file each. Vendored paths are excluded from formatting and linting.
 
 ### Partial sync
 

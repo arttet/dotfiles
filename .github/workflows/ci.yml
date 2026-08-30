@@ -21,7 +21,6 @@ defaults:
     shell: bash
 
 env:
-  NIXPKGS: github:NixOS/nixpkgs/nixos-unstable # Only the performance job: Bash and Zsh are not in the mise registry
   MISE_VERSION: v2026.8.14
   MISE_DATA_DIR: ${{ github.workspace }}/.tools/mise
   DPRINT_CACHE_DIR: ${{ github.workspace }}/.tools/dprint
@@ -471,6 +470,9 @@ jobs:
       contents: read
       pull-requests: write # Required to post the performance report comment on PRs
 
+    env:
+      NIXPKGS: github:NixOS/nixpkgs/nixos-unstable # Bash and Zsh are not in the mise registry
+
     steps:
       - name: Harden runner
         uses: step-security/harden-runner@05e31511f85b41b11d1cf0ef85d0992719546e2c # v2.21.0
@@ -479,6 +481,7 @@ jobs:
           allowed-endpoints: >-
             ${{ env.MISE_LOCAL_ALLOWED_ENDPOINTS }}
             cache.nixos.org:443
+            channels.nixos.org:443
             releases.nixos.org:443
 
       - name: Checkout
@@ -498,8 +501,11 @@ jobs:
           extra_nix_config: |
             experimental-features = nix-command flakes
 
+      - name: Alias nixpkgs in the flake registry
+        run: nix registry add nixpkgs "${NIXPKGS}"
+
       - name: Install benchmark shells
-        run: nix profile add "${NIXPKGS}#bash" "${NIXPKGS}#zsh"
+        run: nix profile add nixpkgs#bash nixpkgs#zsh
 
       - name: Install benchmark dependencies
         run: mise install hyperfine jq nushell powershell tmux vendir
@@ -534,6 +540,7 @@ jobs:
           if [[ ! -f performance-report.md ]]; then
             printf '## Performance report\n\n**Failed:** benchmark did not produce a report.\n' >performance-report.md
           fi
+
           # Sticky PR comment: update the existing marked comment or create a new one.
           marker="performance-regression"
           body="$(cat performance-report.md)"
@@ -542,6 +549,7 @@ jobs:
               --jq '.[] | select(.body | contains("<!-- '"${marker}"' -->")) | .id' | head -n 1
           )"
           full_body="${body}"$'\n\n'"<!-- ${marker} -->"
+
           if [ -n "$comment_id" ]; then
             gh api -X PATCH "repos/${GH_REPO}/issues/comments/${comment_id}" -f body="$full_body" >/dev/null
           else
@@ -553,14 +561,14 @@ jobs:
         run: |
           echo "::error title=Performance regression gate failed::See the report below and in the job summary."
           if [[ -f performance-report.md ]]; then
-            cat performance-report.md >&2
+            cat performance-report.md >& 2
           else
-            echo "Performance report was not generated." >&2
+            echo "Performance report was not generated." >& 2
           fi
           exit 1
 
   # ==============================================================================
-  # Stage 2: Artifact Gate
+  # Stage 3: Artifact Gate
   # ==============================================================================
   artifact:
     name: Artifact
@@ -599,7 +607,7 @@ jobs:
         run: mise run deploy:sync:config
 
       - name: Build the dotfiles release set
-        run: mise run artifact:all
+        run: mise run artifact:dotfiles:all
 
       - name: Upload dotfiles artifacts
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
@@ -609,7 +617,6 @@ jobs:
           retention-days: 30
           if-no-files-found: error
 
-      # The wallpapers are ~1.1 GB, so they are released from main only and never on a pull request.
       - name: Sync wallpaper collections
         if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' }}
         run: mise run deploy:sync:wallpapers

@@ -2,7 +2,7 @@
 # Vendored plugin sync lives here because deployment expects vendored content.
 #
 # `[no-cd]` keeps the working directory at the invocation root (repo root) so
-# dotter/just vendir resolve paths correctly from a submodule.
+# dotter and vendir resolve paths correctly from a submodule.
 
 [doc('Synchronize external dependencies and wallpapers')]
 [no-cd]
