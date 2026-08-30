@@ -98,6 +98,15 @@ bench target="all":
     mise run bench:{{ target }}
 
 # ==============================================================================
+# Artifact
+# ==============================================================================
+
+[doc('Build the release set [target: all, dotfiles, sbom, licenses, manifest, scan, verify]')]
+[group('Artifact')]
+artifact target="all":
+    mise run artifact:{{ target }}
+
+# ==============================================================================
 # Neovim
 # ==============================================================================
 
