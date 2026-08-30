@@ -155,7 +155,7 @@ jobs:
         run: mise run lint:all
 
   # ==============================================================================
-  # Stage 1: Security
+  # Stage 1: Security Gate
   # ==============================================================================
   security:
     name: Security
@@ -254,7 +254,7 @@ jobs:
           category: javascript
 
   # ==============================================================================
-  # Stage 1: Antivirus
+  # Stage 1: Antivirus Gate
   # ==============================================================================
   antivirus:
     name: Antivirus
@@ -402,7 +402,7 @@ jobs:
     name: Validate (${{ matrix.os }})
     runs-on: ${{ matrix.os }}
     timeout-minutes: 15
-    needs: [guard, fmt, lint, security, docs]
+    needs: [guard, fmt, lint]
     permissions:
       contents: read
 
@@ -464,7 +464,7 @@ jobs:
     name: Performance
     runs-on: ubuntu-26.04
     timeout-minutes: 10
-    needs: [guard, fmt, lint, security, docs]
+    needs: [guard, fmt, lint]
 
     permissions:
       contents: read
@@ -574,7 +574,7 @@ jobs:
     name: Artifact
     runs-on: ubuntu-26.04
     timeout-minutes: 20
-    needs: [guard, fmt, lint, security, validate]
+    needs: [guard, fmt, lint, security, antivirus, docs, validate, performance]
 
     permissions:
       contents: read # The release set is built here but signed and published elsewhere

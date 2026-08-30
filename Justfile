@@ -1,5 +1,5 @@
 ################################################################################
-# Requires just >= 1.52.0+
+# Requires just >= 1.58.0+
 ################################################################################
 
 # ==============================================================================
@@ -12,6 +12,25 @@ default: help
 [doc('List all commands')]
 help:
     @just --list --unsorted --list-submodules
+
+# ==============================================================================
+# Deploy
+# ==============================================================================
+
+[doc('Synchronize external dependencies and wallpapers')]
+[group('Deploy')]
+sync:
+    mise run deploy:sync
+
+[doc('Deploy dotfiles using dotter')]
+[group('Deploy')]
+apply:
+    mise run deploy:apply
+
+[doc('Undeploy dotfiles using dotter')]
+[group('Deploy')]
+undeploy:
+    mise run deploy:undeploy
 
 # ==============================================================================
 # Development
@@ -68,40 +87,8 @@ clean:
     @echo "✅ Cleanup complete!"
 
 # ==============================================================================
-# Deploy
-# ==============================================================================
-
-[group('Deploy')]
-mod deploy 'misc/justfiles/deploy.just'
-
-# ==============================================================================
 # Documentation
 # ==============================================================================
 
 [group('Documentation')]
 mod docs 'misc/justfiles/docs.just'
-
-# ==============================================================================
-# Performance
-# ==============================================================================
-
-[doc('Run benchmarks [target: all, nu, bash, zsh, tmux, pwsh, ci, update]')]
-[group('Performance')]
-bench target="all":
-    mise run bench:{{ target }}
-
-# ==============================================================================
-# Artifact
-# ==============================================================================
-
-[doc('Build a release set [target: all, dotfiles:all, wallpapers:all, dotfiles:verify:hash, ...]')]
-[group('Artifact')]
-artifact target="all":
-    mise run artifact:{{ target }}
-
-# ==============================================================================
-# Neovim
-# ==============================================================================
-
-[group('Neovim')]
-mod nvim 'misc/justfiles/nvim.just'
