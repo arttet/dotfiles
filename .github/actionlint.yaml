@@ -1,6 +1,3 @@
-# actionlint config: ubuntu-26.04 is a GitHub-hosted runner in public preview
-# (https://github.blog/changelog/2026-06-11-new-runner-images-in-public-preview/)
-# that actionlint's built-in label database does not know yet.
 self-hosted-runner:
   labels:
     - ubuntu-26.04
