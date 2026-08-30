@@ -180,10 +180,10 @@ mise run security:grype:images  # scan the digest-pinned ClamAV and Renovate ima
 mise run docs:security      # hardening checks over the built site (needs docs:build first)
 
 # Release artifact (Stage 3)
-just artifact dotfiles:all          # build, describe, scan and verify the dotfiles set
-just artifact dotfiles:verify:hash  # re-check an existing set against its own checksums
-just artifact dotfiles:verify:commit # re-check that its manifest describes this commit
-just artifact wallpapers:all        # the ~1.1 GB wallpapers set (main only in CI)
+mise run artifact:dotfiles:all           # build, describe, scan and verify the dotfiles set
+mise run artifact:dotfiles:verify:hash   # re-check an existing set against its own checksums
+mise run artifact:dotfiles:verify:commit # re-check that its manifest describes this commit
+mise run artifact:wallpapers:all         # the ~1.1 GB wallpapers set (main only in CI)
 ```
 
 Stage-1 gate tasks live in `mise.toml` and are exactly what CI runs (`.github/workflows/ci.yml` calls
@@ -228,11 +228,25 @@ The `artifact` job publishes `dotfiles/` as something a consumer can check rathe
 `checksums.sha256`. Wallpapers are a second, separate set built only on pushes to `main`: they are
 ~1.1 GB of images and nothing on a pull request needs them.
 
-The archive is packed from the working tree by an explicit file list, not by `git archive`: the vendored
-plugins are gitignored yet ship to `$HOME`, so a git-only archive would omit exactly the third-party code
-that runs in production. Packing by list also keeps shell history, `.zcompdump` and dotter caches out by
-construction rather than by exclusion patterns. It is reproducible — `--mtime` from the commit, zeroed
-ownership, sorted entries, and `gzip -n` as its own step because `tar --gzip` stamps the current time.
+The archive is packed in two halves and concatenated, because neither tool can see the other's files.
+`artifact:dotfiles:pack:tracked` runs `git archive` over an explicit pathspec (`vars.artifact_tracked`):
+`dotfiles/`, the two `.dotter/` files and `INSTALL.md` — the last two are what make an unpacked release
+deployable at all. `artifact:dotfiles:pack:vendored` packs the vendored plugins, which are gitignored yet
+ship to `$HOME`, so `git archive` cannot reach them. Both halves are allowlists, which is what keeps
+shell history, `.zcompdump` and dotter caches out by construction rather than by exclusion patterns.
+
+The pathspec is deliberately not `.gitattributes export-ignore`: that is a blocklist, and every new
+top-level file would join the release by default.
+
+`git archive` zeroes ownership and stamps the commit time by itself, so only the vendored half carries
+the `--mtime` / `--owner` / `--numeric-owner` flags. It also packs `HEAD` rather than the working tree,
+which is what `manifest.json` has always claimed — a dirty checkout can no longer ship edits under a
+commit id that does not contain them. Reproducibility needs each half to be deterministic, not the
+concatenation to be globally sorted. `gzip -n` stays a separate step because `tar --gzip` stamps the
+current time.
+
+`artifact:dotfiles:files:text` then reads the finished archive back with `tar -tzf`, so the manifest and
+the license inventory describe what shipped rather than what was meant to ship.
 
 `manifest.json` is where identity lives, which is why the commit SHA is not baked into file names. It
 records the commit, the tree, and the SHA-256 of both the vendir config and its lock file: the same
@@ -375,8 +389,28 @@ txt file, not to the workflow.
     The retry lives in the workflow rather than inside `bench:ci` because `retry(1)` comes from nixpkgs,
     not from the mise toolset
 - **Stage 3**:
+  - `artifact` — `mise run artifact:dotfiles:all`; the wallpapers set only on pushes to `main`
   - `deploy-cf-pages` — `mise run deploy:cloudflare:preview` on PRs, `:production` on `main`
   - `deploy-github-pages` — publish docs to GitHub Pages (only on `main`, not scheduled)
+
+`.github/workflows/release.yml` is separate and runs on `v*` tags. It has no `guard` job because the
+tag itself is the trust boundary — only a maintainer can push one — and it rebuilds the set from the
+tagged commit rather than reusing a CI artifact, so a release cannot inherit something that was never
+gated.
+
+Its first job, `preflight`, checks two things against the API before anything is built. **The commit
+must be on `main`**: a tag can be pushed onto any commit, so `compare/main...<commit>` has to report
+`identical` (the tip) or `behind` (an ancestor); `ahead` and `diverged` mean the commit never reached
+`main` and the tag is refused. **CI must have gone green for it**: CI does not trigger on tags, so this
+looks up the most recent `ci.yml` run for the tagged commit — the one from when that commit landed on a
+branch. No run at all fails rather than passes; a run still in flight is handed to
+`gh run watch --exit-status`; the most recent conclusion wins, so a re-run that went red after an
+earlier green still blocks the tag.
+
+The `release` job then attests build provenance and publishes the six files with `gh release create`.
+It is the one place that sets `cache: false` on `jdx/mise-action`: a poisoned cache entry here would end
+up inside a signed artifact. `workflow_dispatch` runs the build without publishing, which is how a
+release gets rehearsed before a tag is cut — the CI check applies to rehearsals too.
 
 ## Deployment Architecture
 

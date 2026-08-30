@@ -327,20 +327,31 @@ All three jobs run only after Stage 1 succeeds and use tools pinned by mise — 
 | `manifest.json`    | which commit and which vendir state produced this   |
 | `checksums.sha256` | that nothing changed in transit                     |
 
-Wallpapers are a separate set, built only on pushes to `main` — ~1.1 GB of images that no pull request
-needs. Both sets are reproducible: entries are sorted, ownership zeroed, timestamps taken from the
-commit, and `gzip -n` runs as its own step because `tar --gzip` would stamp the current time.
+The archive also carries `.dotter/` and `INSTALL.md`, which is what makes an unpacked release
+deployable without the repository. It is packed in two halves — `git archive` over an explicit pathspec
+for the tracked files, a second `tar` for the vendored plugins that git cannot see — and concatenated.
+Both halves are deterministic, ownership is zeroed, timestamps come from the commit, and `gzip -n` runs
+as its own step because `tar --gzip` would stamp the current time.
 
-To check a downloaded set:
+Wallpapers are a separate set, built only on pushes to `main` — ~1.1 GB of images that no pull request
+needs, and they stay out of releases.
+
+Tagged commits publish the set as a GitHub Release with build provenance
+(`.github/workflows/release.yml`), but only when the tag sits on a `main` commit whose CI went green.
+To check a release before you trust it:
 
 ```sh
-gh run download --name dotfiles-artifacts
+gh release download --repo arttet/dotfiles
 sha256sum --check checksums.sha256
+gh attestation verify dotfiles.tar.gz --repo arttet/dotfiles
 jq -r '.source.commit, .build.vendir.lock.sha256' manifest.json
 jq -r '.warnings[]' licenses.json
 grype sbom:sbom.spdx.json --vex vex.openvex.json
 tar -xzf dotfiles.tar.gz
 ```
+
+Untagged builds still land as CI artifacts (`gh run download --name dotfiles-artifacts`), but those
+expire after 30 days and carry no provenance.
 
 The license inventory reports rather than blocks. Some vendored components are GPL-3.0 or AGPL-3.0
 while this repository is MIT; they are used deliberately, so the point is that you can see them.
