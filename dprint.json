@@ -7,23 +7,22 @@
     "textWrap": "maintain"
   },
   "excludes": [
-    "**/node_modules",
     "**/*-lock.json",
     "**/lazy-lock.json",
-    "docs/aube-lock.yaml",
-    "docs/bun.lock",
-    "docs/.vitepress/cache",
-    "docs/dist",
-    ".github/workflows/ci.yml",
-    "vendir.lock*.yml",
-    ".serena",
+    "**/node_modules",
     ".dotter",
+    ".github/workflows/ci.yml",
+    ".serena",
     ".tools",
+    "docs/.vitepress/cache",
+    "docs/aube-lock.yaml",
+    "docs/dist",
     "dotfiles/.config/alacritty/themes",
-    "dotfiles/.local/share/backgrounds",
     "dotfiles/.config/tmux/plugins",
     "dotfiles/.config/yazi/flavors",
-    "dotfiles/.config/yazi/plugins"
+    "dotfiles/.config/yazi/plugins",
+    "dotfiles/.local/share/backgrounds",
+    "vendir.lock*.yml"
   ],
   "plugins": [
     "https://plugins.dprint.dev/json-0.21.3.wasm",
