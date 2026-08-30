@@ -308,11 +308,11 @@ carries a known advisory.
 
 All three jobs run only after Stage 1 succeeds and use tools pinned by mise — no Nix, no stow.
 
-| Job           | Purpose                                                                                          |
-| :------------ | :----------------------------------------------------------------------------------------------- |
-| `validate`    | `mise run deploy:apply` (dotter), install the global toolchain, then `mise run validate:all`     |
-| `performance` | `mise run bench:setup` then `mise run bench:ci`; compares shell startup ratios with the baseline |
-| `artifact`    | `mise run artifact:all`; packs, describes, scans and verifies the release set                    |
+| Job           | Purpose                                                                                                                     |
+| :------------ | :-------------------------------------------------------------------------------------------------------------------------- |
+| `validate`    | `mise run deploy:apply` (dotter), install the global toolchain, then `mise run validate:all`                                |
+| `performance` | `mise run deploy:sync:config`, then `retry --times=3 -- mise run bench:ci`; compares shell startup ratios with the baseline |
+| `artifact`    | `mise run artifact:all`; packs, describes, scans and verifies the release set                                               |
 
 #### Release artifact
 

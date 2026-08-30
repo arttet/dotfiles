@@ -1062,15 +1062,22 @@ for export in {{vars.bench_runs}}/*.md; do
 done >{{vars.bench_dir}}/tables.md
 """
 
-[tasks."bench:ci"]
-description = "Compare startup performance with the committed baseline"
+[tasks."bench:report"]
+description = "Compare the collected runs with the committed baseline and fail on a regression"
 run = [
-  { task = "deploy:sync:config" },
-  { task = "bench:all" },
-  { task = "bench:collect" },
   "{{vars.bench_report}} --arg mode check >{{vars.bench_dir}}/report.json",
   "jq -r '.report' {{vars.bench_dir}}/report.json | tee \"${PERFORMANCE_REPORT:-performance-report.md}\"",
   "jq -e '.passed' {{vars.bench_dir}}/report.json >/dev/null",
+]
+
+[tasks."bench:ci"]
+# One attempt. Absorbing runner noise is the workflow's job: it wraps this in retry(1), which comes from
+# nixpkgs alongside the benchmark shells rather than from the mise toolset.
+description = "Measure startup, collect the runs and compare with the baseline [run deploy:sync:config first]"
+run = [
+  { task = "bench:all" },
+  { task = "bench:collect" },
+  { task = "bench:report" },
 ]
 
 [tasks."bench:update"]

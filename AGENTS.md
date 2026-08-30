@@ -259,8 +259,8 @@ cannot build without a version, so statements identify the vulnerable package it
 `"products": [{"@id": "pkg:golang/stdlib@1.26.4"}]`.
 
 Benchmark tools are pinned in `mise.toml` like everything else: `hyperfine`, `nushell`, `powershell`, and
-`tmux`. `bash` and `zsh` have no mise registry entry, so the performance job installs them with
-`nix profile install "${NIXPKGS}#bash" "${NIXPKGS}#zsh"` — the only remaining use of Nix in CI.
+`tmux`. `bash`, `zsh` and `retry` have no mise registry entry, so the performance job installs them with
+`nix profile add nixpkgs#bash nixpkgs#retry nixpkgs#zsh` — the only remaining use of Nix in CI.
 
 The benchmark itself is pure mise: `[vars]` holds every raw/configured command, each `bench:<shell>` task is a
 single `hyperfine` call, `bench:collect` aggregates whatever exports exist in `.tools/bench/runs/`, and
@@ -369,8 +369,11 @@ txt file, not to the workflow.
 - **Stage 2** (gated by Stage 1):
   - `validate` — deploys the dotfiles with dotter (`mise run deploy:apply`), installs the global toolchain,
     then runs `mise run validate:all` (agents, MCP servers, editors, shells, multiplexers, CLI tools)
-  - `performance` — `mise run bench:setup` (Bash/Zsh via Nix) then `mise run bench:ci`; compares startup
-    ratios with `misc/baseline.json`
+  - `performance` — Bash/Zsh via Nix, `mise run deploy:sync:config` as its own step, then
+    `retry --times=3 -- mise run bench:ci`; compares startup ratios with `misc/baseline.json`. A shared
+    runner can spike one median past the threshold, while a real regression reproduces on every attempt.
+    The retry lives in the workflow rather than inside `bench:ci` because `retry(1)` comes from nixpkgs,
+    not from the mise toolset
 - **Stage 3**:
   - `deploy-cf-pages` — `mise run deploy:cloudflare:preview` on PRs, `:production` on `main`
   - `deploy-github-pages` — publish docs to GitHub Pages (only on `main`, not scheduled)

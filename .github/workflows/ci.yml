@@ -463,7 +463,7 @@ jobs:
   performance:
     name: Performance
     runs-on: ubuntu-26.04
-    timeout-minutes: 10
+    timeout-minutes: 15 # bench:ci re-measures up to three times before it calls a regression
     needs: [guard, fmt, lint]
 
     permissions:
@@ -504,18 +504,21 @@ jobs:
       - name: Alias nixpkgs in the flake registry
         run: nix registry add nixpkgs "${NIXPKGS}"
 
-      - name: Install benchmark shells
-        run: nix profile add nixpkgs#bash nixpkgs#zsh
+      - name: Install benchmark dependencies via Nix
+        run: nix profile add nixpkgs#bash nixpkgs#retry nixpkgs#zsh
 
-      - name: Install benchmark dependencies
+      - name: Install benchmark dependencies via mise
         run: mise install hyperfine jq nushell powershell tmux vendir
+
+      - name: Sync vendored components
+        run: mise run deploy:sync:config
 
       - name: Compare performance with baseline
         id: benchmark
         continue-on-error: true
         env:
           PERFORMANCE_REPORT: performance-report.md
-        run: mise run bench:ci
+        run: retry --times=3 -- mise run bench:ci
 
       - name: Add performance job summary
         if: always()
