@@ -57,9 +57,10 @@ AUBE_TRUST_POLICY_EXCLUDE = "pino@9.14.0,fastq@1.20.2"
 DPRINT_CACHE_DIR = "{{config_root}}/.tools/dprint"
 
 [vars]
-# NOTE: Deployment Gate
+# NOTE: Development Gate
 # NOTE: https://github.com/renovatebot/renovate/pkgs/container/renovate
 renovate_image = "ghcr.io/renovatebot/renovate:44.39.2@sha256:e6b93e709ca64495ab9307350b260064276ee02d15c6886387fd2d42c926623b"
+
 # NOTE: vendir on Windows normalizes lock paths to backslashes, hence a lock file per platform.
 vendir_lock = "{% if os() == 'windows' %}vendir.lock.windows.yml{% else %}vendir.lock.yml{% endif %}"
 vendir_wallpapers_lock = "{% if os() == 'windows' %}vendir.lock.wallpapers.windows.yml{% else %}vendir.lock.wallpapers.yml{% endif %}"
@@ -69,20 +70,14 @@ bash_targets = "dotfiles/.bashrc dotfiles/.bash_profile dotfiles/.config/bash do
 
 # NOTE: Security Gate
 codeql_dir = ".tools/codeql"
-licenses_dir = ".tools/licenses"
 codeql_config = ".github/codeql/codeql-config.yml"
 codeql_config_javascript = ".github/codeql/javascript.yml"
 semgrep_web = "misc/semgrep/web.yaml"
 vex_file = "misc/vex/dotfiles.openvex.json"
 
-# NOTE: Artifact Gate
-artifact_dir = ".tools/artifacts"
-# Widen this list only with the component that forced it named in the commit message.
-artifact_licenses_allowed = "MIT,Apache-2.0"
-
 # NOTE: Antivirus Gate
-clamav_db_dir = ".tools/clamav-db"
 # NOTE: https://hub.docker.com/r/clamav/clamav/tags
+clamav_db_dir = ".tools/clamav-db"
 clamav_image = "clamav/clamav:1.5.4_base@sha256:aa2899ac82c7f9547954c8c84764c313f43029e31a36faa1ee527a2171789653"
 
 # NOTE: Documentation Gate
@@ -104,7 +99,11 @@ bench_pwsh_configured = 'pwsh -NoLogo -NoProfile -Command ". ./dotfiles/.config/
 bench_tmux_raw = "tmux -L dotfiles-bench-raw -f /dev/null new-session -d -s benchmark"
 bench_tmux_configured = "tmux -L dotfiles-bench-configured -f dotfiles/.config/tmux/tmux.conf new-session -d -s benchmark"
 bench_tmux_cleanup = 'sh -c "tmux -L dotfiles-bench-raw kill-server 2>/dev/null || true; tmux -L dotfiles-bench-configured kill-server 2>/dev/null || true"'
-bench_report = "jq -n --slurpfile benchmark .tools/bench/results.json --slurpfile baseline misc/baseline.json --rawfile tables .tools/bench/tables.md -f misc/bench.jq"
+bench_report = "jq -n --slurpfile benchmark .tools/bench/results.json --slurpfile baseline misc/baseline.json --rawfile tables .tools/bench/tables.md -f misc/jq/bench.jq"
+
+# NOTE: Artifact Gate
+artifact_dir = ".tools/artifacts"
+artifact_licenses_allowed = "MIT,Apache-2.0"
 
 [settings]
 auto_install = false
@@ -137,6 +136,49 @@ podman run --rm \
   --cache-dir=/tmp/renovate/cache
 """
 
+[tasks."deps:vendir:update:config"]
+description = "Re-resolve refs and rewrite the vendored plugins lock file"
+run = "vendir sync --lock-file {{vars.vendir_lock}}"
+
+[tasks."deps:vendir:update:wallpapers"]
+description = "Re-resolve refs and rewrite the wallpapers lock file"
+run = """
+vendir sync --file vendir.wallpapers.yml \
+  --lock-file {{vars.vendir_wallpapers_lock}}
+"""
+
+[tasks."deps:vendir:update"]
+description = "Re-resolve refs and rewrite both vendir lock files"
+run = [
+  { task = "deps:vendir:update:config" },
+  { task = "deps:vendir:update:wallpapers" },
+]
+
+[tasks."deps:vendir:outdated:config"]
+description = "Show vendored plugins whose pinned commit is behind upstream"
+shell = "nu -c"
+run = "nu misc/nu/vendir-status.nu vendir.yml {{vars.vendir_lock}}"
+
+[tasks."deps:vendir:outdated:wallpapers"]
+description = "Show wallpaper collections whose pinned commit is behind upstream"
+shell = "nu -c"
+run = "nu misc/nu/vendir-status.nu vendir.wallpapers.yml {{vars.vendir_wallpapers_lock}}"
+
+[tasks."deps:vendir:outdated"]
+description = "Show every vendir dependency whose pinned commit is behind upstream"
+run = [
+  { task = "deps:vendir:outdated:config" },
+  { task = "deps:vendir:outdated:wallpapers" },
+]
+
+[tasks."deps:vendir:summary"]
+description = "Write the vendir dependency status as Markdown [nightly job summary]"
+shell = "nu -c"
+run = [
+  "nu misc/nu/vendir-status.nu vendir.yml {{vars.vendir_lock}} --format markdown",
+  "nu misc/nu/vendir-status.nu vendir.wallpapers.yml {{vars.vendir_wallpapers_lock}} --format markdown",
+]
+
 [tasks."hooks:install"]
 description = "Install hk git hooks into this clone"
 run = "hk install"
@@ -147,7 +189,13 @@ run = "hk run pre-commit"
 
 [tasks.check]
 description = "Run checks"
-depends = ["fmt:all", "lint:all", "security:all", "docs:all", "validate:all"]
+depends = [
+  "fmt:all",
+  "lint:all",
+  "security:all",
+  "docs:all",
+  "validate:all",
+]
 
 [tasks."check:all"]
 description = "Run all checks"
@@ -159,7 +207,7 @@ depends = [
   "docs:all",
   "validate:all",
   "bench:ci",
-  "artifact:all",
+  "artifact:dotfiles:all",
 ]
 
 [tasks.ci]
@@ -330,35 +378,37 @@ codeql database create {{vars.codeql_dir}}/db-actions \
   --overwrite
 """
 
+[tasks."security:codeql:analyze:actions"]
+description = "Analyze the GitHub Actions CodeQL database into SARIF"
+depends = ["security:codeql:db:actions"]
+run = """
+codeql database analyze {{vars.codeql_dir}}/db-actions codeql/actions-queries \
+  --download \
+  --format=sarif-latest \
+  --sarif-category=actions \
+  --output={{vars.codeql_dir}}/actions.sarif
+"""
+
+[tasks."security:codeql:csv:actions"]
+description = "Export the GitHub Actions CodeQL results as CSV"
+depends = ["security:codeql:analyze:actions"]
+run = """
+codeql database interpret-results {{vars.codeql_dir}}/db-actions \
+  --format=csv \
+  --output={{vars.codeql_dir}}/actions.csv
+"""
+
+[tasks."security:codeql:report:actions"]
+description = "Render the GitHub Actions CodeQL findings as a table"
+depends = ["security:codeql:csv:actions"]
+run = "nu misc/nu/codeql-report.nu {{vars.codeql_dir}}/actions.csv actions"
+
 [tasks."security:codeql:actions"]
 description = "CodeQL analysis of the GitHub Actions workflows"
-depends = ["security:codeql:db:actions"]
 run = [
-  """
-  codeql database analyze {{vars.codeql_dir}}/db-actions codeql/actions-queries \
-    --download \
-    --format=sarif-latest \
-    --sarif-category=actions \
-    --output={{vars.codeql_dir}}/actions.sarif
-  """,
-  """
-  codeql database interpret-results {{vars.codeql_dir}}/db-actions \
-    --format=csv \
-    --output={{vars.codeql_dir}}/actions.csv
-  """,
-  """
-  if [ -z "${CI:-}" ]; then
-    nu -c 'let rows = (open --raw {{vars.codeql_dir}}/actions.csv | from csv --noheaders)
-      if ($rows | is-empty) {
-        print "CodeQL actions: no findings."
-      } else {
-        $rows |
-          rename rule description severity message file line col end_line end_col |
-          select severity rule file line message |
-          to md --pretty
-      }'
-  fi
-  """,
+  { task = "security:codeql:analyze:actions" },
+  { task = "security:codeql:csv:actions" },
+  { task = "security:codeql:report:actions" },
 ]
 
 [tasks."security:conftest"]
@@ -399,7 +449,7 @@ run = "semgrep scan --config {{vars.semgrep_web}} --metrics=off --error dotfiles
 
 [tasks."security:trivy:setup"]
 description = "Prepare the Trivy cache and report directories"
-run = "mkdir -p .tools/docker .tools/trivy {{vars.licenses_dir}}"
+run = "mkdir -p .tools/docker .tools/trivy"
 
 [tasks."security:trivy:scan"]
 description = "Scan the committed tree for vulnerabilities, secrets and misconfiguration"
@@ -453,6 +503,36 @@ trivy fs \
   .
 """
 
+[tasks."security:trivy:license:scan"]
+description = "Report every license found in the deployed tree as JSON"
+depends = ["artifact:setup"]
+env = { DOCKER_CONFIG = "{{config_root}}/.tools/docker" }
+run = """
+trivy fs \
+  --scanners license \
+  --license-full \
+  --format json \
+  --output {{vars.artifact_dir}}/licenses-scan.json \
+  --exit-code 0 \
+  --timeout 10m \
+  dotfiles
+"""
+
+[tasks."security:trivy:license:backgrounds"]
+description = "Report every license found in the wallpaper collections as JSON"
+depends = ["artifact:setup"]
+env = { DOCKER_CONFIG = "{{config_root}}/.tools/docker" }
+run = """
+trivy fs \
+  --scanners license \
+  --license-full \
+  --format json \
+  --output {{vars.artifact_dir}}/wallpapers-scan.json \
+  --exit-code 0 \
+  --timeout 10m \
+  dotfiles/.local/share/backgrounds
+"""
+
 [tasks."security:trufflehog"]
 description = "Secret scanning over git history"
 run = "trufflehog git file://. --results=verified,unknown --fail"
@@ -500,11 +580,13 @@ podman run --rm -v "{{vars.clamav_db_dir}}:/var/lib/clamav" "{{vars.clamav_image
 description = "Malware scan of the working tree"
 env = { MSYS_NO_PATHCONV = "1" }
 run = """
-podman run --rm --entrypoint clamscan -v "$PWD:/scandir:ro" -v "{{vars.clamav_db_dir}}:/var/lib/clamav:ro" "{{vars.clamav_image}}" \
-  --recursive \
-  --infected \
-  ${CLAMAV_EXCLUDE_DIR:+--exclude-dir="$CLAMAV_EXCLUDE_DIR"} \
-  /scandir
+podman run \
+  --rm \
+  --entrypoint clamscan \
+  --volume "$PWD:/scandir:ro" \
+  --volume "{{vars.clamav_db_dir}}:/var/lib/clamav:ro" \
+  "{{vars.clamav_image}}" \
+    --recursive --infected ${CLAMAV_EXCLUDE_DIR:+--exclude-dir="$CLAMAV_EXCLUDE_DIR"} /scandir
 """
 
 [tasks."antivirus:all"]
@@ -551,47 +633,47 @@ lychee \
 
 [tasks."docs:codeql:db"]
 description = "Build or refresh the CodeQL database for the documentation TypeScript sources"
-run = [
-  "mkdir -p {{vars.codeql_dir}}",
-  """
-  codeql database create {{vars.codeql_dir}}/db-javascript \
-    --language=javascript-typescript \
-    --source-root=. \
-    --build-mode=none \
-    --codescanning-config={{vars.codeql_config_javascript}} \
-    --overwrite
-  """,
-]
+depends = ["security:codeql:setup"]
+run = """
+codeql database create {{vars.codeql_dir}}/db-javascript \
+  --language=javascript-typescript \
+  --source-root=. \
+  --build-mode=none \
+  --codescanning-config={{vars.codeql_config_javascript}} \
+  --overwrite
+"""
+
+[tasks."docs:codeql:analyze"]
+description = "Analyze the documentation CodeQL database into SARIF"
+depends = ["docs:codeql:db"]
+run = """
+codeql database analyze {{vars.codeql_dir}}/db-javascript codeql/javascript-queries \
+  --download \
+  --format=sarif-latest \
+  --sarif-category=javascript \
+  --output={{vars.codeql_dir}}/javascript.sarif
+"""
+
+[tasks."docs:codeql:csv"]
+description = "Export the documentation CodeQL results as CSV"
+depends = ["docs:codeql:analyze"]
+run = """
+codeql database interpret-results {{vars.codeql_dir}}/db-javascript \
+  --format=csv \
+  --output={{vars.codeql_dir}}/javascript.csv
+"""
+
+[tasks."docs:codeql:report"]
+description = "Render the documentation CodeQL findings as a table"
+depends = ["docs:codeql:csv"]
+run = "nu misc/nu/codeql-report.nu {{vars.codeql_dir}}/javascript.csv javascript"
 
 [tasks."docs:codeql"]
 description = "CodeQL analysis of the documentation TypeScript sources"
-depends = ["docs:codeql:db"]
 run = [
-  """
-  codeql database analyze {{vars.codeql_dir}}/db-javascript codeql/javascript-queries \
-    --download \
-    --format=sarif-latest \
-    --sarif-category=javascript \
-    --output={{vars.codeql_dir}}/javascript.sarif
-  """,
-  """
-  codeql database interpret-results {{vars.codeql_dir}}/db-javascript \
-    --format=csv \
-    --output={{vars.codeql_dir}}/javascript.csv
-  """,
-  """
-  if [ -z "${CI:-}" ]; then
-    nu -c 'let rows = (open --raw {{vars.codeql_dir}}/javascript.csv | from csv --noheaders)
-      if ($rows | is-empty) {
-        print "CodeQL javascript: no findings."
-      } else {
-        $rows |
-          rename rule description severity message file line col end_line end_col |
-          select severity rule file line message |
-          to md --pretty
-      }'
-  fi
-  """,
+  { task = "docs:codeql:analyze" },
+  { task = "docs:codeql:csv" },
+  { task = "docs:codeql:report" },
 ]
 
 [tasks."docs:security"]
@@ -1003,87 +1085,55 @@ run = [
 ]
 
 # ==============================================================================
-# Stage 2: Artifact Gate
+# Stage 3: Artifact Gate
 # ==============================================================================
 
-# The release is packed from the working tree, not from `git archive`: the vendored plugins are
-# gitignored but ship to $HOME, so a git-only archive would omit exactly the third-party code that
-# runs in production. Packing by an explicit file list keeps local state -- shell history, zcompdump,
-# dotter caches -- out of the release by construction rather than by exclusion patterns.
-
 [tasks."artifact:setup"]
-description = "Reset the artifact output directory"
-env = { ARTIFACT_DIR = "{{vars.artifact_dir}}" }
+description = "Create the artifact output directories"
+run = "mkdir -p {{vars.artifact_dir}}/dotfiles {{vars.artifact_dir}}/wallpapers"
+
+[tasks."artifact:all"]
+description = "Build both release sets"
+run = [{ task = "artifact:dotfiles:all" }, { task = "artifact:wallpapers:all" }]
+
+# ==============================================================================
+# Stage 3: Dotfiles Artifact Gate
+# ==============================================================================
+
+[tasks."artifact:dotfiles:clean"]
+description = "Remove the dotfiles release set"
+run = "rm -rf {{vars.artifact_dir}}/dotfiles"
+
+[tasks."artifact:dotfiles:components"]
+description = "List the vendored components of the dotfiles set with their origins"
+depends = ["artifact:setup"]
 run = """
-rm -rf "${ARTIFACT_DIR}"
-mkdir -p "${ARTIFACT_DIR}/dotfiles" "${ARTIFACT_DIR}/wallpapers"
+yq -o=json --from-file misc/jq/components.yq vendir.yml \
+  >{{vars.artifact_dir}}/components.json
 """
 
-[tasks."artifact:files"]
-description = "Enumerate exactly what the dotfiles archive contains"
-depends = ["artifact:setup"]
+[tasks."artifact:dotfiles:files"]
+description = "Enumerate the dotfiles archive contents [run deploy:sync:config first]"
+depends = ["artifact:dotfiles:components"]
 env = { ARTIFACT_DIR = "{{vars.artifact_dir}}" }
 run = """
-set -euo pipefail
-
-# `jq -r` appends CR on Windows; without `tr -d` every `[ -d ]` below fails there and nowhere else.
-paths="$(yq -o=json '[.directories[].path]' vendir.yml | jq -r '.[]' | tr -d '\\r')"
-
-missing="$(printf '%s\\n' "$paths" | while read -r path; do
-  [ -d "$path" ] || printf '  %s\\n' "$path"
-done)"
-
-if [ -n "$missing" ]; then
-  echo "Vendored components are not on disk, so the release would be incomplete:" >&2
-  printf '%s\\n' "$missing" >&2
-  echo "Run 'mise run deploy:sync:config' first." >&2
-  exit 1
-fi
-
-# Vendored trees are gitignored, so tracked files and vendir paths never overlap.
 {
   git ls-files -z -- dotfiles
-  printf '%s\\n' "$paths" | while read -r path; do
-    find "$path" \\( -type f -o -type l \\) -print0
-  done
+  jq -r '.[].path' "${ARTIFACT_DIR}/components.json" | tr -d '\\r' \
+    | xargs -I{} find {} -type f -print0
 } | sort -z -u >"${ARTIFACT_DIR}/dotfiles.files"
 """
 
-[tasks."artifact:wallpapers:files"]
-description = "Enumerate exactly what the wallpapers archive contains"
-depends = ["artifact:setup"]
+[tasks."artifact:dotfiles:files:text"]
+description = "Convert the dotfiles archive list to one path per line"
+depends = ["artifact:dotfiles:files"]
 env = { ARTIFACT_DIR = "{{vars.artifact_dir}}" }
-run = """
-set -euo pipefail
+run = "tr '\\0' '\\n' <\"${ARTIFACT_DIR}/dotfiles.files\" >\"${ARTIFACT_DIR}/dotfiles.files.txt\""
 
-paths="$(yq -o=json '[.directories[].path]' vendir.wallpapers.yml | jq -r '.[]' | tr -d '\\r')"
-
-missing="$(printf '%s\\n' "$paths" | while read -r path; do
-  [ -d "$path" ] || printf '  %s\\n' "$path"
-done)"
-
-if [ -n "$missing" ]; then
-  echo "Wallpaper collections are not on disk:" >&2
-  printf '%s\\n' "$missing" >&2
-  echo "Run 'mise run deploy:sync:wallpapers' first." >&2
-  exit 1
-fi
-
-printf '%s\\n' "$paths" | while read -r path; do
-  find "$path" \\( -type f -o -type l \\) -print0
-done | sort -z -u >"${ARTIFACT_DIR}/wallpapers.files"
-"""
-
-# `gzip -n` has to be a separate step: `tar --gzip` calls gzip without it and stamps the current time
-# into the header, which alone would make the archive unreproducible.
-[tasks."artifact:dotfiles"]
+[tasks."artifact:dotfiles:pack"]
 description = "Pack the dotfiles tree reproducibly"
-depends = ["artifact:files"]
-env = { ARTIFACT_DIR = "{{vars.artifact_dir}}" }
+depends = ["artifact:dotfiles:files"]
 run = """
-set -euo pipefail
-
-SOURCE_DATE_EPOCH="$(git show -s --format=%ct HEAD)"
 tar --create --no-recursion --null --files-from="${ARTIFACT_DIR}/dotfiles.files" \
   --format=posix --owner=0 --group=0 --numeric-owner \
   --mtime="@${SOURCE_DATE_EPOCH}" \
@@ -1091,14 +1141,204 @@ tar --create --no-recursion --null --files-from="${ARTIFACT_DIR}/dotfiles.files"
   | gzip -n >"${ARTIFACT_DIR}/dotfiles/dotfiles.tar.gz"
 """
 
-[tasks."artifact:wallpapers"]
-description = "Pack the wallpaper collections reproducibly"
-depends = ["artifact:wallpapers:files"]
+[tasks."artifact:dotfiles:pack".env]
+ARTIFACT_DIR = "{{vars.artifact_dir}}"
+SOURCE_DATE_EPOCH = "{{ exec(command='git show -s --format=%ct HEAD') }}"
+
+[tasks."artifact:dotfiles:sbom"]
+description = "Generate an SPDX SBOM of the dotfiles archive"
+depends = ["artifact:dotfiles:pack"]
+env = { COMMIT = "{{ exec(command='git rev-parse HEAD') }}" }
+run = """
+syft scan file:{{vars.artifact_dir}}/dotfiles/dotfiles.tar.gz \
+  --source-name dotfiles --source-version "${COMMIT}" \
+  -o spdx-json={{vars.artifact_dir}}/dotfiles/sbom.spdx.json
+"""
+
+[tasks."artifact:dotfiles:vex"]
+description = "Ship the VEX document with the dotfiles set"
+depends = ["artifact:setup"]
+run = "cp -- {{vars.vex_file}} {{vars.artifact_dir}}/dotfiles/vex.openvex.json"
+
+[tasks."artifact:dotfiles:licenses"]
+description = "Build the license inventory of the dotfiles set"
+depends = ["security:trivy:license:scan", "artifact:dotfiles:files:text"]
+run = """
+jq -n -f misc/jq/licenses.jq \
+  --slurpfile scan "${ARTIFACT_DIR}/licenses-scan.json" \
+  --slurpfile components "${ARTIFACT_DIR}/components.json" \
+  --rawfile files "${ARTIFACT_DIR}/dotfiles.files.txt" \
+  >"${ARTIFACT_DIR}/dotfiles/licenses.json"
+"""
+
+[tasks."artifact:dotfiles:licenses".env]
+ARTIFACT_DIR = "{{vars.artifact_dir}}"
+SCAN_ROOT = "dotfiles"
+LICENSES_ALLOWED = "{{vars.artifact_licenses_allowed}}"
+
+[tasks."artifact:dotfiles:licenses:report"]
+description = "Print the license warnings of the dotfiles set"
+run = """
+jq -r -f misc/jq/license-warnings.jq \
+  {{vars.artifact_dir}}/dotfiles/licenses.json
+"""
+
+[tasks."artifact:dotfiles:manifest:hashes"]
+description = "Hash the dotfiles payload files for the manifest"
+depends = ["artifact:dotfiles:sbom", "artifact:dotfiles:vex", "artifact:dotfiles:licenses"]
+dir = "{{vars.artifact_dir}}/dotfiles"
+run = """
+sha256sum dotfiles.tar.gz sbom.spdx.json vex.openvex.json licenses.json \
+  >../dotfiles-hashes.txt
+"""
+
+[tasks."artifact:dotfiles:manifest".env]
+ARTIFACT_DIR = "{{vars.artifact_dir}}"
+ARTIFACT_SET = "dotfiles"
+VENDIR_CONFIG = "vendir.yml"
+VENDIR_LOCK = "{{vars.vendir_lock}}"
+VENDIR_CONFIG_SHA = "{{ exec(command='sha256sum <vendir.yml | cut -d\" \" -f1') }}"
+VENDIR_LOCK_SHA = "{{ exec(command='sha256sum <' ~ vars.vendir_lock ~ ' | cut -d\" \" -f1') }}"
+FILE_COUNT = "{{ exec(command='wc -l <' ~ vars.artifact_dir ~ '/dotfiles.files.txt | tr -d \" \"') }}"
+COMMIT = "{{ exec(command='git rev-parse HEAD') }}"
+TREE = "{{ exec(command='git rev-parse HEAD^{tree}') }}"
+SOURCE_DATE_EPOCH = "{{ exec(command='git show -s --format=%ct HEAD') }}"
+
+[tasks."artifact:dotfiles:manifest"]
+description = "Build the identity manifest for the dotfiles set"
+depends = ["artifact:dotfiles:manifest:hashes", "artifact:dotfiles:files:text"]
+run = """
+jq -n -f misc/jq/manifest.jq \
+  --rawfile hashes "${ARTIFACT_DIR}/dotfiles-hashes.txt" \
+  >"${ARTIFACT_DIR}/dotfiles/manifest.json"
+"""
+
+[tasks."artifact:dotfiles:checksum"]
+description = "Write SHA-256 checksums for the dotfiles set"
+depends = ["artifact:dotfiles:manifest"]
+dir = "{{vars.artifact_dir}}/dotfiles"
+run = """
+sha256sum dotfiles.tar.gz sbom.spdx.json vex.openvex.json licenses.json manifest.json \
+  >checksums.sha256
+"""
+
+[tasks."artifact:dotfiles:verify:hash"]
+description = "Check the dotfiles set against its own checksums"
+dir = "{{vars.artifact_dir}}/dotfiles"
+run = "sha256sum --check checksums.sha256"
+
+[tasks."artifact:dotfiles:verify:commit"]
+description = "Check that the dotfiles manifest describes the current commit"
+dir = "{{vars.artifact_dir}}/dotfiles"
+env = { COMMIT = "{{ exec(command='git rev-parse HEAD') }}" }
+run = """
+jq -e --arg expected "${GITHUB_SHA:-$COMMIT}" \
+  '.source.commit == $expected' manifest.json
+"""
+
+[tasks."artifact:dotfiles:scan:vuln"]
+description = "Scan the dotfiles SBOM against the Trivy database"
+env = { DOCKER_CONFIG = "{{config_root}}/.tools/docker" }
+run = """
+trivy sbom {{vars.artifact_dir}}/dotfiles/sbom.spdx.json \
+  --scanners vuln --severity HIGH,CRITICAL --exit-code 1 --timeout 10m
+"""
+
+[tasks."artifact:dotfiles:scan:grype"]
+description = "Scan the dotfiles SBOM against the Grype database"
+run = "grype sbom:{{vars.artifact_dir}}/dotfiles/sbom.spdx.json -c .grype.yaml"
+
+[tasks."artifact:dotfiles:scan:licenses"]
+description = "Report the dotfiles SBOM licenses [Linux/macOS only]"
+run = """
+grant check {{vars.artifact_dir}}/dotfiles/sbom.spdx.json \
+  --config .grant.yaml || true
+"""
+run_windows = ""
+
+[tasks."artifact:dotfiles:scan:manifest"]
+description = "Check the dotfiles manifest shape"
+run = """
+conftest test --policy misc/policy/manifest.rego --namespace manifest \
+  {{vars.artifact_dir}}/dotfiles/manifest.json
+"""
+
+[tasks."artifact:dotfiles:build"]
+description = "Pack the dotfiles archive and describe it: SBOM, VEX, licenses, manifest, checksums"
+run = [
+  { task = "artifact:dotfiles:pack" },
+  { task = "artifact:dotfiles:sbom" },
+  { task = "artifact:dotfiles:vex" },
+  { task = "artifact:dotfiles:licenses" },
+  { task = "artifact:dotfiles:licenses:report" },
+  { task = "artifact:dotfiles:manifest" },
+  { task = "artifact:dotfiles:checksum" },
+]
+
+[tasks."artifact:dotfiles:verify"]
+description = "Verify the dotfiles set: checksums and build identity"
+run = [
+  { task = "artifact:dotfiles:verify:hash" },
+  { task = "artifact:dotfiles:verify:commit" },
+]
+
+[tasks."artifact:dotfiles:scan"]
+description = "Scan the dotfiles release: vulnerabilities, licenses, manifest shape"
+run = [
+  { task = "artifact:dotfiles:scan:vuln" },
+  { task = "artifact:dotfiles:scan:grype" },
+  { task = "artifact:dotfiles:scan:licenses" },
+  { task = "artifact:dotfiles:scan:manifest" },
+]
+
+[tasks."artifact:dotfiles:all"]
+description = "Build, describe, scan and verify the dotfiles release set"
+run = [
+  { task = "artifact:dotfiles:clean" },
+  { task = "artifact:dotfiles:build" },
+  { task = "artifact:dotfiles:scan" },
+  { task = "artifact:dotfiles:verify" },
+]
+
+# ==============================================================================
+# Stage 3: Wallpapers Artifact Gate
+# ==============================================================================
+
+[tasks."artifact:wallpapers:clean"]
+description = "Remove the wallpapers release set"
+run = "rm -rf {{vars.artifact_dir}}/wallpapers"
+
+[tasks."artifact:wallpapers:components"]
+description = "List the wallpaper collections with their origins"
+depends = ["artifact:setup"]
+run = """
+yq -o=json --from-file misc/jq/components.yq vendir.wallpapers.yml > {{vars.artifact_dir}}/wallpapers-components.json
+"""
+
+[tasks."artifact:wallpapers:files"]
+description = "Enumerate the wallpapers archive contents [run deploy:sync:wallpapers first]"
+depends = ["artifact:wallpapers:components"]
 env = { ARTIFACT_DIR = "{{vars.artifact_dir}}" }
 run = """
-set -euo pipefail
+jq -r '.[].path' "${ARTIFACT_DIR}/wallpapers-components.json" | tr -d '\\r' \
+  | xargs -I{} find {} -type f -print0 \
+  | sort -z -u >"${ARTIFACT_DIR}/wallpapers.files"
+"""
 
-SOURCE_DATE_EPOCH="$(git show -s --format=%ct HEAD)"
+[tasks."artifact:wallpapers:files:text"]
+description = "Convert the wallpapers archive list to one path per line"
+depends = ["artifact:wallpapers:files"]
+env = { ARTIFACT_DIR = "{{vars.artifact_dir}}" }
+run = "tr '\\0' '\\n' <\"${ARTIFACT_DIR}/wallpapers.files\" >\"${ARTIFACT_DIR}/wallpapers.files.txt\""
+
+[tasks."artifact:wallpapers:pack".env]
+ARTIFACT_DIR = "{{vars.artifact_dir}}"
+SOURCE_DATE_EPOCH = "{{ exec(command='git show -s --format=%ct HEAD') }}"
+
+[tasks."artifact:wallpapers:pack"]
+description = "Pack the wallpaper collections reproducibly"
+depends = ["artifact:wallpapers:files"]
+run = """
 tar --create --no-recursion --null --files-from="${ARTIFACT_DIR}/wallpapers.files" \
   --format=posix --owner=0 --group=0 --numeric-owner \
   --mtime="@${SOURCE_DATE_EPOCH}" \
@@ -1106,163 +1346,55 @@ tar --create --no-recursion --null --files-from="${ARTIFACT_DIR}/wallpapers.file
   | gzip -n >"${ARTIFACT_DIR}/wallpapers/wallpapers.tar.gz"
 """
 
-[tasks."artifact:sbom"]
-description = "Generate an SPDX SBOM of the released archive"
-depends = ["artifact:dotfiles"]
-run = """
-syft scan file:{{vars.artifact_dir}}/dotfiles/dotfiles.tar.gz \
-  --source-name dotfiles \
-  --source-version "$(git rev-parse HEAD)" \
-  -o spdx-json={{vars.artifact_dir}}/dotfiles/sbom.spdx.json
-"""
-
-[tasks."artifact:vex"]
-description = "Ship the VEX document with the release"
-depends = ["artifact:setup"]
-run = "cp -- {{vars.vex_file}} {{vars.artifact_dir}}/dotfiles/vex.openvex.json"
-
-# Reports rather than blocks: these are components already in use, several of them carrying GPL-3.0
-# or AGPL-3.0, and the useful output is visibility, not a red build.
-[tasks."artifact:licenses"]
-description = "Inventory every component in the dotfiles release with its license and origin"
-depends = ["artifact:files"]
-env = { ARTIFACT_DIR = "{{vars.artifact_dir}}" }
-run = """
-set -euo pipefail
-
-# Deliberately not `--config misc/trivy/license.yaml`: that config ignores MIT and Apache-2.0, which
-# is right for a gate and wrong for an inventory -- a suppressed license would read as "none found".
-trivy fs \
-  --scanners license --license-full \
-  --format json --output "${ARTIFACT_DIR}/licenses-scan.json" \
-  --exit-code 0 --timeout 10m dotfiles
-
-yq -o=json '[.directories[] | {"path": .path, "origin": .contents[0].git.url}]' vendir.yml \
-  >"${ARTIFACT_DIR}/components.json"
-
-tr '\\0' '\\n' <"${ARTIFACT_DIR}/dotfiles.files" >"${ARTIFACT_DIR}/dotfiles.files.txt"
-
-jq -n \
-  --slurpfile scan "${ARTIFACT_DIR}/licenses-scan.json" \
-  --slurpfile components "${ARTIFACT_DIR}/components.json" \
-  --rawfile files "${ARTIFACT_DIR}/dotfiles.files.txt" \
-  --arg root dotfiles \
-  --arg allowed '{{vars.artifact_licenses_allowed}}' \
-  -f misc/licenses.jq >"${ARTIFACT_DIR}/dotfiles/licenses.json"
-
-prefix='WARNING: '
-if [ -n "${GITHUB_ACTIONS:-}" ]; then prefix='::warning title=License::'; fi
-jq -r '.warnings[]' "${ARTIFACT_DIR}/dotfiles/licenses.json" | tr -d '\\r' | sed "s|^|${prefix}|"
-"""
+[tasks."artifact:wallpapers:licenses".env]
+ARTIFACT_DIR = "{{vars.artifact_dir}}"
+SCAN_ROOT = "dotfiles/.local/share/backgrounds"
+LICENSES_ALLOWED = "{{vars.artifact_licenses_allowed}}"
 
 [tasks."artifact:wallpapers:licenses"]
-description = "Inventory every wallpaper collection with its license and origin"
-depends = ["artifact:wallpapers:files"]
-env = { ARTIFACT_DIR = "{{vars.artifact_dir}}" }
+description = "Build the license inventory of the wallpapers set"
+depends = ["security:trivy:license:backgrounds", "artifact:wallpapers:files:text"]
 run = """
-set -euo pipefail
-
-trivy fs \
-  --scanners license --license-full \
-  --format json --output "${ARTIFACT_DIR}/wallpapers-scan.json" \
-  --exit-code 0 --timeout 10m dotfiles/.local/share/backgrounds
-
-yq -o=json '[.directories[] | {"path": .path, "origin": .contents[0].git.url}]' vendir.wallpapers.yml \
-  >"${ARTIFACT_DIR}/wallpapers-components.json"
-
-tr '\\0' '\\n' <"${ARTIFACT_DIR}/wallpapers.files" >"${ARTIFACT_DIR}/wallpapers.files.txt"
-
-jq -n \
+jq -n -f misc/jq/licenses.jq \
   --slurpfile scan "${ARTIFACT_DIR}/wallpapers-scan.json" \
   --slurpfile components "${ARTIFACT_DIR}/wallpapers-components.json" \
   --rawfile files "${ARTIFACT_DIR}/wallpapers.files.txt" \
-  --arg root dotfiles/.local/share/backgrounds \
-  --arg allowed '{{vars.artifact_licenses_allowed}}' \
-  -f misc/licenses.jq >"${ARTIFACT_DIR}/wallpapers/licenses.json"
-
-prefix='WARNING: '
-if [ -n "${GITHUB_ACTIONS:-}" ]; then prefix='::warning title=License::'; fi
-jq -r '.warnings[]' "${ARTIFACT_DIR}/wallpapers/licenses.json" | tr -d '\\r' | sed "s|^|${prefix}|"
+  >"${ARTIFACT_DIR}/wallpapers/licenses.json"
 """
 
-# The manifest carries the hashes of the payload files, and checksums.sha256 then covers the manifest
-# too -- so the order below is load-bearing, not cosmetic.
-[tasks."artifact:manifest"]
-description = "Build the identity manifest for the dotfiles set"
-depends = ["artifact:sbom", "artifact:vex", "artifact:licenses"]
-env = { ARTIFACT_DIR = "{{vars.artifact_dir}}", VENDIR_LOCK = "{{vars.vendir_lock}}" }
+[tasks."artifact:wallpapers:licenses:report"]
+description = "Print the license warnings of the wallpapers set"
 run = """
-set -euo pipefail
-
-# Everything is resolved before the `cd`, because ARTIFACT_DIR is repository-relative. Digests are
-# read from stdin rather than by name: given a Windows path, `sha256sum` escapes the line and
-# prefixes the digest with a backslash.
-root="$PWD"
-file_count="$(tr -cd '\\0' <"${ARTIFACT_DIR}/dotfiles.files" | wc -c | tr -d ' ')"
-config_sha="$(sha256sum <"${root}/vendir.yml" | cut -d' ' -f1)"
-lock_sha="$(sha256sum <"${root}/${VENDIR_LOCK}" | cut -d' ' -f1)"
-
-cd "${ARTIFACT_DIR}/dotfiles"
-sha256sum dotfiles.tar.gz sbom.spdx.json vex.openvex.json licenses.json >hashes.txt
-
-jq -n \
-  --arg set dotfiles \
-  --arg repository "${GITHUB_REPOSITORY:-arttet/dotfiles}" \
-  --arg commit "$(git rev-parse HEAD)" \
-  --arg tree "$(git rev-parse 'HEAD^{tree}')" \
-  --arg ref "${GITHUB_REF:-$(git symbolic-ref --quiet HEAD)}" \
-  --arg sourceDateEpoch "$(git show -s --format=%ct HEAD)" \
-  --arg vendirConfig vendir.yml \
-  --arg vendirConfigSha "$config_sha" \
-  --arg vendirLock "${VENDIR_LOCK}" \
-  --arg vendirLockSha "$lock_sha" \
-  --arg fileCount "$file_count" \
-  --rawfile hashes hashes.txt \
-  -f "${root}/misc/manifest.jq" >manifest.json
-
-rm -f hashes.txt
+jq -r -f misc/jq/license-warnings.jq \
+  {{vars.artifact_dir}}/wallpapers/licenses.json
 """
+
+[tasks."artifact:wallpapers:manifest:hashes"]
+description = "Hash the wallpapers payload files for the manifest"
+depends = ["artifact:wallpapers:pack", "artifact:wallpapers:licenses"]
+dir = "{{vars.artifact_dir}}/wallpapers"
+run = "sha256sum wallpapers.tar.gz licenses.json >../wallpapers-hashes.txt"
+
+[tasks."artifact:wallpapers:manifest".env]
+ARTIFACT_DIR = "{{vars.artifact_dir}}"
+ARTIFACT_SET = "wallpapers"
+VENDIR_CONFIG = "vendir.wallpapers.yml"
+VENDIR_LOCK = "{{vars.vendir_wallpapers_lock}}"
+VENDIR_CONFIG_SHA = "{{ exec(command='sha256sum <vendir.wallpapers.yml | cut -d\" \" -f1') }}"
+VENDIR_LOCK_SHA = "{{ exec(command='sha256sum <' ~ vars.vendir_wallpapers_lock ~ ' | cut -d\" \" -f1') }}"
+FILE_COUNT = "{{ exec(command='wc -l <' ~ vars.artifact_dir ~ '/wallpapers.files.txt | tr -d \" \"') }}"
+COMMIT = "{{ exec(command='git rev-parse HEAD') }}"
+TREE = "{{ exec(command='git rev-parse HEAD^{tree}') }}"
+SOURCE_DATE_EPOCH = "{{ exec(command='git show -s --format=%ct HEAD') }}"
 
 [tasks."artifact:wallpapers:manifest"]
 description = "Build the identity manifest for the wallpapers set"
-depends = ["artifact:wallpapers", "artifact:wallpapers:licenses"]
-env = { ARTIFACT_DIR = "{{vars.artifact_dir}}", VENDIR_LOCK = "{{vars.vendir_wallpapers_lock}}" }
+depends = ["artifact:wallpapers:manifest:hashes", "artifact:wallpapers:files:text"]
 run = """
-set -euo pipefail
-
-root="$PWD"
-file_count="$(tr -cd '\\0' <"${ARTIFACT_DIR}/wallpapers.files" | wc -c | tr -d ' ')"
-config_sha="$(sha256sum <"${root}/vendir.wallpapers.yml" | cut -d' ' -f1)"
-lock_sha="$(sha256sum <"${root}/${VENDIR_LOCK}" | cut -d' ' -f1)"
-
-cd "${ARTIFACT_DIR}/wallpapers"
-sha256sum wallpapers.tar.gz licenses.json >hashes.txt
-
-jq -n \
-  --arg set wallpapers \
-  --arg repository "${GITHUB_REPOSITORY:-arttet/dotfiles}" \
-  --arg commit "$(git rev-parse HEAD)" \
-  --arg tree "$(git rev-parse 'HEAD^{tree}')" \
-  --arg ref "${GITHUB_REF:-$(git symbolic-ref --quiet HEAD)}" \
-  --arg sourceDateEpoch "$(git show -s --format=%ct HEAD)" \
-  --arg vendirConfig vendir.wallpapers.yml \
-  --arg vendirConfigSha "$config_sha" \
-  --arg vendirLock "${VENDIR_LOCK}" \
-  --arg vendirLockSha "$lock_sha" \
-  --arg fileCount "$file_count" \
-  --rawfile hashes hashes.txt \
-  -f "${root}/misc/manifest.jq" >manifest.json
-
-rm -f hashes.txt
+jq -n -f misc/jq/manifest.jq \
+  --rawfile hashes "${ARTIFACT_DIR}/wallpapers-hashes.txt" \
+  >"${ARTIFACT_DIR}/wallpapers/manifest.json"
 """
-
-# Relative paths in checksums.sha256 are what let Stage 3 verify the set in whatever directory it
-# downloaded into, so these tasks deliberately run with `dir` set to the set's own directory.
-[tasks."artifact:checksum"]
-description = "Write SHA-256 checksums for the dotfiles set"
-depends = ["artifact:manifest"]
-dir = "{{vars.artifact_dir}}/dotfiles"
-run = "sha256sum dotfiles.tar.gz sbom.spdx.json vex.openvex.json licenses.json manifest.json >checksums.sha256"
 
 [tasks."artifact:wallpapers:checksum"]
 description = "Write SHA-256 checksums for the wallpapers set"
@@ -1270,86 +1402,50 @@ depends = ["artifact:wallpapers:manifest"]
 dir = "{{vars.artifact_dir}}/wallpapers"
 run = "sha256sum wallpapers.tar.gz licenses.json manifest.json >checksums.sha256"
 
-[tasks."artifact:verify"]
-description = "Verify the dotfiles set checksums and that the manifest describes this commit"
-dir = "{{vars.artifact_dir}}/dotfiles"
+[tasks."artifact:wallpapers:verify:hash"]
+description = "Check the wallpapers set against its own checksums"
+dir = "{{vars.artifact_dir}}/wallpapers"
+run = "sha256sum --check checksums.sha256"
+
+[tasks."artifact:wallpapers:verify:commit"]
+description = "Check that the wallpapers manifest describes the current commit"
+dir = "{{vars.artifact_dir}}/wallpapers"
+env = { COMMIT = "{{ exec(command='git rev-parse HEAD') }}" }
 run = """
-set -euo pipefail
-
-sha256sum --check checksums.sha256
-
-expected="${GITHUB_SHA:-$(git rev-parse HEAD)}"
-actual="$(jq -r '.source.commit' manifest.json)"
-if [ "$expected" != "$actual" ]; then
-  echo "manifest describes commit ${actual}, expected ${expected}" >&2
-  exit 1
-fi
+jq -e --arg expected "${GITHUB_SHA:-$COMMIT}" \
+  '.source.commit == $expected' manifest.json
 """
+
+[tasks."artifact:wallpapers:scan:manifest"]
+description = "Check the wallpapers manifest shape"
+run = """
+conftest test --policy misc/policy/manifest.rego --namespace manifest \
+  {{vars.artifact_dir}}/wallpapers/manifest.json
+"""
+
+[tasks."artifact:wallpapers:build"]
+description = "Pack the wallpapers archive and describe it: licenses, manifest, checksums"
+run = [
+  { task = "artifact:wallpapers:pack" },
+  { task = "artifact:wallpapers:licenses" },
+  { task = "artifact:wallpapers:licenses:report" },
+  { task = "artifact:wallpapers:manifest" },
+  { task = "artifact:wallpapers:checksum" },
+]
 
 [tasks."artifact:wallpapers:verify"]
-description = "Verify the wallpapers set checksums and manifest"
-dir = "{{vars.artifact_dir}}/wallpapers"
-run = """
-set -euo pipefail
-
-sha256sum --check checksums.sha256
-
-expected="${GITHUB_SHA:-$(git rev-parse HEAD)}"
-actual="$(jq -r '.source.commit' manifest.json)"
-if [ "$expected" != "$actual" ]; then
-  echo "manifest describes commit ${actual}, expected ${expected}" >&2
-  exit 1
-fi
-"""
-
-# Grant runs report-only on purpose: the release knowingly carries GPL-3.0 and AGPL-3.0 components,
-# and licenses.json is where that is recorded. osv-scanner is absent because it already covers the
-# source tree in security:osv and its SPDX support is unconfirmed.
-# Runs from the repository root rather than with `dir`, so every path stays relative: an absolute
-# `{{config_root}}` on Windows carries backslashes that the shell eats as escapes.
-[tasks."artifact:scan"]
-description = "Ask the triad about the release: contents, vulnerabilities, licenses"
-depends = ["artifact:manifest"]
-env = { DOCKER_CONFIG = "{{config_root}}/.tools/docker", SET_DIR = "{{vars.artifact_dir}}/dotfiles" }
+description = "Verify the wallpapers set: checksums and build identity"
 run = [
-  "trivy sbom ${SET_DIR}/sbom.spdx.json --scanners vuln --severity HIGH,CRITICAL --exit-code 1 --timeout 10m",
-  "grype sbom:${SET_DIR}/sbom.spdx.json -c .grype.yaml",
-  "grant check ${SET_DIR}/sbom.spdx.json --config .grant.yaml || true",
-  "conftest test --policy misc/policy/manifest.rego --namespace manifest ${SET_DIR}/manifest.json",
-]
-run_windows = [
-  "trivy sbom ${SET_DIR}/sbom.spdx.json --scanners vuln --severity HIGH,CRITICAL --exit-code 1 --timeout 10m",
-  "grype sbom:${SET_DIR}/sbom.spdx.json -c .grype.yaml",
-  "conftest test --policy misc/policy/manifest.rego --namespace manifest ${SET_DIR}/manifest.json",
-]
-
-[tasks."artifact:wallpapers:scan"]
-description = "Check the wallpapers manifest shape"
-depends = ["artifact:wallpapers:manifest"]
-env = { SET_DIR = "{{vars.artifact_dir}}/wallpapers" }
-run = "conftest test --policy misc/policy/manifest.rego --namespace manifest ${SET_DIR}/manifest.json"
-
-[tasks."artifact:all"]
-description = "Build, describe, scan and verify the dotfiles release set"
-run = [
-  { task = "artifact:dotfiles" },
-  { task = "artifact:sbom" },
-  { task = "artifact:vex" },
-  { task = "artifact:licenses" },
-  { task = "artifact:manifest" },
-  { task = "artifact:checksum" },
-  { task = "artifact:scan" },
-  { task = "artifact:verify" },
+  { task = "artifact:wallpapers:verify:hash" },
+  { task = "artifact:wallpapers:verify:commit" },
 ]
 
 [tasks."artifact:wallpapers:all"]
 description = "Build, describe and verify the wallpapers release set [~1.1 GB]"
 run = [
-  { task = "artifact:wallpapers" },
-  { task = "artifact:wallpapers:licenses" },
-  { task = "artifact:wallpapers:manifest" },
-  { task = "artifact:wallpapers:checksum" },
-  { task = "artifact:wallpapers:scan" },
+  { task = "artifact:wallpapers:clean" },
+  { task = "artifact:wallpapers:build" },
+  { task = "artifact:wallpapers:scan:manifest" },
   { task = "artifact:wallpapers:verify" },
 ]
 

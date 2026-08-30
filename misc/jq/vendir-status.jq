@@ -1,8 +1,10 @@
 def repo_name($url):
   ($url | sub("^https://github.com/"; "") | sub("\\.git$"; ""));
 
+# Keyed by the spec's path spelling: vendir writes backslashes into the Windows lock file, so without
+# normalizing here every row joins against nothing and reports a null sha as "up to date".
 def sha_by_path($lock):
-  reduce $lock.directories[] as $dir ({}; .[$dir.path] = $dir.contents[0].git.sha);
+  reduce $lock.directories[] as $dir ({}; .[$dir.path | gsub("\\\\"; "/")] = $dir.contents[0].git.sha);
 
 def short($sha):
   $sha[0:7];

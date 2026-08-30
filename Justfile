@@ -75,13 +75,6 @@ clean:
 mod deploy 'misc/justfiles/deploy.just'
 
 # ==============================================================================
-# Vendir
-# ==============================================================================
-
-[group('Vendir')]
-mod vendir 'misc/justfiles/vendir.just'
-
-# ==============================================================================
 # Documentation
 # ==============================================================================
 
@@ -101,7 +94,7 @@ bench target="all":
 # Artifact
 # ==============================================================================
 
-[doc('Build the release set [target: all, dotfiles, sbom, licenses, manifest, scan, verify]')]
+[doc('Build a release set [target: all, dotfiles:all, wallpapers:all, dotfiles:verify:hash, ...]')]
 [group('Artifact')]
 artifact target="all":
     mise run artifact:{{ target }}

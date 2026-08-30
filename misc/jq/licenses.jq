@@ -5,11 +5,12 @@
 # and are used deliberately, so the useful output is visibility, not a red build. A component with no
 # license file is a finding too, and is recorded as such instead of being silently dropped.
 #
-# Inputs: $scan (trivy --scanners license --license-full --format json), $components ([{path, origin}]),
-#         $files (file list, one path per line), $root (scan root), $allowed (comma-separated SPDX ids).
+# Inputs:      $scan (trivy --scanners license --license-full --format json),
+#              $components ([{path, origin}]), $files (newline-separated file list).
+# Environment: SCAN_ROOT, LICENSES_ALLOWED (comma-separated SPDX ids).
 
 def allowed_set:
-  $allowed | split(",") | map(ascii_downcase | ltrimstr(" ") | rtrimstr(" "));
+  $ENV.LICENSES_ALLOWED | split(",") | map(ascii_downcase | ltrimstr(" ") | rtrimstr(" "));
 
 def acceptable($names):
   ($names | length) > 0 and all($names[]; ascii_downcase | IN(allowed_set[]));
@@ -21,7 +22,7 @@ def findings:
   | map(.Licenses // [])
   | add // []
   | map(select(.FilePath != null))
-  | map({path: ($root + "/" + .FilePath), name: (.Name // "unknown")});
+  | map({path: ($ENV.SCAN_ROOT + "/" + .FilePath), name: (.Name // "unknown")});
 
 def file_lines:
   $files | split("\n") | map(select(length > 0));
@@ -78,7 +79,7 @@ def file_count($component; $lines):
       | if (.licenses | length) == 0 then
           "\(.path): no license file found\(if .origin then " (\(.origin))" else "" end)"
         elif (acceptable(.licenses) | not) then
-          "\(.path): \(.licenses | join(", ")) is outside \($allowed)\(if .origin then " (\(.origin))" else "" end)"
+          "\(.path): \(.licenses | join(", ")) is outside \($ENV.LICENSES_ALLOWED)\(if .origin then " (\(.origin))" else "" end)"
         else
           empty
         end

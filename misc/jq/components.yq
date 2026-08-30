@@ -1,0 +1,10 @@
+# Reduce a vendir config to the release inventory's view of it: where each component lands and where
+# it came from. Applied with `yq -o=json --from-file` so mise.toml holds a path, not an expression.
+#
+# No trailing comma after the last field: jq tolerates one, yq does not.
+[
+  .directories[] | {
+    "path": .path,
+    "origin": .contents[0].git.url
+  }
+]

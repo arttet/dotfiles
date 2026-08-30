@@ -290,7 +290,7 @@ Three questions, three tools, one document that says when an answer does not app
 | Does it apply to us?      | OpenVEX                             | `misc/vex/dotfiles.openvex.json` |
 
 Findings are never silenced with an ignore file. A suppression is a VEX statement with an author, a
-timestamp, the affected package and an OpenVEX justification, and `policy/vex.rego` fails the build if
+timestamp, the affected package and an OpenVEX justification, and `misc/policy/vex.rego` fails the build if
 one of those is missing.
 
 The license question is answered for the deployed tree, not just the committed one. `vendir` pulls in

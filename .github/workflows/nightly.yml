@@ -24,7 +24,7 @@ jobs:
   vendir-status:
     name: Vendir Lock Refresh
     runs-on: ubuntu-26.04
-    timeout-minutes: 10
+    timeout-minutes: 360
 
     steps:
       - name: Harden runner
@@ -56,12 +56,68 @@ jobs:
           version: ${{ env.MISE_VERSION }}
           install: false
 
-      # Only what `just vendir outdated-summary` needs; the full toolset would pull npm and pypi endpoints.
+      # Only what `deps:vendir:summary` needs; the full toolset would pull npm and pypi endpoints.
       - name: Install tools
-        run: mise install just vendir jq yq
+        run: mise install vendir nushell jq yq
 
       - name: Add dependency status summary
-        run: mise exec -- just vendir outdated-summary >>"$GITHUB_STEP_SUMMARY"
+        run: mise run deps:vendir:summary >>"$GITHUB_STEP_SUMMARY"
+
+  # ==============================================================================
+  # Full malware scan
+  # ==============================================================================
+  # The pull-request scan skips .git and .tools to stay inside its time budget. Nothing else ever
+  # looks inside .tools, which holds every downloaded toolchain, so it is scanned here instead.
+  antivirus:
+    name: Antivirus (full)
+    runs-on: ubuntu-26.04
+    timeout-minutes: 360
+
+    steps:
+      - name: Harden runner
+        uses: step-security/harden-runner@05e31511f85b41b11d1cf0ef85d0992719546e2c # v2.21.0
+        with:
+          egress-policy: block
+          allowed-endpoints: >-
+            *.blob.core.windows.net:443
+            *.cloudflarestorage.com:443
+            *.cloudfront.docker.com:443
+            *.github.com:443
+            *.jdx.dev:443
+            *.sigstore.dev:443
+            api.osv.dev:443
+            auth.docker.io:443
+            crates.io:443
+            database.clamav.net:443
+            files.pythonhosted.org:443
+            github.com:443
+            jdx.dev:443
+            mise-versions.jdx.dev:443
+            nodejs.org:443
+            objects.githubusercontent.com:443
+            production.cloudflare.docker.com:443
+            pypi.org:443
+            registry-1.docker.io:443
+            registry.npmjs.org:443
+            release-assets.githubusercontent.com:443
+
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Setup mise
+        uses: jdx/mise-action@c2a87611a18de5b3828c5652fe268e992400cb5c # v4.3.0
+        with:
+          version: ${{ env.MISE_VERSION }}
+          install: false
+
+      - name: Install the full toolset so the scan has something to look at
+        run: mise install
+
+      # No CLAMAV_EXCLUDE_DIR here on purpose: this scan covers .tools as well.
+      - name: Update ClamAV database and scan everything
+        run: mise run antivirus:all
 
   # ==============================================================================
   # Container images pinned for CI
@@ -72,7 +128,7 @@ jobs:
   images:
     name: Container Images
     runs-on: ubuntu-26.04
-    timeout-minutes: 15
+    timeout-minutes: 360
 
     steps:
       - name: Harden runner
@@ -124,7 +180,7 @@ jobs:
   scorecard:
     name: OpenSSF Scorecard
     runs-on: ubuntu-26.04
-    timeout-minutes: 15
+    timeout-minutes: 360
 
     permissions:
       contents: read
