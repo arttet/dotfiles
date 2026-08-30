@@ -1,0 +1,220 @@
+name: Release
+
+# Tags are the trust boundary here: only a maintainer can push one, which is why this workflow has no
+# `guard` job. Everything it publishes is rebuilt from the tagged commit rather than carried over from
+# a CI run, so a release cannot inherit an artifact that was never gated.
+on:
+  push:
+    tags:
+      - "v*"
+  workflow_dispatch:
+    inputs:
+      publish:
+        description: Create the GitHub Release (leave off to rehearse the build)
+        type: boolean
+        default: false
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: false
+
+permissions:
+  contents: read # Default read-only; the release job widens this for itself
+
+defaults:
+  run:
+    shell: bash
+
+env:
+  MISE_VERSION: v2026.8.14
+  MISE_DATA_DIR: ${{ github.workspace }}/.tools/mise
+  MISE_LOCAL_ALLOWED_ENDPOINTS: >-
+    *.blob.core.windows.net:443
+    github.com:443
+    api.osv.dev:443
+    *.cloudfront.docker.com:443
+    *.github.com:443
+    files.pythonhosted.org:443
+    nodejs.org:443
+    objects.githubusercontent.com:443
+    pypi.org:443
+    registry.npmjs.org:443
+    release-assets.githubusercontent.com:443
+    plugins.dprint.dev:443
+    mise-versions.jdx.dev:443
+    jdx.dev:443
+    *.jdx.dev:443
+    *.sigstore.dev:443
+
+jobs:
+  # Two things have to hold before anything is built: the tag sits on `main`, and CI went green for that
+  # commit. Both are checked against the API rather than the checkout, so this job stays cheap and fails
+  # before the toolchain is ever installed.
+  preflight:
+    name: Preflight
+    runs-on: ubuntu-26.04
+    timeout-minutes: 45 # Long enough to wait out a CI run that is still in flight
+
+    permissions:
+      actions: read # Read the CI runs recorded against this commit
+      contents: read # Compare the commit against main; naming any scope zeroes the unnamed ones
+
+    steps:
+      - name: Harden runner
+        uses: step-security/harden-runner@05e31511f85b41b11d1cf0ef85d0992719546e2c # v2.21.0
+        with:
+          egress-policy: block
+          allowed-endpoints: >-
+            api.github.com:443
+            github.com:443
+
+      # A tag can be pushed onto any commit, including one that never reached `main`. Comparing
+      # `main...<commit>` reports where the commit sits relative to the branch: `identical` is the tip,
+      # `behind` is an ancestor, and both mean it is part of main's history. `ahead` and `diverged` mean
+      # it is not, and those are the tags this refuses.
+      - name: Require the commit to be on main
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_REPO: ${{ github.repository }}
+          COMMIT: ${{ github.sha }}
+        run: |
+          position="$(gh api "repos/${GH_REPO}/compare/main...${COMMIT}" --jq '.status')"
+          echo "Commit ${COMMIT} is ${position} relative to main."
+
+          case "$position" in
+            identical | behind) ;;
+            *)
+              echo "::error title=Not on main::${COMMIT} is ${position} relative to main. Only commits merged into main can be released."
+              exit 1
+              ;;
+          esac
+
+      - name: Require a green CI run for this commit
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_REPO: ${{ github.repository }}
+          COMMIT: ${{ github.sha }}
+        run: |
+          # The most recent run wins. A re-run that went red after an earlier green is the current
+          # verdict on this commit, and it should block the release.
+          latest="$(
+            gh api "repos/${GH_REPO}/actions/workflows/ci.yml/runs?head_sha=${COMMIT}&per_page=1" \
+              --jq '.workflow_runs[0] // empty | "\(.id) \(.status) \(.conclusion)"'
+          )"
+
+          if [ -z "$latest" ]; then
+            echo "::error title=No CI run::${COMMIT} has no CI run. Push it to a branch and let CI finish before tagging."
+            exit 1
+          fi
+
+          read -r id status conclusion <<<"$latest"
+          echo "Latest CI run ${id}: status=${status}, conclusion=${conclusion}"
+
+          # `gh run watch` on an already-finished run is undocumented, so the completed case is decided
+          # here and only a run still in flight is handed to it.
+          if [ "$status" != "completed" ]; then
+            echo "CI is still ${status}; waiting for it to finish."
+            gh run watch "$id" --exit-status
+          elif [ "$conclusion" != "success" ]; then
+            echo "::error title=CI is not green::Run ${id} concluded ${conclusion}. Fix CI, then re-run this workflow."
+            exit 1
+          fi
+
+  release:
+    name: Release
+    runs-on: ubuntu-26.04
+    timeout-minutes: 30
+    needs: preflight
+
+    permissions:
+      contents: write # Create the release and upload its assets
+      id-token: write # OIDC identity for the build provenance attestation
+      attestations: write # Record the attestation against this repository
+
+    steps:
+      - name: Harden runner
+        uses: step-security/harden-runner@05e31511f85b41b11d1cf0ef85d0992719546e2c # v2.21.0
+        with:
+          egress-policy: block
+          allowed-endpoints: >-
+            ${{ env.MISE_LOCAL_ALLOWED_ENDPOINTS }}
+            api.github.com:443
+            ghcr.io:443
+            grype.anchore.io:443
+            mirror.gcr.io:443
+            pkg-containers.githubusercontent.com:443
+            toolbox-data.anchore.io:443
+            uploads.github.com:443
+
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      # `cache: false` unlike everywhere else in this repository: a release is published from whatever
+      # this step produces, so a poisoned cache entry would end up inside a signed artifact. Paying for
+      # a cold toolchain once per tag is the cheaper side of that trade.
+      - name: Setup mise
+        uses: jdx/mise-action@c2a87611a18de5b3828c5652fe268e992400cb5c # v4.3.0
+        with:
+          version: ${{ env.MISE_VERSION }}
+          reshim: true
+          cache: false
+
+      - name: Sync vendored components
+        run: mise run deploy:sync:config
+
+      - name: Build the dotfiles release set
+        run: mise run artifact:dotfiles:all
+
+      - name: Attest build provenance
+        uses: actions/attest-build-provenance@4d101475d8b20a2381f78447822ac1eab6504dd8 # v4.2.2
+        with:
+          subject-path: .tools/artifacts/dotfiles/dotfiles.tar.gz
+
+      - name: Summarize the release
+        run: |
+          {
+            echo "## Release ${GITHUB_REF_NAME}"
+            echo
+            echo '```json'
+            cat .tools/artifacts/dotfiles/manifest.json
+            echo '```'
+            echo
+            echo "### License warnings"
+            echo
+            jq -r '.warnings[] | "- \(.)"' .tools/artifacts/dotfiles/licenses.json
+          } >>"$GITHUB_STEP_SUMMARY"
+
+      # Guarded on the ref being a tag as well as on the trigger: a `workflow_dispatch` from a branch
+      # would otherwise publish a release named after that branch.
+      - name: Publish the release
+        if: ${{ startsWith(github.ref, 'refs/tags/') && (github.event_name == 'push' || inputs.publish) }}
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_REPO: ${{ github.repository }}
+        working-directory: .tools/artifacts/dotfiles
+        run: |
+          # Indented rather than fenced: this string travels through YAML, bash and Markdown, and
+          # indentation is the one code-block form that needs no escaping in any of them.
+          notes="$(
+            cat <<NOTES
+          Verify before you trust it:
+
+              sha256sum --check checksums.sha256
+              gh attestation verify dotfiles.tar.gz --repo ${GH_REPO}
+
+          Deployment instructions are in INSTALL.md inside the archive.
+          NOTES
+          )"
+
+          gh release create "${GITHUB_REF_NAME}" \
+            --title "${GITHUB_REF_NAME}" \
+            --generate-notes \
+            --notes "${notes}" \
+            dotfiles.tar.gz \
+            sbom.spdx.json \
+            licenses.json \
+            vex.openvex.json \
+            manifest.json \
+            checksums.sha256

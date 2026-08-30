@@ -2,14 +2,37 @@
 
 This guide walks you through installing and activating these dotfiles on your system.
 
-## Quick Start
+There are two ways in. Deploy a published release if you only want to run these dotfiles; clone the
+repository if you intend to change them — the release archive carries no build tooling.
+
+## Quick Start (clone)
 
 ```bash
 git clone https://github.com/arttet/dotfiles.git
 cd dotfiles
-just deploy check   # Preview what will be linked
-just deploy apply   # Deploy with dotter
+just install             # mise install + setup
+mise run deploy:check    # Preview what will be linked
+just apply               # Deploy with dotter
 ```
+
+## Quick Start (release)
+
+Every tag publishes an archive alongside an SBOM, a license inventory, a manifest naming the commit it
+was built from, and checksums. Check it before you trust it:
+
+```bash
+gh release download --repo arttet/dotfiles
+sha256sum --check checksums.sha256
+gh attestation verify dotfiles.tar.gz --repo arttet/dotfiles
+
+mkdir dotfiles && tar -xzf dotfiles.tar.gz -C dotfiles && cd dotfiles
+dotter deploy --verbose --dry-run
+dotter deploy --verbose --force
+```
+
+The archive unpacks to `dotfiles/` plus `.dotter/`, which is the layout `dotter` expects, and the
+vendored plugins are already inside it — do not run `vendir sync` there. `INSTALL.md` ships in the
+archive with the same instructions.
 
 ## Prerequisites
 
@@ -26,17 +49,17 @@ just deploy apply   # Deploy with dotter
 
 ```bash
 # Preview changes without applying
-just deploy check
+mise run deploy:check
 
 # Deploy dotfiles
-just deploy apply
+just apply
 
 # Remove deployed links
-just deploy undeploy
+just undeploy
 ```
 
-Each recipe is a shim over the matching mise task (`mise run deploy:check`, `deploy:apply`, `deploy:undeploy`),
-which is exactly what CI runs.
+Each recipe is a shim over the matching mise task (`mise run deploy:apply`, `deploy:undeploy`), which
+is exactly what CI runs. GNU Stow is not used and the tree is not laid out for it.
 
 Available profiles (configured in `.dotter/global.toml`):
 
@@ -57,7 +80,8 @@ dotter deploy -p bash
 Some configs rely on vendored plugins and themes:
 
 ```bash
-just deploy sync
+just sync                       # plugins and wallpapers (~1.1 GB)
+mise run deploy:sync:config     # plugins only, which is what CI runs
 ```
 
 This updates external resources managed by [vendir](https://github.com/vmware-tanzu/carvel-vendir) (Alacritty themes, Yazi plugins, etc.). Do not edit these files manually.
@@ -83,11 +107,12 @@ misc/                 # Supplementary files and justfile modules
 ## Useful Commands
 
 ```bash
-just help       # List all available commands
-just fmt        # Format all code
-just lint       # Run all linters
-just bench      # Benchmark shell startup times
-just docs serve # Start documentation dev server
+just help            # List all available commands
+just fmt             # Format all code
+just lint            # Run all linters
+just docs dev        # Start documentation dev server
+mise run bench:all   # Benchmark shell startup times
+mise run artifact:dotfiles:all   # Build a release set locally
 ```
 
 ## Next Steps

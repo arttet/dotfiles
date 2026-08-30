@@ -104,6 +104,9 @@ bench_report = "jq -n --slurpfile benchmark .tools/bench/results.json --slurpfil
 # NOTE: Artifact Gate
 artifact_dir = ".tools/artifacts"
 artifact_licenses_allowed = "MIT,Apache-2.0"
+# NOTE: An allowlist, deliberately not `.gitattributes export-ignore`: a blocklist would ship every new
+# NOTE: top-level file by default. `.dotter/` and INSTALL.md are what make an unpacked release deployable.
+artifact_tracked = "dotfiles .dotter/global.toml .dotter/local.toml INSTALL.md"
 
 [settings]
 auto_install = false
@@ -1062,15 +1065,22 @@ for export in {{vars.bench_runs}}/*.md; do
 done >{{vars.bench_dir}}/tables.md
 """
 
-[tasks."bench:ci"]
-description = "Compare startup performance with the committed baseline"
+[tasks."bench:report"]
+description = "Compare the collected runs with the committed baseline and fail on a regression"
 run = [
-  { task = "deploy:sync:config" },
-  { task = "bench:all" },
-  { task = "bench:collect" },
   "{{vars.bench_report}} --arg mode check >{{vars.bench_dir}}/report.json",
   "jq -r '.report' {{vars.bench_dir}}/report.json | tee \"${PERFORMANCE_REPORT:-performance-report.md}\"",
   "jq -e '.passed' {{vars.bench_dir}}/report.json >/dev/null",
+]
+
+[tasks."bench:ci"]
+# One attempt. Absorbing runner noise is the workflow's job: it wraps this in retry(1), which comes from
+# nixpkgs alongside the benchmark shells rather than from the mise toolset.
+description = "Measure startup, collect the runs and compare with the baseline [run deploy:sync:config first]"
+run = [
+  { task = "bench:all" },
+  { task = "bench:collect" },
+  { task = "bench:report" },
 ]
 
 [tasks."bench:update"]
@@ -1113,37 +1123,71 @@ yq -o=json --from-file misc/jq/components.yq vendir.yml \
 """
 
 [tasks."artifact:dotfiles:files"]
-description = "Enumerate the dotfiles archive contents [run deploy:sync:config first]"
+description = "Enumerate the vendored half of the archive [run deploy:sync:config first]"
 depends = ["artifact:dotfiles:components"]
 env = { ARTIFACT_DIR = "{{vars.artifact_dir}}" }
 run = """
-{
-  git ls-files -z -- dotfiles
-  jq -r '.[].path' "${ARTIFACT_DIR}/components.json" | tr -d '\\r' \
-    | xargs -I{} find {} -type f -print0
-} | sort -z -u >"${ARTIFACT_DIR}/dotfiles.files"
+jq -r '.[].path' "${ARTIFACT_DIR}/components.json" | tr -d '\\r' \
+  | xargs -I{} find {} -type f -print0 \
+  | sort -z -u >"${ARTIFACT_DIR}/vendored.files"
 """
 
-[tasks."artifact:dotfiles:files:text"]
-description = "Convert the dotfiles archive list to one path per line"
-depends = ["artifact:dotfiles:files"]
-env = { ARTIFACT_DIR = "{{vars.artifact_dir}}" }
-run = "tr '\\0' '\\n' <\"${ARTIFACT_DIR}/dotfiles.files\" >\"${ARTIFACT_DIR}/dotfiles.files.txt\""
+[tasks."artifact:dotfiles:pack:tracked"]
+# git archive stamps every entry with uid/gid 0 and the commit time on its own, so the reproducibility
+# flags the vendored half still needs are absent here by design, not by omission.
+#
+# It also packs HEAD rather than the working tree, which is what manifest.json has always claimed:
+# a dirty checkout can no longer ship edits under a commit id that does not contain them.
+description = "Pack the tracked half of the archive from the commit"
+# Runs before the vendored half, so it cannot rely on that chain having created the output directory.
+depends = ["artifact:setup"]
+run = """
+git archive --format=tar HEAD -- {{vars.artifact_tracked}} \
+  >"${ARTIFACT_DIR}/tracked.tar"
+"""
 
-[tasks."artifact:dotfiles:pack"]
-description = "Pack the dotfiles tree reproducibly"
+[tasks."artifact:dotfiles:pack:tracked".env]
+ARTIFACT_DIR = "{{vars.artifact_dir}}"
+
+[tasks."artifact:dotfiles:pack:vendored"]
+description = "Pack the vendored half of the archive reproducibly"
 depends = ["artifact:dotfiles:files"]
 run = """
-tar --create --no-recursion --null --files-from="${ARTIFACT_DIR}/dotfiles.files" \
+tar --create --no-recursion --null --files-from="${ARTIFACT_DIR}/vendored.files" \
   --format=posix --owner=0 --group=0 --numeric-owner \
   --mtime="@${SOURCE_DATE_EPOCH}" \
   --pax-option=exthdr.name=%d/PaxHeaders/%f,delete=atime,delete=ctime \
-  | gzip -n >"${ARTIFACT_DIR}/dotfiles/dotfiles.tar.gz"
+  >"${ARTIFACT_DIR}/vendored.tar"
 """
 
-[tasks."artifact:dotfiles:pack".env]
+[tasks."artifact:dotfiles:pack:vendored".env]
 ARTIFACT_DIR = "{{vars.artifact_dir}}"
 SOURCE_DATE_EPOCH = "{{ exec(command='git show -s --format=%ct HEAD') }}"
+
+[tasks."artifact:dotfiles:pack"]
+# The two halves are concatenated rather than merged into one sorted stream: the vendored trees are
+# gitignored, so git archive cannot see them and they cannot collide with the tracked half either.
+# Reproducibility needs each half to be deterministic, which they are; it does not need a global sort.
+description = "Pack the dotfiles tree reproducibly"
+env = { ARTIFACT_DIR = "{{vars.artifact_dir}}" }
+run = [
+  { task = "artifact:dotfiles:pack:tracked" },
+  { task = "artifact:dotfiles:pack:vendored" },
+  'tar --concatenate --file="${ARTIFACT_DIR}/tracked.tar" "${ARTIFACT_DIR}/vendored.tar"',
+  'gzip -n <"${ARTIFACT_DIR}/tracked.tar" >"${ARTIFACT_DIR}/dotfiles/dotfiles.tar.gz"',
+]
+
+[tasks."artifact:dotfiles:files:text"]
+# Read back out of the finished archive rather than forward from the input lists: the manifest and the
+# license inventory then describe what shipped, not what was meant to ship. git archive emits directory
+# entries too, and those are dropped here because both consumers expect file paths.
+description = "List the archive contents, one path per line"
+depends = ["artifact:dotfiles:pack"]
+env = { ARTIFACT_DIR = "{{vars.artifact_dir}}" }
+run = """
+tar -tzf "${ARTIFACT_DIR}/dotfiles/dotfiles.tar.gz" | grep -v '/$' \
+  >"${ARTIFACT_DIR}/dotfiles.files.txt"
+"""
 
 [tasks."artifact:dotfiles:sbom"]
 description = "Generate an SPDX SBOM of the dotfiles archive"

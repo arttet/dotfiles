@@ -2,6 +2,37 @@
 
 My dotfiles
 
+## 📦 Installation
+
+Two ways in, depending on whether you want to change these dotfiles or just run them.
+
+**Deploy a release.** Each tag publishes an archive with an SBOM, a license inventory, a manifest
+naming the commit it came from, and checksums. Verify it, unpack it, deploy it:
+
+```sh
+gh release download --repo arttet/dotfiles
+sha256sum --check checksums.sha256
+mkdir dotfiles && tar -xzf dotfiles.tar.gz -C dotfiles && cd dotfiles
+dotter deploy --verbose --dry-run    # read this before the next line
+dotter deploy --verbose --force
+```
+
+The vendored plugins and themes are already inside the archive, and `INSTALL.md` ships with it.
+Full instructions: [INSTALL.md](./INSTALL.md).
+
+**Clone the repository** if you intend to edit anything — the release archive carries no build tooling:
+
+```sh
+git clone https://github.com/arttet/dotfiles.git
+cd dotfiles
+just install    # mise install + setup
+just sync       # vendored plugins and wallpapers
+just apply      # dotter deploy
+```
+
+`dotter` is the only deployer, on every platform; it handles the Windows-specific paths and the
+opt-in profiles. GNU Stow is not used and the tree is not laid out for it.
+
 ## 🛠 Management & Development
 
 This project uses `just` as the primary task runner for managing dotfiles, development workflows, and project utilities.
@@ -13,32 +44,23 @@ The justfile provides a unified interface for dotfiles management, performance b
 ```sh
 $ just help
 Available recipes:
-    default            # Show help
-    help               # List all commands
-
-    [Development]
-    install            # Install tools
-    outdated           # Shows outdated tool versions
-    upgrade            # Upgrades outdated tools
-    fmt                # Format code
-    lint               # Run linters
-    check              # Run CI checks
-    ci                 # Run CI locally
-    clean              # Remove vendir dependencies
+    default  # Show help
+    help     # List all commands
 
     [Deploy]
-    deploy:
-        sync     # Synchronize external plugins and dependencies
-        check    # Preview dotfiles deployment (dotter dry-run)
-        apply    # Deploy dotfiles using dotter
-        undeploy # Undeploy dotfiles using dotter
+    sync     # Synchronize external dependencies and wallpapers
+    apply    # Deploy dotfiles using dotter
+    undeploy # Undeploy dotfiles using dotter
 
-    [Vendir]
-    vendir:
-        sync             # Synchronize external plugins and dependencies
-        update           # Re-resolve refs and rewrite the vendir lock file
-        outdated         # List outdated vendir dependencies
-        outdated-summary # Write vendir dependency status as a Markdown summary
+    [Development]
+    install  # Install tools
+    outdated # Shows outdated tool versions
+    upgrade  # Upgrades outdated tools
+    fmt      # Format code
+    lint     # Run linters
+    check    # Run CI checks
+    ci       # Run CI locally
+    clean    # Remove vendir dependencies
 
     [Documentation]
     docs:
@@ -50,13 +72,4 @@ Available recipes:
         preview # Preview docs
         clean   # Clean build artifacts and cache
         pack    # Pack package archive
-
-    [Performance]
-    bench target="all" # Run benchmarks [target: all, nu, bash, zsh, tmux, pwsh, ci, update]
-
-    [Neovim]
-    nvim:
-        doctor  # Environment + config sanity check (run first)
-        verify  # Full green/red gate: doctor + headless load + treesitter + lsp
-        ...     # `just nvim --list` for the full module
 ```

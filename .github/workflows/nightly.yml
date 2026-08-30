@@ -56,7 +56,6 @@ jobs:
           version: ${{ env.MISE_VERSION }}
           install: false
 
-      # Only what `deps:vendir:summary` needs; the full toolset would pull npm and pypi endpoints.
       - name: Install tools
         run: mise install vendir nushell jq yq
 
@@ -64,12 +63,10 @@ jobs:
         run: mise run deps:vendir:summary >>"$GITHUB_STEP_SUMMARY"
 
   # ==============================================================================
-  # Full malware scan
+  # Antivirus Gate: Full malware scan
   # ==============================================================================
-  # The pull-request scan skips .git and .tools to stay inside its time budget. Nothing else ever
-  # looks inside .tools, which holds every downloaded toolchain, so it is scanned here instead.
   antivirus:
-    name: Antivirus (full)
+    name: Antivirus
     runs-on: ubuntu-26.04
     timeout-minutes: 360
 
@@ -115,18 +112,14 @@ jobs:
       - name: Install the full toolset so the scan has something to look at
         run: mise install
 
-      # No CLAMAV_EXCLUDE_DIR here on purpose: this scan covers .tools as well.
       - name: Update ClamAV database and scan everything
         run: mise run antivirus:all
 
   # ==============================================================================
-  # Container images pinned for CI
+  # Security Gate: Container Images Scan
   # ==============================================================================
-  # Pinning by digest freezes the bytes, not the vulnerabilities found in them later. This runs
-  # nightly rather than per pull request because the digests do not change between commits — only the
-  # vulnerability data does.
   images:
-    name: Container Images
+    name: Container Images Scan
     runs-on: ubuntu-26.04
     timeout-minutes: 360
 
@@ -173,10 +166,8 @@ jobs:
         run: mise run security:grype:images
 
   # ==============================================================================
-  # OpenSSF Scorecard
+  # Security Gate: OpenSSF Scorecard
   # ==============================================================================
-  # Report-only by design: several checks (Branch-Protection above all) need an admin-scoped PAT to
-  # return anything meaningful, and failing the build on an inconclusive score teaches nothing.
   scorecard:
     name: OpenSSF Scorecard
     runs-on: ubuntu-26.04

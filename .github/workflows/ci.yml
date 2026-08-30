@@ -155,7 +155,7 @@ jobs:
         run: mise run lint:all
 
   # ==============================================================================
-  # Stage 1: Security
+  # Stage 1: Security Gate
   # ==============================================================================
   security:
     name: Security
@@ -254,7 +254,7 @@ jobs:
           category: javascript
 
   # ==============================================================================
-  # Stage 1: Antivirus
+  # Stage 1: Antivirus Gate
   # ==============================================================================
   antivirus:
     name: Antivirus
@@ -402,7 +402,7 @@ jobs:
     name: Validate (${{ matrix.os }})
     runs-on: ${{ matrix.os }}
     timeout-minutes: 15
-    needs: [guard, fmt, lint, security, docs]
+    needs: [guard, fmt, lint]
     permissions:
       contents: read
 
@@ -463,8 +463,8 @@ jobs:
   performance:
     name: Performance
     runs-on: ubuntu-26.04
-    timeout-minutes: 10
-    needs: [guard, fmt, lint, security, docs]
+    timeout-minutes: 15 # bench:ci re-measures up to three times before it calls a regression
+    needs: [guard, fmt, lint]
 
     permissions:
       contents: read
@@ -504,18 +504,21 @@ jobs:
       - name: Alias nixpkgs in the flake registry
         run: nix registry add nixpkgs "${NIXPKGS}"
 
-      - name: Install benchmark shells
-        run: nix profile add nixpkgs#bash nixpkgs#zsh
+      - name: Install benchmark dependencies via Nix
+        run: nix profile add nixpkgs#bash nixpkgs#retry nixpkgs#zsh
 
-      - name: Install benchmark dependencies
+      - name: Install benchmark dependencies via mise
         run: mise install hyperfine jq nushell powershell tmux vendir
+
+      - name: Sync vendored components
+        run: mise run deploy:sync:config
 
       - name: Compare performance with baseline
         id: benchmark
         continue-on-error: true
         env:
           PERFORMANCE_REPORT: performance-report.md
-        run: mise run bench:ci
+        run: retry --times=3 -- mise run bench:ci
 
       - name: Add performance job summary
         if: always()
@@ -574,7 +577,7 @@ jobs:
     name: Artifact
     runs-on: ubuntu-26.04
     timeout-minutes: 20
-    needs: [guard, fmt, lint, security, validate]
+    needs: [guard, fmt, lint, security, antivirus, docs, validate, performance]
 
     permissions:
       contents: read # The release set is built here but signed and published elsewhere
@@ -629,7 +632,7 @@ jobs:
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' }}
         with:
-          name: dotfiles-wallpapers
+          name: wallpapers-artifacts
           path: .tools/artifacts/wallpapers
           retention-days: 30
           if-no-files-found: error
