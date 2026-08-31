@@ -157,10 +157,12 @@ just docs dev      # VitePress dev server (port 5173)
 just docs build    # VitePress production build
 just docs preview  # preview production build
 
-# Performance (thin shim over `mise run bench:<target>`)
-just bench         # every benchmark available on the platform
-just bench zsh     # one target: nu, bash, zsh, tmux, pwsh
-just bench ci      # compare with misc/baseline.json (Linux only)
+# Performance
+mise run bench:all           # every benchmark available on the platform
+mise run bench:zsh           # one target: nu, bash, zsh, tmux, pwsh
+mise run bench:ci            # compare with misc/baseline.json (Linux only)
+mise run bench:profile:bash  # which fragment costs what [diagnostic, not a gate]
+mise run bench:profile:zsh   # same for zsh
 
 # Stage-1 CI gates via mise (local CI parity)
 mise install       # install all pinned tools from mise.toml
@@ -278,8 +280,30 @@ Benchmark tools are pinned in `mise.toml` like everything else: `hyperfine`, `nu
 
 The benchmark itself is pure mise: `[vars]` holds every raw/configured command, each `bench:<shell>` task is a
 single `hyperfine` call, `bench:collect` aggregates whatever exports exist in `.tools/bench/runs/`, and
-`misc/bench.jq` derives its targets from those results. The `bench:*` tasks use `shell = "nu -c"` because mise
+`misc/jq/bench.jq` derives its targets from those results. The `bench:*` tasks use `shell = "nu -c"` because mise
 hands a bash task a POSIX-style `PATH`, which `hyperfine --shell=none` cannot resolve on Windows.
+
+### Attributing startup cost
+
+The gate says startup got worse; it never says which fragment to look at. `bench:profile:bash` and
+`bench:profile:zsh` (`misc/nu/shell-profile.nu`) answer that by difference: one `hyperfine` run times a
+shell sourcing the first fragment, then the first two, and so on in the order the rc files load them
+(`shell/profile.d`, `shell/shell.d`, then `bash/bash.d` or `zsh/zsh.d`). Consecutive medians subtract to
+a per-fragment cost.
+
+**These tasks are diagnostic and deliberately outside the gate** — `bench:ci` does not call them and CI
+never runs them. Read the output as a ranking, not a budget:
+
+- fragments are not independent, so the costs need not sum to the configured total;
+- `noise_ms` is the two measurements' deviations added in quadrature, and `reliable` is false wherever
+  the cost is smaller than that. A negative cost is the method hitting its own floor, not a fragment
+  that speeds the shell up. On a noisy machine most rows can come back unreliable, and the honest
+  response is to rerun with more `--runs`, not to act on the ranking.
+
+The harness ends each prefix with `exit 0` rather than a bare `exit`: fragments routinely end on a guard
+like `command -v tldr >/dev/null && alias man=tldr`, which returns 1 wherever that tool is missing, and
+a bare `exit` would inherit it and abort the whole measurement. The real shells never see this because
+the rc for-loop that sources them ends on 0.
 
 ### Global mise toolchain
 
