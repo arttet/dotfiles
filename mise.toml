@@ -1072,6 +1072,27 @@ run = [
   { task = "bench:tmux" },
 ]
 
+[tasks."bench:profile:bash"]
+# Diagnostic, not a gate: bench:ci is untouched and this never runs in CI. The gate catches a startup
+# time getting worse; this one answers which fragment to look at, which the gate never says.
+#
+# Run by nu rather than bash: mise hands a bash task a POSIX-style PATH, and nu cannot resolve the
+# hyperfine shim through it on Windows. The other bench:* tasks carry the same workaround.
+description = "Attribute Bash startup cost to individual configuration fragments"
+shell = "nu -c"
+env = { HOME = "{{config_root}}/dotfiles", XDG_CONFIG_HOME = "{{config_root}}/dotfiles/.config" }
+run = "nu misc/nu/shell-profile.nu bash --hyperfine '{{vars.hyperfine}}'"
+
+[tasks."bench:profile:zsh"]
+description = "Attribute Zsh startup cost to individual configuration fragments"
+shell = "nu -c"
+env = { HOME = "{{config_root}}/dotfiles", XDG_CONFIG_HOME = "{{config_root}}/dotfiles/.config" }
+run = "nu misc/nu/shell-profile.nu zsh --hyperfine '{{vars.hyperfine}}'"
+
+[tasks."bench:profile"]
+description = "Attribute startup cost to configuration fragments for every profiled shell"
+run = [{ task = "bench:profile:bash" }, { task = "bench:profile:zsh" }]
+
 [tasks."bench:collect"]
 description = "Aggregate the benchmark exports into a report input"
 run = """
