@@ -27,3 +27,8 @@ dotfiles/.config/zsh/.zcompdump*
 
 # mise / scan artifacts
 .tools/
+
+# Dynamically installed agent skills
+dotfiles/.config/claude/skills
+dotfiles/.config/codex/skills
+dotfiles/.config/opencode/skills

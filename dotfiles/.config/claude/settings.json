@@ -13,10 +13,9 @@
       "Bash(rg:*)",
       "Bash(eza:*)",
       "Bash(fd:*)",
-      "Bash(just fmt:*)",
-      "Bash(just lint:*)",
-      "Bash(just build:*)",
-      "Bash(just test:*)",
+      "Bash(mise run fmt:*)",
+      "Bash(mise run lint:*)",
+      "Bash(mise run check:*)",
       "Bash(git status:*)",
       "Bash(git diff:*)",
       "Bash(git log:*)",
@@ -180,5 +179,8 @@
       "startupTimeoutMs": 60000,
       "toolTimeoutMs": 120000
     }
+  },
+  "enabledPlugins": {
+    "pyright-lsp@claude-plugins-official": true
   }
 }

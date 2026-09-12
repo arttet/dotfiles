@@ -12,19 +12,35 @@ package_manager = "aube"
 [tasks.setup]
 description = "Apply safe, idempotent global mise setup"
 depends = [
-  "setup:gh-dash",
-  "setup:go-telemetry",
+  "setup:gh:dash",
+  "setup:go:telemetry",
+  "setup:skills",
 ]
 
-[tasks."setup:gh-dash"]
+[tasks."setup:gh:dash"]
 description = "Install Github Dash"
 run = """
-gh extension install dlvhdr/gh-dash
+gh extension list | grep -q "dlvhdr/gh-dash" || gh extension install "dlvhdr/gh-dash"
 """
 
-[tasks."setup:go-telemetry"]
+[tasks."setup:go:telemetry"]
 description = "Disable Go telemetry"
 run = """
 go telemetry off
 test "$(go telemetry)" = "off"
 """
+
+[tasks."setup:skills"]
+description = "Install managed agent skills"
+run = [
+  "aube dlx --package skills skills add obra/superpowers --skill brainstorming --skill systematic-debugging --skill test-driven-development --skill requesting-code-review --skill receiving-code-review --skill verification-before-completion --skill writing-plans --skill executing-plans --skill subagent-driven-development --skill dispatching-parallel-agents --skill using-git-worktrees --skill using-superpowers --agent codex claude-code opencode kimi-code-cli --global --copy --yes",
+  "aube dlx --package skills skills add pr-pm/prpm --skill human-writing --agent claude-code --global --copy --yes",
+]
+
+[tasks."setup:skills:update"]
+description = "Update managed agent skills"
+run = "aube dlx --package skills skills update brainstorming systematic-debugging test-driven-development requesting-code-review receiving-code-review verification-before-completion writing-plans executing-plans subagent-driven-development dispatching-parallel-agents using-git-worktrees using-superpowers human-writing --global --yes"
+
+[tasks."setup:skills:status"]
+description = "List managed agent skills"
+run = "aube dlx --package skills skills list --global --json"

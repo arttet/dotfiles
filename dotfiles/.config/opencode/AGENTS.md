@@ -75,6 +75,10 @@ Prefer read-only `gh` for inspection (pr/run view, diff, checks, list). Never ru
 Use MCP only when it clearly beats shell/CLI workflows, such as browser automation, structured external-service access, specialized repository/search context, or tasks local tools cannot do reliably.
 Put stack-, tool-, and domain-specific behavior into skills where practical. When a relevant skill applies, follow it together with these rules. If a skill conflicts with these rules, defer to Precedence.
 
+## Hunk Reviews
+
+Load the Hunk skill and use it for this review. Run `hunk skill path` to get the skill path.
+
 ## Secrets
 
 Treat secrets as toxic data.

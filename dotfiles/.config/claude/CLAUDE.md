@@ -52,6 +52,10 @@ Follow local conventions over generic defaults:
 - Use MCP only when it clearly beats shell/CLI: Serena for symbol-level navigation (find/rename symbol, references, overview) on large codebases; browser automation; or structured external-service access local tools cannot do reliably.
 - Put stack-, tool-, and domain-specific behavior into skills where practical. When a relevant skill applies, follow it together with these rules. If a skill conflicts with these rules, defer to Precedence.
 
+## Hunk Reviews
+
+Load the Hunk skill and use it for this review. Run `hunk skill path` to get the skill path.
+
 ## Documentation Lookup
 
 - For external libraries, frameworks, SDKs, APIs, and CLI tools, follow the ctx7 rule (fetch current docs) rather than relying on memory.

@@ -11,10 +11,10 @@ This repository is a personal, cross-platform dotfiles configuration for Artyom 
 - **Repository**: `https://github.com/arttet/dotfiles`
 - **Maintainer**: `@arttet` (see `.github/CODEOWNERS`)
 - **Primary language of documentation and comments**: English
-- **Deployment model**: Symlink-based dotfiles deployed with **dotter** (`just deploy apply` / `mise run deploy:apply`)
+- **Deployment model**: Symlink-based dotfiles deployed with **dotter** (`mise run deploy:apply`)
 - **External assets**: Plugins and themes are vendored with **vendir** (`vendir.yml`); wallpapers live in a separate `vendir.wallpapers.yml` and land in `dotfiles/.local/share/backgrounds/`. Each config has its own lock file, plus a `*.windows.yml` variant for Windows path handling
-- **Task runners**: `just` (`Justfile`) for deployment and local recipes; `mise` (`mise.toml`) for pinned dev tools and Stage-1 CI gate tasks
-- **Documentation site**: VitePress under `docs/`, served via aube (`just docs dev`)
+- **Task runner for agents**: `mise` (`mise.toml`) installs pinned tools and runs all validation and deployment tasks.
+- **Documentation site**: VitePress under `docs/`, served via aube (`mise run docs:dev`)
 - **NixOS integration**: `nixos/home.nix` links selected dotfiles into a Home Manager generation
 
 ## Repository Layout
@@ -47,7 +47,7 @@ This repository is a personal, cross-platform dotfiles configuration for Artyom 
 │   │   ├── kimi-code/    # Kimi Code settings
 │   │   ├── mise/         # global toolchain: config.toml + conf.d/ (numbered by priority)
 │   │   ├── nushell/      # modules/ + scripts/ + config.nu/env.nu
-│   │   ├── nvim/         # NvChad-based Neovim config
+│   │   ├── nvim/         # Neovim 0.12+ config (vim.pack) + its own standalone Justfile
 │   │   ├── powershell/   # profile.ps1, config.ps1, aliases, functions
 │   │   ├── shell/        # POSIX shared shell logic
 │   │   │   ├── profile.d/00-profile.sh
@@ -62,8 +62,15 @@ This repository is a personal, cross-platform dotfiles configuration for Artyom 
 │   ├── .local/share/     # XDG_DATA_HOME tree
 │   │   └── backgrounds/  # vendored wallpaper collections (~1.1 GB, opt-in)
 │   └── .ssh/config
-├── misc/                 # additional Just modules
-│   └── justfiles/docs.just
+├── misc/                 # Just modules, jq/nu scripts, policies, scanner configs
+│   ├── justfiles/docs.just
+│   ├── jq/               # components.yq, licenses.jq, manifest.jq, bench.jq, vendir-status.jq
+│   ├── nu/               # codeql-report.nu, shell-profile.nu, vendir-status.nu
+│   ├── policy/           # Rego: workflows, mise, manifest, vex
+│   ├── semgrep/web.yaml  # XSS rules over committed HTML/SVG/Vue/Markdown
+│   ├── trivy/license.yaml
+│   ├── vex/              # OpenVEX document shipped with the release
+│   └── baseline.json     # committed shell startup baseline
 ├── nixos/
 │   └── home.nix          # Home Manager links for NixOS
 ├── Justfile              # primary task definitions
@@ -102,7 +109,9 @@ All terminal emulators default to **Nushell** (`nu --login --interactive`) on su
 
 ### Editors
 
-- **Neovim** — NvChad v2.5 base with `lazy.nvim`, Neovim 0.11+ required (`dotfiles/.config/nvim/`)
+- **Neovim** — 0.12+ required; the built-in `vim.pack` plugin manager, native LSP/diagnostics/treesitter
+  and a `mini.nvim`-based UI. No NvChad, no `lazy.nvim`, no `nvim-lspconfig`
+  (`dotfiles/.config/nvim/`, which carries its own `Justfile` for diagnostics and repair)
 - **Helix** (`dotfiles/.config/helix/`)
 - **Zed** (`dotfiles/.config/zed/settings.json`)
 
@@ -128,34 +137,36 @@ All terminal emulators default to **Nushell** (`nu --login --interactive`) on su
 
 These files contain placeholders for credentials (empty `api_key`, OAuth file storage) and must not receive literal secrets.
 
+## Hunk Reviews
+
+Load the Hunk skill and use it for this review. Run `hunk skill path` to get the skill path.
+
 ## Build, Test, and Development Commands
 
-All commands are run from the repository root via `just`.
+Run agent commands from the repository root via `mise`. `just` is a human-facing convenience and is not part of
+the agent workflow.
 
 ```sh
-# Help
-just help
+# Development
+mise install             # install pinned CI/dev tools
+mise run fmt             # format the repository
+mise run lint            # run linters
+mise run check           # fast validation gate
+mise run check:all       # required before pushing
+mise run ci              # run GitHub Actions locally via act
 
-# Development (mise-backed)
-just install       # install pinned CI/dev tools (mise install)
-just fmt           # delegates to `mise run fmt:write` (dprint + stylua + shfmt + just --fmt)
-just lint          # delegates to `mise run lint:all` (all Stage-1 linters)
-just check         # delegates to `mise run check` (all Stage-1 gates)
-just ci            # delegates to `mise run ci` (GitHub Actions locally via act)
-just clean         # remove vendir deps, .tools caches, docs artifacts
-
-# Dotfiles deployment (deploy module)
-just deploy sync             # vendir sync --locked, wallpapers included (~1.1 GB)
-just deploy config           # same, minus the wallpapers (what CI runs)
-just deploy wallpapers       # wallpaper collections only
-just deploy check       # dotter dry-run preview
-just deploy apply       # dotter deploy --verbose --force
-just deploy undeploy    # dotter undeploy
+# Dotfiles deployment
+mise run deploy:sync                # vendir sync --locked, wallpapers included (~1.1 GB)
+mise run deploy:sync:config        # same, minus the wallpapers (what CI runs)
+mise run deploy:sync:wallpapers    # wallpaper collections only
+mise run deploy:check              # dotter dry-run preview
+mise run deploy:apply               # dotter deploy --verbose --force
+mise run deploy:undeploy            # dotter undeploy
 
 # Docs
-just docs dev      # VitePress dev server (port 5173)
-just docs build    # VitePress production build
-just docs preview  # preview production build
+mise run docs:dev      # VitePress dev server (port 5173)
+mise run docs:build    # VitePress production build
+mise run docs:preview  # preview production build
 
 # Performance
 mise run bench:all           # every benchmark available on the platform
@@ -345,13 +356,12 @@ Rules when adding a tool:
 
 ### Formatters
 
-| Language / File type                   | Tool         | Config                                                                                                          |
-| -------------------------------------- | ------------ | --------------------------------------------------------------------------------------------------------------- |
-| JSON, YAML, TOML, Markdown, TypeScript | `dprint`     | `dprint.json` (line width 120, LF, 2 spaces)                                                                    |
-| Lua (Neovim/Nushell/Yazi)              | `stylua`     | `.stylua.toml` (120 cols, Unix LF, 2 spaces, auto-prefer double quotes)                                         |
-| Shell (bash/zsh)                       | `shfmt`      | called via `just fmt` on `dotfiles/.bashrc`, `.bash_profile`, `dotfiles/.config/bash`, `dotfiles/.config/shell` |
-| Justfile                               | `just --fmt` | `Justfile`                                                                                                      |
-| CSS                                    | `stylelint`  | `.stylelintrc.json` (currently no rules)                                                                        |
+| Language / File type                   | Tool        | Config                                                                                                               |
+| -------------------------------------- | ----------- | -------------------------------------------------------------------------------------------------------------------- |
+| JSON, YAML, TOML, Markdown, TypeScript | `dprint`    | `dprint.json` (line width 120, LF, 2 spaces)                                                                         |
+| Lua (Neovim/Nushell/Yazi)              | `stylua`    | `.stylua.toml` (120 cols, Unix LF, 2 spaces, auto-prefer double quotes)                                              |
+| Shell (bash/zsh)                       | `shfmt`     | run through `mise run fmt` on `dotfiles/.bashrc`, `.bash_profile`, `dotfiles/.config/bash`, `dotfiles/.config/shell` |
+| CSS                                    | `stylelint` | `.stylelintrc.json` (currently no rules)                                                                             |
 
 `.github/workflows/ci.yml` is excluded from dprint (see `excludes` in `dprint.json`) because its section
 headers use zero-indent `# ===...` separators, which pretty_yaml would re-indent.
@@ -378,25 +388,24 @@ Local validation mirrors the CI pipeline:
 
 ```sh
 # Format check
-just fmt
-dprint check
-just --fmt --check
+mise run fmt
 
 # Lint
-just lint
+mise run lint
 
 # Validate vendored deps are present
-just deploy sync
+mise run deploy:sync
 
 # Validate dotfiles can be deployed
-just deploy check
+mise run deploy:check
 ```
 
 The GitHub Actions workflow (`.github/workflows/ci.yml`) runs the following gates:
 
-The `allowed-endpoints` lists for `step-security/harden-runner` live in `.github/harden-runner/*.txt` and are
-loaded by the `Load allowed endpoints` step in each job; to allow a new endpoint, add it to the appropriate
-txt file, not to the workflow.
+Each job passes its own `allowed-endpoints` to `step-security/harden-runner`, built from the shared
+`MISE_LOCAL_ALLOWED_ENDPOINTS` (and, for `validate`, `VALIDATE_MISE_INSTALL_ALLOWED_ENDPOINTS`) declared
+at the top of the workflow, plus whatever that job needs on its own line. To allow a new endpoint, add
+it to the shared list if every job needs it, otherwise to the job that does.
 
 - **Stage 1** (parallel, via `mise run` with tools pinned in `mise.toml`):
   - `fmt` — `mise run fmt:all` (dprint check, editorconfig-checker, justfile/Lua/shell format checks)
@@ -477,27 +486,24 @@ path (`mise run deploy:apply`), so a broken mapping fails the `validate` job.
 
 `vendir.wallpapers.yml` pins the wallpaper collections into `dotfiles/.local/share/backgrounds/` (catppuccin, graphite, graphite-nord, nord, whitesur, whitesur-nord, mactahoe).
 
-**Rule**: update these with `just deploy sync` / `mise run deps:vendir:update`, not by hand. `just deploy sync` uses `--locked` for reproducibility; `mise run deps:vendir:update` re-resolves refs and rewrites both lock files for the platform. Run `mise run deps:vendir:outdated` to see which pinned commits are behind their upstream HEAD — it reports on both configs. Both come in `:config` and `:wallpapers` variants that touch one lock file each. Vendored paths are excluded from formatting and linting.
+**Rule**: update vendored dependencies only with `mise run deps:vendir:update`, never by hand. First run
+`mise run deps:vendir:outdated` to inspect available changes. The `:config` and `:wallpapers` variants update
+one dependency set and its lock file; the unqualified task updates both. Vendored paths are excluded from
+formatting and linting.
 
-### Partial sync
+**vendir stays the only vendoring mechanism, including for Yazi.** Yazi ships its own package manager
+(`ya pkg`), and moving the 12 Yazi components to it was considered and rejected. It would not replace
+vendir — the six tmux and Alacritty components stay regardless — so the repository would carry two
+mechanisms permanently. More concretely, `misc/jq/licenses.jq` attributes every license finding to a
+component from `components.json`, which `misc/jq/components.yq` derives from `vendir.yml` alone.
+Anything outside that list falls through to the repository-owned branch with `origin: null`, so the
+release inventory would report a dozen third-party plugins — `torrent-preview.yazi` under AGPL-3.0
+among them — as code written here. The archive's vendored half, `manifest.json`'s single lock hash and
+the nightly `deps:vendir:outdated` report are keyed on the same list. Introduce a second vendoring tool
+only with a plan for all four.
 
-The wallpaper collections are ~1.1 GB — roughly the entire size of a synced `dotfiles/` tree — and nothing in CI needs them, so there are three sync commands:
-
-| Command                  | Config                  | Lock files                                                          |
-| :----------------------- | :---------------------- | :------------------------------------------------------------------ |
-| `just deploy sync`       | both                    | both pairs                                                          |
-| `just deploy config`     | `vendir.yml`            | `vendir.lock.yml` / `vendir.lock.windows.yml`                       |
-| `just deploy wallpapers` | `vendir.wallpapers.yml` | `vendir.lock.wallpapers.yml` / `vendir.lock.wallpapers.windows.yml` |
-
-The split is by config file, not by flag: `vendir.yml` holds the plugins and themes, `vendir.wallpapers.yml` holds the images, and each has its own pair of lock files. `just deploy config` is therefore just a plain `vendir sync` of the default config, and CI runs `mise run deploy:sync:config` everywhere.
-
-Splitting by `vendir sync --directory` was tried and rejected: `--directory` matches `directories[].path` joined with `contents[].path` **exactly** — no prefix, no globs — so it would need one flag per component, kept in step with `vendir.yml` by hand. Nor can a parent like `dotfiles/.config` be declared as a `directories[].path`: vendir owns that path outright and deletes everything in it that the config does not declare.
-
-Deployment is split the same way: `dotfiles/.local/share/backgrounds` belongs to the `wallpapers` dotter package, which is deliberately outside `default`. A desktop that wants them runs `just deploy wallpapers` and adds `"wallpapers"` to `packages` in `.dotter/local.toml`.
-
-> The `*.windows.yml` lock files are kept because `vendir` on Windows normalizes paths to backslashes while the committed ones use forward slashes. The sync tasks select the appropriate lock file automatically.
-
-> Known issue (see `TODO.md`): `vendir sync` can fail on Windows with access-denied errors on its temp clone.
+`vendir.yml` and `vendir.wallpapers.yml` are separate dependency sets with their own lock files. Use the
+matching `:config` or `:wallpapers` task when changing only one set.
 
 ## Security Considerations
 
@@ -548,8 +554,8 @@ When modifying configs:
   - `nixos/home.nix` (if Linux/Wayland applicable)
   - `Justfile` (if a new validation recipe is needed)
   - `.github/workflows/ci.yml` (validation job)
-- Run `just fmt` and `just lint` before committing.
-- If adding an external plugin/theme, declare it in `vendir.yml`, run `just deploy sync`, and commit `vendir.yml`, `vendir.lock.yml`, and `vendir.lock.windows.yml`.
+- Run `mise run check:all` before pushing.
+- If adding an external plugin/theme, declare it in `vendir.yml`, run `mise run deploy:sync`, and commit `vendir.yml`, `vendir.lock.yml`, and `vendir.lock.windows.yml`.
 - The `dotfiles/.config/nvim` configuration is currently noted as broken in `TODO.md`; treat it as a known issue requiring a dedicated fix session.
 
 ## Useful Links
