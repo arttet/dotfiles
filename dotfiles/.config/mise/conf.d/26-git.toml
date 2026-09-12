@@ -1,8 +1,14 @@
 # Tier: version control.
 
+[tool_alias]
+hunk = "npm:hunkdiff"
+revdiff = "github:umputun/revdiff"
+
 [tools]
 delta = "0.19.2"
 gh = "2.100.0"
 hk = "1.58.1"
+hunk = "0.22.0"
 jj = "0.45.1"
 lazygit = "0.65.0"
+revdiff = { version = "1.13.0", os = ["linux", "macos"] }
