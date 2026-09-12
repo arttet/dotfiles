@@ -622,7 +622,7 @@ jobs:
         with:
           name: dotfiles-artifacts
           path: .tools/artifacts/dotfiles
-          retention-days: 30
+          retention-days: 90
           if-no-files-found: error
 
       - name: Sync wallpaper collections
@@ -639,7 +639,7 @@ jobs:
         with:
           name: wallpapers-artifacts
           path: .tools/artifacts/wallpapers
-          retention-days: 30
+          retention-days: 90
           if-no-files-found: error
 
       - name: Summarize the release
