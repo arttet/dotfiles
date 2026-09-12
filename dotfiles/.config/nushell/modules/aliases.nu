@@ -31,12 +31,10 @@ export alias - = cd -
 export alias n = nvim
 
 # =============================================================================
-# Make
+# Mise
 # =============================================================================
 
-export alias m = make
-export alias mb = make build
-export alias mt = make test
+export alias m = mise
 
 # ============================================================================
 # Just
