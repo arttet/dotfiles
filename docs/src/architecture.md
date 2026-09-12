@@ -40,9 +40,9 @@ depends = ["alacritty", "windows-terminal"]
 Typical workflow:
 
 ```bash
-just deploy check    # dry-run preview      (mise run deploy:check)
-just deploy apply    # dotter deploy --force (mise run deploy:apply)
-just deploy undeploy # dotter undeploy      (mise run deploy:undeploy)
+mise run deploy:check  # dry-run preview
+mise run deploy:apply  # dotter deploy --force
+mise run deploy:undeploy
 ```
 
 Activate an optional profile at any time:
@@ -82,11 +82,11 @@ This path is useful when the Nix flake is the source of truth for the machine, b
 `vendir` fetches two very different kinds of thing: a couple of megabytes of plugins and themes, and
 about 1.1 GB of wallpaper images. Nothing in CI needs the second kind, so they live in separate configs.
 
-| Command                  | Config                  | Lock files                                                          |
-| :----------------------- | :---------------------- | :------------------------------------------------------------------ |
-| `just deploy sync`       | both                    | both pairs                                                          |
-| `just deploy config`     | `vendir.yml`            | `vendir.lock.yml` / `vendir.lock.windows.yml`                       |
-| `just deploy wallpapers` | `vendir.wallpapers.yml` | `vendir.lock.wallpapers.yml` / `vendir.lock.wallpapers.windows.yml` |
+| Command                           | Config                  | Lock files                                                          |
+| :-------------------------------- | :---------------------- | :------------------------------------------------------------------ |
+| `mise run deploy:sync`            | both                    | both pairs                                                          |
+| `mise run deploy:sync:config`     | `vendir.yml`            | `vendir.lock.yml` / `vendir.lock.windows.yml`                       |
+| `mise run deploy:sync:wallpapers` | `vendir.wallpapers.yml` | `vendir.lock.wallpapers.yml` / `vendir.lock.wallpapers.windows.yml` |
 
 Splitting by file rather than by `vendir sync --directory` is deliberate. `--directory` matches
 `directories[].path` joined with `contents[].path` **exactly** — no prefix, no globs — so it would take
@@ -95,18 +95,8 @@ one flag per component, maintained by hand alongside `vendir.yml`. And a parent 
 outright: it deletes everything under it that the config does not declare.
 
 Deployment splits the same way. `dotfiles/.local/share/backgrounds` belongs to the `wallpapers` dotter
-package, deliberately outside `default`; a desktop that wants them runs `just deploy wallpapers` and
+package, deliberately outside `default`; a desktop that wants them runs `mise run deploy:sync:wallpapers` and
 adds `"wallpapers"` to `packages` in `.dotter/local.toml`.
-
-### Windows vs Linux Differences
-
-| Concern     | Linux / macOS                                    | Windows                               |
-| :---------- | :----------------------------------------------- | :------------------------------------ |
-| Deployer    | dotter                                           | dotter                                |
-| Config path | `~/.config`                                      | `~/AppData/Roaming` for many GUI apps |
-| Shell       | Nushell, Bash, Zsh                               | Nushell, PowerShell, Bash (Git Bash)  |
-| WM          | Hyprland                                         | Windows window manager                |
-| Benchmarks  | `just bench` skips shells that are not installed | same                                  |
 
 ## XDG Base Directory Hierarchy
 
@@ -217,15 +207,7 @@ OpenCode denies dangerous bash patterns and asks for edits:
 }
 ```
 
-Claude Code lists allowed read-only commands and denies secret paths:
-
-```json
-// dotfiles/.config/claude/settings.json (excerpt)
-"permissions": {
-  "allow": ["Bash(git status:*)", "Bash(git diff:*)", "Bash(just fmt:*)", ...],
-  "deny": ["Read(**/.env)", "Read(**/*.pem)", "Bash(rm -rf:*)", "Bash(git push*:*)"]
-}
-```
+Claude Code's global settings define its command and sensitive-file permissions.
 
 Kimi Code uses ordered rules so sensitive-file denies are evaluated before the broad Read allow:
 
@@ -254,7 +236,7 @@ Codex uses workspace sandboxing with explicit filesystem globs:
 
 - **Ask** is used for state-mutating operations (writes, shell execution, network). This keeps the agent helpful while preventing silent changes.
 - **Deny** is reserved for irreversible or high-risk actions (deleting files, force pushes, privilege escalation) and for reading sensitive material (keys, credentials, history).
-- **Allow** is limited to read-only inspection commands that are safe to run repeatedly, such as `git status`, `git diff`, and `just fmt`.
+- **Allow** is limited to read-only inspection commands that are safe to run repeatedly, such as `git status`, `git diff`, and `mise run fmt`.
 
 ## CI/CD Pipeline
 
@@ -351,7 +333,7 @@ tar -xzf dotfiles.tar.gz
 ```
 
 Untagged builds still land as CI artifacts (`gh run download --name dotfiles-artifacts`), but those
-expire after 30 days and carry no provenance.
+expire after 90 days and carry no provenance.
 
 The license inventory reports rather than blocks. Some vendored components are GPL-3.0 or AGPL-3.0
 while this repository is MIT; they are used deliberately, so the point is that you can see them.
@@ -379,6 +361,6 @@ When adding a new tool config, follow this checklist to keep deployment, validat
 4. **Add a validation task** (`validate:<group>:<tool>`) in `mise.toml` and list it in `validate:all`.
 5. **Document hotkeys** in `docs/src/<section>/<tool>.md` and add the entry to `docs/src/cheatsheet.md`.
 6. **Update the docs navigation** in `docs/.vitepress/config.mts`.
-7. **Run `just fmt` and `just lint`** before committing.
+7. **Run `mise run check:all`** before pushing.
 
 This keeps the repository self-describing: every deployed file has a documented path, a validation step, and a place in the architecture.

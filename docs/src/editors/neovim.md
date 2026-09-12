@@ -1,12 +1,15 @@
-# Neovim (NvChad)
+# Neovim
 
-A highly optimized Neovim configuration based on **NvChad**, focusing on developer productivity, aesthetics, and modern Lua APIs.
+A Neovim 0.12+ configuration built on the **built-in `vim.pack` plugin manager** with native LSP,
+diagnostics and treesitter. No NvChad, no `lazy.nvim`, no `nvim-lspconfig`.
 
 ## Configuration Paths
 
 - Main entry: `dotfiles/.config/nvim/init.lua`
-- Mappings: `dotfiles/.config/nvim/lua/mappings.lua`
-- Plugins: `dotfiles/.config/nvim/lua/plugins/init.lua`
+- Keymaps: `dotfiles/.config/nvim/lua/core/keymaps.lua`
+- Plugins: `dotfiles/.config/nvim/plugin/NN-name.lua` — one plugin per file, sourced in filename order
+- Plugin settings: `dotfiles/.config/nvim/lua/configs/`
+- Lockfile: `dotfiles/.config/nvim/nvim-pack-lock.json` — never hand-edited
 
 ## Leader Key
 
@@ -22,12 +25,13 @@ The **leader** key is `Space`.
 | New terminal buffer | Normal   | `Alt + T`     |
 | Close terminal      | Terminal | `Ctrl + Q`    |
 
-## Pickers & Git
+## Pickers, Git & Theme
 
-| Action                    | Mode   | Shortcut                    |
-| :------------------------ | :----- | :-------------------------- |
-| Telescope message history | Normal | `Space`, then `P`, then `H` |
-| Full git blame            | Normal | `Space`, then `G`, then `F` |
+| Action                              | Mode   | Shortcut                    |
+| :---------------------------------- | :----- | :-------------------------- |
+| Message history (`noice.nvim`)      | Normal | `Space`, then `P`, then `H` |
+| Full git blame (`gitsigns`)         | Normal | `Space`, then `G`, then `F` |
+| Toggle light/dark theme (`gruvbox`) | Normal | `Space`, then `T`, then `H` |
 
 ## Terminal Integrations
 

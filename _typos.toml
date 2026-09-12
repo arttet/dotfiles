@@ -11,3 +11,4 @@ extend-exclude = [
 
 [default.extend-words]
 Sur = "Sur"
+noice = "noice"

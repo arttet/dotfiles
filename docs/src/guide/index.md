@@ -10,9 +10,12 @@ repository if you intend to change them — the release archive carries no build
 ```bash
 git clone https://github.com/arttet/dotfiles.git
 cd dotfiles
-just install             # mise install + setup
+mise install
+mise run deploy:sync:config
 mise run deploy:check    # Preview what will be linked
-just apply               # Deploy with dotter
+mise run deploy:apply
+mise install             # Install the deployed global toolchain
+mise run setup           # GitHub extensions, telemetry, and agent skills
 ```
 
 ## Quick Start (release)
@@ -32,7 +35,7 @@ dotter deploy --verbose --force
 
 The archive unpacks to `dotfiles/` plus `.dotter/`, which is the layout `dotter` expects, and the
 vendored plugins are already inside it — do not run `vendir sync` there. `INSTALL.md` ships in the
-archive with the same instructions.
+archive with the offline deployment instructions.
 
 ## Prerequisites
 
@@ -118,5 +121,5 @@ mise run artifact:dotfiles:all   # Build a release set locally
 ## Next Steps
 
 - **Shells**: Primary shell is [Nushell](https://www.nushell.sh/). Bash and Zsh configs are also provided.
-- **Editor**: Neovim config is NvChad-based — start with `nvim`.
+- **Editor**: Neovim 0.12+ on the built-in `vim.pack` manager — start with `nvim`.
 - **Multiplexer**: [Zellij](https://github.com/zellij-org/zellij#readme) (`zellij`) or Tmux (`tmux`, prefix `Ctrl + A`).

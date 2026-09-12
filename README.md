@@ -1,75 +1,48 @@
-# dotfiles
+# Dotfiles
 
-My dotfiles
+[![CI](https://github.com/arttet/dotfiles/actions/workflows/ci.yml/badge.svg)](https://github.com/arttet/dotfiles/actions/workflows/ci.yml)
+[![License](https://img.shields.io/github/license/arttet/dotfiles)](./LICENSE)
+[![Release](https://img.shields.io/github/v/release/arttet/dotfiles)](https://github.com/arttet/dotfiles/releases)
 
-## 📦 Installation
+Cross-platform shell, terminal, editor, and AI-agent configuration deployed with dotter.
 
-Two ways in, depending on whether you want to change these dotfiles or just run them.
+## Requirements
 
-**Deploy a release.** Each tag publishes an archive with an SBOM, a license inventory, a manifest
-naming the commit it came from, and checksums. Verify it, unpack it, deploy it:
+| Tool                                           | Purpose                             |
+| ---------------------------------------------- | ----------------------------------- |
+| [mise](https://mise.jdx.dev/)                  | Installs the pinned toolchain.      |
+| [dotter](https://github.com/SuperCuber/dotter) | Deploys the configuration symlinks. |
+| [GitHub CLI](https://cli.github.com/)          | Installs GitHub Dash during setup.  |
 
-```sh
-gh release download --repo arttet/dotfiles
-sha256sum --check checksums.sha256
-mkdir dotfiles && tar -xzf dotfiles.tar.gz -C dotfiles && cd dotfiles
-dotter deploy --verbose --dry-run    # read this before the next line
-dotter deploy --verbose --force
-```
+## Quick Start
 
-The vendored plugins and themes are already inside the archive, and `INSTALL.md` ships with it.
-Full instructions: [INSTALL.md](./INSTALL.md).
-
-**Clone the repository** if you intend to edit anything — the release archive carries no build tooling:
+Install [mise](https://mise.jdx.dev/getting-started.html), then run:
 
 ```sh
 git clone https://github.com/arttet/dotfiles.git
 cd dotfiles
-just install    # mise install + setup
-just sync       # vendored plugins and wallpapers
-just apply      # dotter deploy
+mise install
+mise run deploy:sync:config
+mise run deploy:check
+mise run deploy:apply
+mise install
+mise run setup
 ```
 
-`dotter` is the only deployer, on every platform; it handles the Windows-specific paths and the
-opt-in profiles. GNU Stow is not used and the tree is not laid out for it.
+The second `mise install` installs the global toolchain after dotter has deployed it. Review the dry-run
+output before applying. For release archives and complete setup instructions, use the documentation.
 
-## 🛠 Management & Development
-
-This project uses `just` as the primary task runner for managing dotfiles, development workflows, and project utilities.
-
-### ⚡ Justfile Commands
-
-The justfile provides a unified interface for dotfiles management, performance benchmarking, and documentation workflows.
+## Development
 
 ```sh
-$ just help
-Available recipes:
-    default  # Show help
-    help     # List all commands
-
-    [Deploy]
-    sync     # Synchronize external dependencies and wallpapers
-    apply    # Deploy dotfiles using dotter
-    undeploy # Undeploy dotfiles using dotter
-
-    [Development]
-    install  # Install tools
-    outdated # Shows outdated tool versions
-    upgrade  # Upgrades outdated tools
-    fmt      # Format code
-    lint     # Run linters
-    check    # Run CI checks
-    ci       # Run CI locally
-    clean    # Remove vendir dependencies
-
-    [Documentation]
-    docs:
-        install # Install dependencies
-        update  # Update dependencies
-        audit   # Audit dependencies
-        dev     # Serve docs
-        build   # Build docs
-        preview # Preview docs
-        clean   # Clean build artifacts and cache
-        pack    # Pack package archive
+mise install
+mise run hooks:install
+mise run check:all
 ```
+
+## 📚 Project Resources
+
+| Resource      | URL                                  |
+| ------------- | ------------------------------------ |
+| Documentation | <https://dotfiles.arttet.dev>        |
+| Source        | <https://github.com/arttet/dotfiles> |

@@ -18,7 +18,7 @@ features:
     details: Seamless experience across <strong>Windows</strong>, <strong>macOS</strong>, and <strong>Linux</strong>. Unified logic for PowerShell, Bash, Zsh, and Nushell ensures your workflow travels with you.
   - icon: 🛠
     title: Cutting-Edge Toolchain
-    details: Built on a modern stack featuring <strong>Neovim (NvChad)</strong>, <strong>WezTerm</strong>, <strong>Starship</strong>, <strong>Zoxide</strong>, <strong>Yazi</strong>, and other next-generation productivity tools.
+    details: Built on a modern stack featuring <strong>Neovim (vim.pack)</strong>, <strong>WezTerm</strong>, <strong>Starship</strong>, <strong>Zoxide</strong>, <strong>Yazi</strong>, and other next-generation productivity tools.
   - icon: 🔐
     title: Security First
     details: Hardened by default. Strict permission auditing, XDG Base Directory compliance, and proactive secret detection patterns.
