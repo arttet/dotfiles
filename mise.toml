@@ -931,7 +931,14 @@ run = [
 description = "Validate Yazi config"
 env = { YAZI_CONFIG_HOME = "{{config_root}}/dotfiles/.config/yazi" }
 shell = "nu -c"
-run = "ya env"
+run = """
+if $nu.os-info.name == "macos" {
+  ^script -q /dev/null ya env
+} else {
+  ^script -qec "ya env" /dev/null
+}
+"""
+run_windows = "ya env"
 
 # ==============================================================================
 # Stage 2: Aggregate
