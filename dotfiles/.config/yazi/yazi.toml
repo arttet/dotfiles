@@ -26,7 +26,7 @@ run = 'piper -- eza -TL=3 --color=always --icons=always --group-directories-firs
 
 [[plugin.prepend_previewers]]
 url = "*.md"
-run = 'piper -- CLICOLOR_FORCE=1 glow -w=$w "$1"'
+run = 'piper -- leaf --inline ansi:$w "$1"'
 
 [[plugin.prepend_previewers]]
 url = "*.csv"
