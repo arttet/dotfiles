@@ -2,15 +2,15 @@
 
 [tools]
 # NOTE: https://context7.com/
-"npm:@upstash/context7-mcp" = "4.0.4"
+"npm:@upstash/context7-mcp" = "4.1.0"
 
 # NOTE: https://playwright.dev
 "npm:@playwright/mcp" = "0.0.79"
 
-"npm:@eargollo/vikunja-mcp" = { version = "1.2.1", allow_low_downloads = true }
+"npm:@eargollo/vikunja-mcp" = { version = "1.2.3", allow_low_downloads = "true" }
 
 # NOTE: https://oraios.github.io/serena
 "pipx:serena-agent" = "1.7.0"
 
 # NOTE: https://graphify.com/
-"pipx:graphifyy" = { version = "0.9.51", uvx_args = "--with mcp" }
+"pipx:graphifyy" = { version = "0.9.58", uvx_args = "--with mcp" }

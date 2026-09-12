@@ -2,4 +2,4 @@
 
 [tools]
 lazyjournal = { version = "0.8.6", os = ["linux", "macos"] }
-lnav = "0.14.0"
+lnav = "0.14.1"

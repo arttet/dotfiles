@@ -14,12 +14,13 @@
   },
   "devDependencies": {
     "@catppuccin/vitepress": "^0.1.4",
-    "@types/node": "^26.4.0",
+    "@types/node": "^26.5.1",
     "oxc-minify": "^0.143.0",
-    "vitepress": "^2.0.0-alpha.19",
-    "vitepress-plugin-llms": "^1.13.5"
+    "vitepress": "^2.0.0-alpha.20",
+    "vitepress-plugin-llms": "^1.14.0"
   },
   "overrides": {
+    "js-yaml": "^4.3.2",
     "typescript": "^7.0.2"
   }
 }
