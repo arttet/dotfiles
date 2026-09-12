@@ -1,5 +1,3 @@
-# Plugins and themes deployed to XDG_CONFIG_HOME. Wallpapers live in vendir.wallpapers.yml so that
-# `just deploy config` -- the sync CI runs -- does not pull ~1.1 GB of images nobody there needs.
 apiVersion: vendir.k14s.io/v1alpha1
 kind: Config
 
@@ -32,9 +30,9 @@ directories:
   # Tmux
   # ===========================================================================
 
-  # ---------------------------------------------------------------------------
+  # ===========================================================================
   # Tmux plugins
-  # ---------------------------------------------------------------------------
+  # ===========================================================================
 
   # - path: dotfiles/.config/tmux/plugins/tmux-sensible
   #   contents:
@@ -108,9 +106,9 @@ directories:
           - main.sh
           - scripts/**
 
-  # ---------------------------------------------------------------------------
+  # ===========================================================================
   # Tmux status line framework
-  # ---------------------------------------------------------------------------
+  # ===========================================================================
 
   - path: dotfiles/.config/tmux/plugins/tmux2k
     contents:

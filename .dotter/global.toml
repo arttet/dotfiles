@@ -1,8 +1,8 @@
 [helpers]
+
 # =============================================================================
 # Profile Groups
 # =============================================================================
-# These groups bundle related packages for easy deployment.
 
 [default]
 depends = ["agent", "dev", "editor", "shell", "terminal"]
@@ -32,62 +32,60 @@ depends = ["alacritty", "windows-terminal"]
 # =============================================================================
 # Tools
 # =============================================================================
-# Each tool package can be deployed independently.
-# Windows-only paths use `if = "dotter.windows"`.
 
-# -----------------------------------------------------------------------------
+# =============================================================================
 # Terminal Emulators
-# -----------------------------------------------------------------------------
+# =============================================================================
 
 [alacritty]
 depends = []
 
 [alacritty.files]
-"dotfiles/.config/alacritty/alacritty.toml" = { target = "~\\AppData\\Roaming\\alacritty\\alacritty.toml", type = "symbolic", if = "dotter.windows" }
+"dotfiles/.config/alacritty/alacritty.toml" = { target = "~\\AppData\\Roaming\\alacritty\\alacritty.toml", if = "dotter.windows" }
 
 [windows-terminal]
 depends = []
 
 [windows-terminal.files]
-"dotfiles/.config/windows-terminal/fragments/dotfiles.json" = { target = "~\\AppData\\Local\\Microsoft\\Windows Terminal\\Fragments\\dotfiles\\dotfiles.json", type = "symbolic", if = "dotter.windows" }
+"dotfiles/.config/windows-terminal/fragments/dotfiles.json" = { target = "~\\AppData\\Local\\Microsoft\\Windows Terminal\\Fragments\\dotfiles\\dotfiles.json", if = "dotter.windows" }
 
-# -----------------------------------------------------------------------------
+# =============================================================================
 # Text Editors
-# -----------------------------------------------------------------------------
+# =============================================================================
 
 [helix]
 depends = []
 
 [helix.files]
-"dotfiles/.config/helix/config.toml" = { target = "~\\AppData\\Roaming\\helix\\config.toml", type = "symbolic", if = "dotter.windows" }
-"dotfiles/.config/helix/languages.toml" = { target = "~\\AppData\\Roaming\\helix\\languages.toml", type = "symbolic", if = "dotter.windows" }
+"dotfiles/.config/helix/config.toml" = { target = "~\\AppData\\Roaming\\helix\\config.toml", if = "dotter.windows" }
+"dotfiles/.config/helix/languages.toml" = { target = "~\\AppData\\Roaming\\helix\\languages.toml", if = "dotter.windows" }
 
 [zed]
 depends = []
 
 [zed.files]
-"dotfiles/.config/zed/settings.json" = { target = "~\\AppData\\Roaming\\Zed\\settings.json", type = "symbolic", if = "dotter.windows" }
+"dotfiles/.config/zed/settings.json" = { target = "~\\AppData\\Roaming\\Zed\\settings.json", if = "dotter.windows" }
 
-# -----------------------------------------------------------------------------
+# =============================================================================
 # AI Tools
-# -----------------------------------------------------------------------------
+# =============================================================================
 
 [claude]
 depends = []
 
 [claude.files]
-"dotfiles/.config/claude/CLAUDE.md" = { target = "~/.config/claude/CLAUDE.md", type = "symbolic" }
-"dotfiles/.config/claude/keybindings.json" = { target = "~/.config/claude/keybindings.json", type = "symbolic" }
-"dotfiles/.config/claude/settings.json" = { target = "~/.config/claude/settings.json", type = "symbolic" }
-"dotfiles/.config/claude/statusline.sh" = { target = "~/.config/claude/statusline.sh", type = "symbolic" }
+"dotfiles/.config/claude/CLAUDE.md" = "~/.config/claude/CLAUDE.md"
+"dotfiles/.config/claude/keybindings.json" = "~/.config/claude/keybindings.json"
+"dotfiles/.config/claude/settings.json" = "~/.config/claude/settings.json"
+"dotfiles/.config/claude/statusline.sh" = "~/.config/claude/statusline.sh"
 
 [codex]
 depends = []
 
 [codex.files]
-"dotfiles/.config/codex/config.toml" = { target = "~/.config/codex/config.toml", type = "symbolic" }
-"dotfiles/.config/codex/AGENTS.md" = { target = "~/.config/codex/AGENTS.md", type = "symbolic" }
-"dotfiles/.config/codex/rules/default.rules" = { target = "~/.config/codex/rules/default.rules", type = "symbolic" }
+"dotfiles/.config/codex/config.toml" = "~/.config/codex/config.toml"
+"dotfiles/.config/codex/AGENTS.md" = "~/.config/codex/AGENTS.md"
+"dotfiles/.config/codex/rules/default.rules" = "~/.config/codex/rules/default.rules"
 
 [kimi]
 depends = []
@@ -107,16 +105,16 @@ depends = []
 "dotfiles/.config/opencode/opencode.jsonc" = "~/.config/opencode/opencode.jsonc"
 "dotfiles/.config/opencode/tui.json" = "~/.config/opencode/tui.json"
 
-# -----------------------------------------------------------------------------
+# =============================================================================
 # Shells
-# -----------------------------------------------------------------------------
+# =============================================================================
 
 [mise]
 depends = []
 
 [mise.files]
-"dotfiles/.config/mise/config.toml" = { target = "~/.config/mise/config.toml", type = "symbolic" }
-"dotfiles/.config/mise/conf.d" = { target = "~/.config/mise/conf.d", type = "symbolic" }
+"dotfiles/.config/mise/config.toml" = "~/.config/mise/config.toml"
+"dotfiles/.config/mise/conf.d" = "~/.config/mise/conf.d"
 
 [bash]
 depends = []
@@ -129,7 +127,7 @@ depends = []
 depends = []
 
 [powershell.files]
-"dotfiles/.config/powershell/profile.ps1" = { target = "~\\OneDrive\\Documents\\PowerShell\\Microsoft.PowerShell_profile.ps1", type = "symbolic", if = "dotter.windows" }
+"dotfiles/.config/powershell/profile.ps1" = { target = "~\\OneDrive\\Documents\\PowerShell\\Microsoft.PowerShell_profile.ps1", if = "dotter.windows" }
 
 [zsh]
 depends = []
@@ -137,15 +135,15 @@ depends = []
 [zsh.files]
 "dotfiles/.zshenv" = "~/.zshenv"
 
-# -----------------------------------------------------------------------------
+# =============================================================================
 # Desktop
-# -----------------------------------------------------------------------------
+# =============================================================================
 
 [wallpapers]
 depends = []
 
 [wallpapers.files]
-"dotfiles/.local/share/backgrounds" = { target = "~/.local/share/backgrounds", type = "symbolic" }
+"dotfiles/.local/share/backgrounds" = "~/.local/share/backgrounds"
 
 # =============================================================================
 # Settings
