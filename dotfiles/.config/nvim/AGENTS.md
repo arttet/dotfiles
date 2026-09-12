@@ -8,8 +8,8 @@ Expert guidance for AI agents working with this Neovim configuration (Lua).
 - **Language**: Lua
 - **Plugin Manager**: built-in `vim.pack` (no NvChad, no lazy.nvim)
 - **Toolchain on PATH**: `git`, a C compiler (`cc`/`gcc`/`clang`), `tree-sitter` CLI
-  (for treesitter parsers), plus `ripgrep` + `fd` (telescope). Run `just nvim doctor`
-  to verify the environment before debugging anything else.
+  (for treesitter parsers), plus `ripgrep` + `fd` (telescope). Run `mise run check` from
+  the repository root to verify the environment before debugging anything else.
 
 ## Compatibility Notes
 
@@ -78,13 +78,28 @@ list is in `lua/configs/treesitter.lua`. Highlight/fold are enabled per-filetype
 
 ## Diagnostics & commands
 
-- `just nvim doctor` — environment sanity (run first).
-- `just nvim verify` — syntax + load + lsp gate.
-- `just nvim sandbox` — launch the sandboxed instance against this config.
-- `just nvim pack-status|pack-update|pack-restore` — lockfile state / update / undo.
-- `just nvim ts-check|ts-install`, `just nvim lsp-check`, `just nvim startuptime`.
-- `just nvim clean|bootstrap-test` — repair / prove fresh-machine reproduction.
-- `just nvim fmt|lint` — stylua + selene.
+This directory has its own `Justfile`; run these from here, not from the repository root:
+
+```sh
+cd dotfiles/.config/nvim
+```
+
+- `just doctor` — environment sanity (run first).
+- `just verify` — syntax + load + lsp gate.
+- `just sandbox` — launch the sandboxed instance against this config.
+- `just pack-status|pack-update|pack-restore` — lockfile state / update / undo.
+- `just ts-check|ts-install`, `just lsp-check`, `just startuptime`.
+- `just clean|bootstrap-test` — repair / prove fresh-machine reproduction.
+
+Every recipe redirects `HOME` and the XDG data/state/cache directories into a throwaway sandbox
+(`NVIM_SANDBOX`), so plugins and state never touch an installed Neovim; only the config is read
+from here.
+
+Formatting and linting stay with the repository, because `selene` does not walk up for its
+configuration and would report every `vim.*` global as undefined when run from this directory:
+
+- `mise run fmt`
+- `mise run lint`
 
 ## Code Style
 
@@ -99,7 +114,7 @@ list is in `lua/configs/treesitter.lua`. Highlight/fold are enabled per-filetype
 2. **Never hand-edit `nvim-pack-lock.json`.**
 3. **`vim.loader.enable()` stays the first line of `init.lua`.**
 4. Register install hooks before the `add()` they target.
-5. Verify changes: `just nvim verify` (or `stylua --check` + `selene` + `luac -p`).
+5. Verify changes: `mise run fmt` and `mise run lint` from the repository root.
 6. Minimal diffs; match existing patterns; use modern 0.12 APIs.
 
 ## Resources

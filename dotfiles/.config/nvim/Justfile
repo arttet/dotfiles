@@ -1,27 +1,41 @@
+################################################################################
 # Neovim diagnostics & repair recipes (0.12, vim.pack, no NvChad).
 #
-# Every recipe is idempotent, prints what it does, and exits non-zero on failure
-# so agents can branch on it. Recipes run the repo's nvim config in an isolated
-# sandbox so they never touch the user's daily ~/.config/nvim:
+# Standalone: run these from this directory, not from the repository root.
 #
-#   XDG_CONFIG_HOME -> <repo>/dotfiles/.config (so stdpath('config') is the repo config)
+#   cd dotfiles/.config/nvim && just doctor
+#
+# Every recipe is idempotent, prints what it does, and exits non-zero on failure
+# so agents can branch on it. Recipes run this config in an isolated sandbox so
+# they never touch the daily Neovim state:
+#
+#   XDG_CONFIG_HOME -> the parent of this directory (so stdpath('config') is this config)
 #   HOME/DATA/STATE/CACHE -> a throwaway sandbox dir (NVIM_SANDBOX, default temp)
 #
-# `[no-cd]` keeps $PWD at the repo root (matching the other justfile modules).
+# Only the config is read from here; plugins, state and cache all land in the
+# sandbox, so a run cannot disturb an installed Neovim.
 #
 # Quick reference:
-#   just nvim doctor        # env sanity (run this first)
-#   just nvim verify        # full green/red gate (doctor + load + ts + lsp)
-#   just nvim sandbox        # launch the sandboxed instance interactively
-#   just nvim pack-restore   # undo button: make disk match the lockfile
+#   just doctor         # env sanity (run this first)
+#   just verify         # full green/red gate (doctor + load + ts + lsp)
+#   just sandbox        # launch the sandboxed instance interactively
+#   just pack-restore   # undo button: make disk match the lockfile
+#
+# Requires just >= 1.58.0+
+################################################################################
 
-CFG := "dotfiles/.config/nvim"
+[doc('Show help')]
+default: help
+
+[doc('List all commands')]
+help:
+    @just --list --unsorted
 
 # Shared sandbox-env preamble for headless/interactive nvim runs.
 _env := '''
 sbox="${NVIM_SANDBOX:-${TMPDIR:-/tmp}/nvim-012-sandbox}"
 export HOME="$sbox/home"
-export XDG_CONFIG_HOME="$PWD/dotfiles/.config"
+export XDG_CONFIG_HOME="{{ justfile_directory() }}/.."
 export XDG_DATA_HOME="$sbox/data"
 export XDG_STATE_HOME="$sbox/state"
 export XDG_CACHE_HOME="$sbox/cache"
@@ -33,8 +47,8 @@ packdir="$XDG_DATA_HOME/nvim/site/pack/core"
 # Diagnose
 # ============================================================================
 
-[no-cd]
 [doc('Environment + config sanity check (run first)')]
+[group('Diagnose')]
 doctor:
     #!/usr/bin/env bash
     set -uo pipefail
@@ -70,8 +84,7 @@ doctor:
         command -v "$t" >/dev/null 2>&1 && echo "✓ $t" || echo "○ $t missing (recommended)"
     done
 
-    cfg="$PWD/{{ CFG }}"
-    if [ -w "$cfg" ]; then echo "✓ config dir writable ($cfg)"; else
+    if [ -w "$PWD" ]; then echo "✓ config dir writable ($PWD)"; else
         echo "✗ config dir not writable -- vim.pack cannot write the lockfile"; fail=1
     fi
 
@@ -83,18 +96,18 @@ doctor:
     fi
     exit "$fail"
 
-[no-cd]
 [doc('Full green/red gate: doctor + headless load + treesitter + lsp')]
+[group('Diagnose')]
 verify:
     #!/usr/bin/env bash
     set -uo pipefail
     {{ _env }}
-    just nvim doctor || exit 1
+    just doctor || exit 1
 
     echo "▶ Headless load (luac syntax + runtime smoke)"
     while IFS= read -r f; do
         luac -p "$f" || { echo "✗ syntax error: $f"; exit 1; }
-    done < <(find "$PWD/{{ CFG }}" -name '*.lua')
+    done < <(find "$PWD" -name '*.lua')
     echo "✓ lua syntax OK"
 
     out="$(mktemp)"
@@ -107,15 +120,15 @@ verify:
         echo "✗ startup errors:"; cat "$out"; exit 1
     fi
     echo "✓ config loads clean"
-    just nvim lsp-check || true
+    just lsp-check || true
     echo "✓ verify OK"
 
 # ============================================================================
 # Sandbox
 # ============================================================================
 
-[no-cd]
-[doc('Launch the sandboxed nvim against the repo config')]
+[doc('Launch the sandboxed nvim against this config')]
+[group('Sandbox')]
 sandbox *ARGS:
     #!/usr/bin/env bash
     set -uo pipefail
@@ -126,25 +139,25 @@ sandbox *ARGS:
 # vim.pack lockfile / plugins
 # ============================================================================
 
-[no-cd]
 [doc('Show installed plugins and pinned versions')]
+[group('Plugins')]
 pack-status:
     #!/usr/bin/env bash
     set -uo pipefail
     {{ _env }}
     nvim --headless +"lua for _,p in ipairs(vim.pack.get()) do io.write(('%-30s %s\n'):format(p.spec.name, p.spec.version or 'HEAD')) end" +qa
 
-[no-cd]
 [doc('Update all plugins (writes the lockfile)')]
+[group('Plugins')]
 pack-update:
     #!/usr/bin/env bash
     set -uo pipefail
     {{ _env }}
     nvim --headless +"lua vim.pack.update(nil, { force = true })" +"sleep 5" +qa
-    echo "✓ pack update requested (run 'just nvim sandbox' + :checkhealth vim.pack to confirm)"
+    echo "✓ pack update requested (run 'just sandbox' + :checkhealth vim.pack to confirm)"
 
-[no-cd]
 [doc('Restore plugins to the committed lockfile state (undo button)')]
+[group('Plugins')]
 pack-restore:
     #!/usr/bin/env bash
     set -uo pipefail
@@ -158,8 +171,8 @@ pack-restore:
 # Treesitter
 # ============================================================================
 
-[no-cd]
 [doc('Assert toolchain and list installed parsers')]
+[group('Treesitter')]
 ts-check:
     #!/usr/bin/env bash
     set -uo pipefail
@@ -167,10 +180,10 @@ ts-check:
     if ! command -v tree-sitter >/dev/null 2>&1; then
         echo "✗ tree-sitter CLI missing -- parsers cannot compile"; exit 1
     fi
-    nvim --headless +"lua local ok,c = pcall(require,'nvim-treesitter.config'); if ok and c.get_installed then local p=c.get_installed(); io.write('installed parsers ('..#p..'): '..table.concat(p,', ')..'\n') else io.write('nvim-treesitter not installed yet -- run: just nvim ts-install\n') end" +qa
+    nvim --headless +"lua local ok,c = pcall(require,'nvim-treesitter.config'); if ok and c.get_installed then local p=c.get_installed(); io.write('installed parsers ('..#p..'): '..table.concat(p,', ')..'\n') else io.write('nvim-treesitter not installed yet -- run: just ts-install\n') end" +qa
 
-[no-cd]
 [doc('Install/compile the configured treesitter parsers')]
+[group('Treesitter')]
 ts-install:
     #!/usr/bin/env bash
     set -uo pipefail
@@ -182,8 +195,8 @@ ts-install:
 # LSP
 # ============================================================================
 
-[no-cd]
 [doc('Run :checkhealth vim.lsp and print the report')]
+[group('LSP')]
 lsp-check:
     #!/usr/bin/env bash
     set -uo pipefail
@@ -196,8 +209,8 @@ lsp-check:
 # Startup performance
 # ============================================================================
 
-[no-cd]
 [doc('Median startup time over 3 warm runs (ms)')]
+[group('Performance')]
 startuptime:
     #!/usr/bin/env bash
     set -uo pipefail
@@ -212,8 +225,8 @@ startuptime:
     echo "startup runs: ${vals[*]} ms"
     echo "median: $median ms"
 
-[no-cd]
 [doc('Top startup cost line items')]
+[group('Performance')]
 startuptime-breakdown:
     #!/usr/bin/env bash
     set -uo pipefail
@@ -222,8 +235,8 @@ startuptime-breakdown:
     nvim --headless --startuptime "$log" +qa >/dev/null 2>&1
     grep -E '^[0-9]' "$log" | sort -k2 -nr | head -20
 
-[no-cd]
 [doc('Save the current median startup as the budget baseline')]
+[group('Performance')]
 baseline-save:
     #!/usr/bin/env bash
     set -uo pipefail
@@ -234,19 +247,19 @@ baseline-save:
         vals+=("$(tail -1 "$log" | awk '{print $1}')")
     done
     median="$(printf '%s\n' "${vals[@]}" | sort -n | sed -n '2p')"
-    mkdir -p "$PWD/{{ CFG }}/bench"
-    printf '%s\n' "$median" > "$PWD/{{ CFG }}/bench/budget.txt"
-    echo "✓ saved baseline: $median ms -> {{ CFG }}/bench/budget.txt"
+    mkdir -p bench
+    printf '%s\n' "$median" > bench/budget.txt
+    echo "✓ saved baseline: $median ms -> bench/budget.txt"
 
-[no-cd]
 [doc('Fail if median startup exceeds the saved budget')]
+[group('Performance')]
 baseline-check:
     #!/usr/bin/env bash
     set -uo pipefail
     {{ _env }}
-    budget_file="$PWD/{{ CFG }}/bench/budget.txt"
+    budget_file="bench/budget.txt"
     if [ ! -f "$budget_file" ]; then
-        echo "○ no baseline saved (run: just nvim baseline-save)"; exit 0
+        echo "○ no baseline saved (run: just baseline-save)"; exit 0
     fi
     budget="$(cat "$budget_file")"
     log="$(mktemp)"; vals=()
@@ -265,8 +278,8 @@ baseline-check:
 # Repair
 # ============================================================================
 
-[no-cd]
 [doc('Delete the sandbox plugin store (forces clean reinstall). FORCE=1 to skip prompt')]
+[group('Repair')]
 clean:
     #!/usr/bin/env bash
     set -uo pipefail
@@ -279,8 +292,8 @@ clean:
     rm -rf -- "$packdir"
     echo "✓ removed plugin store"
 
-[no-cd]
 [doc('Prove the config reproduces from scratch (clean + reinstall + assert)')]
+[group('Repair')]
 bootstrap-test:
     #!/usr/bin/env bash
     set -uo pipefail
@@ -298,13 +311,12 @@ bootstrap-test:
 # ============================================================================
 # Format / lint
 # ============================================================================
-
-[no-cd]
 [doc('Format the nvim config (stylua)')]
+[group('Format / lint')]
 fmt:
-    stylua --allow-hidden {{ CFG }}
+    stylua --config-path ../../../.stylua.toml --allow-hidden .
 
-[no-cd]
 [doc('Lint the nvim config (selene)')]
+[group('Format / lint')]
 lint:
-    selene {{ CFG }}
+    selene --config ../../../selene.toml .
