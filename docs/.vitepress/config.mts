@@ -86,7 +86,14 @@ export default defineConfig({
         items: [
           { text: "Hotkey Cheatsheet", link: "/cheatsheet" },
           { text: "Terminal Stack", link: "/terminals/overview" },
-          { text: "AI Agents", link: "/ai/" },
+        ],
+      },
+      {
+        text: "AI Agents",
+        collapsed: false,
+        items: [
+          { text: "Overview", link: "/ai/" },
+          { text: "Skills", link: "/ai/skills" },
         ],
       },
       {
