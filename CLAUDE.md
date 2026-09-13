@@ -10,6 +10,10 @@ project architecture, commands, coding standards, verification requirements, sec
 - This file is only a Claude Code entry point. Do not copy repository rules here.
 - If this file conflicts with `AGENTS.md`, follow `AGENTS.md`.
 
+## Hunk Reviews
+
+Load the Hunk skill and use it for this review. Run `hunk skill path` to get the skill path.
+
 ## Claude-Specific Notes
 
 - Use Claude Code's native read, search, edit, and task tools where they improve precision, while preserving the workflow

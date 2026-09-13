@@ -40,6 +40,10 @@ undeploy:
 [group('Development')]
 install:
     mise install
+
+[doc('Apply global setup after deployment')]
+[group('Development')]
+setup:
     mise run setup
 
 [doc('Shows outdated tool versions')]

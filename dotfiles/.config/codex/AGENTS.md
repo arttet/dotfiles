@@ -47,6 +47,10 @@ mitigations before editing.
 - Use relevant skills when available and follow their task-specific workflows.
 - Ask before adding production dependencies; first check for built-in or existing project alternatives.
 
+## Hunk Reviews
+
+Load the Hunk skill and use it for this review. Run `hunk skill path` to get the skill path.
+
 ## Verification
 
 - Run the smallest relevant check first and avoid formatters that rewrite unrelated dirty files.

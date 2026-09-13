@@ -54,6 +54,10 @@ vectors, and mitigations before editing.
 - Do not delegate reading or interpretation of operator instructions.
 - Ask before adding production dependencies; first check for built-in or existing project alternatives.
 
+## Hunk Reviews
+
+Load the Hunk skill and use it for this review. Run `hunk skill path` to get the skill path.
+
 ## Permissions and Shell Commands
 
 - Treat permission prompts as safety boundaries, not obstacles to bypass.
