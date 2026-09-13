@@ -56,7 +56,6 @@ use modules/fzf.nu *
 use modules/yazi.nu *
 use modules/git.nu *
 use modules/history.nu *
-use modules/ai.nu *
 
 # Tools Module
 # Manage Starship, Zoxide, Carapace via 'tools init' and 'tools deinit'
