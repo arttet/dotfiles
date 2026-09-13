@@ -4,4 +4,4 @@
 ouch = "github:ouch-org/ouch"
 
 [tools]
-ouch = "0.8.1"
+ouch = "0.8.2"

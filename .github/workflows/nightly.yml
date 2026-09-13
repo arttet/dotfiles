@@ -17,7 +17,7 @@ defaults:
     shell: bash
 
 env:
-  MISE_VERSION: v2026.8.14
+  MISE_VERSION: v2026.9.5
   MISE_DATA_DIR: ${{ github.workspace }}/.tools/mise
 
 jobs:

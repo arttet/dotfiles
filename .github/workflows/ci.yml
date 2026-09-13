@@ -21,7 +21,7 @@ defaults:
     shell: bash
 
 env:
-  MISE_VERSION: v2026.8.14
+  MISE_VERSION: v2026.9.5
   MISE_DATA_DIR: ${{ github.workspace }}/.tools/mise
   DPRINT_CACHE_DIR: ${{ github.workspace }}/.tools/dprint
   AUBE_TRUST_POLICY_EXCLUDE: pino@9.14.0,fastq@1.20.2
@@ -834,6 +834,6 @@ jobs:
 
       - name: Deploy to GitHub Pages
         id: deployment
-        uses: actions/deploy-pages@cd2ce8fcbc39b97be8ca5fce6e763baed58fa128 # v5
+        uses: actions/deploy-pages@368f82528645a54fb793d4d04e342629a3f51346 # v5.0.1
         with:
           artifact_name: docs-github-pages

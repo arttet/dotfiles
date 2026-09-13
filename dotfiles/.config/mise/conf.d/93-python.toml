@@ -3,8 +3,8 @@
 [tools]
 python = "3.14.7"
 
-ruff = "0.16.5"
-uv = "0.12.7"
+ruff = "0.16.7"
+uv = "0.12.13"
 
-"npm:pyright" = "1.1.413"
-"pipx:ty" = "0.0.75"
+"npm:pyright" = "1.1.414"
+"pipx:ty" = "0.0.80"
