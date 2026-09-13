@@ -105,8 +105,6 @@ bench_report = "jq -n --slurpfile benchmark .tools/bench/results.json --slurpfil
 # NOTE: Artifact Gate
 artifact_dir = ".tools/artifacts"
 artifact_licenses_allowed = "MIT,Apache-2.0"
-# NOTE: An allowlist, deliberately not `.gitattributes export-ignore`: a blocklist would ship every new
-# NOTE: top-level file by default. `.dotter/` and INSTALL.md are what make an unpacked release deployable.
 artifact_tracked = "dotfiles .dotter/global.toml .dotter/local.toml INSTALL.md"
 
 [settings]
@@ -713,9 +711,6 @@ mkdir -p "${DOCS_DIST}"
 """
 
 [tasks."docs:unpack"]
-# `aube pack` writes an npm-style archive: everything sits under `package/`, and the site itself two
-# levels down at `package/dist`. Both levels are stripped and only that subtree is taken, so
-# `package.json` stays out of the published site. Without this the deploy would serve an empty site.
 description = "Unpack the packed documentation archive into the output directory"
 depends = ["docs:unpack:setup"]
 env = { DOCS_DIST = "{{vars.docs_dist}}", DOCS_ARCHIVE = "{{vars.docs_archive}}" }
@@ -1118,8 +1113,6 @@ run = [
 ]
 
 [tasks."bench:ci"]
-# One attempt. Absorbing runner noise is the workflow's job: it wraps this in retry(1), which comes from
-# nixpkgs alongside the benchmark shells rather than from the mise toolset.
 description = "Measure startup, collect the runs and compare with the baseline [run deploy:sync:config first]"
 run = [
   { task = "bench:all" },
@@ -1177,13 +1170,7 @@ jq -r '.[].path' "${ARTIFACT_DIR}/components.json" | tr -d '\\r' \
 """
 
 [tasks."artifact:dotfiles:pack:tracked"]
-# git archive stamps every entry with uid/gid 0 and the commit time on its own, so the reproducibility
-# flags the vendored half still needs are absent here by design, not by omission.
-#
-# It also packs HEAD rather than the working tree, which is what manifest.json has always claimed:
-# a dirty checkout can no longer ship edits under a commit id that does not contain them.
 description = "Pack the tracked half of the archive from the commit"
-# Runs before the vendored half, so it cannot rely on that chain having created the output directory.
 depends = ["artifact:setup"]
 run = """
 git archive --format=tar HEAD -- {{vars.artifact_tracked}} \
@@ -1209,9 +1196,6 @@ ARTIFACT_DIR = "{{vars.artifact_dir}}"
 SOURCE_DATE_EPOCH = "{{ exec(command='git show -s --format=%ct HEAD') }}"
 
 [tasks."artifact:dotfiles:pack"]
-# The two halves are concatenated rather than merged into one sorted stream: the vendored trees are
-# gitignored, so git archive cannot see them and they cannot collide with the tracked half either.
-# Reproducibility needs each half to be deterministic, which they are; it does not need a global sort.
 description = "Pack the dotfiles tree reproducibly"
 env = { ARTIFACT_DIR = "{{vars.artifact_dir}}" }
 run = [
@@ -1222,9 +1206,6 @@ run = [
 ]
 
 [tasks."artifact:dotfiles:files:text"]
-# Read back out of the finished archive rather than forward from the input lists: the manifest and the
-# license inventory then describe what shipped, not what was meant to ship. git archive emits directory
-# entries too, and those are dropped here because both consumers expect file paths.
 description = "List the archive contents, one path per line"
 depends = ["artifact:dotfiles:pack"]
 env = { ARTIFACT_DIR = "{{vars.artifact_dir}}" }
