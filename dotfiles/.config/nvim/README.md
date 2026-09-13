@@ -1,6 +1,6 @@
 # My Neovim Config
 
-This is a personalized Neovim configuration for development with a focus on debugging and a smooth user experience. It targets **Neovim 0.12+**, uses the built-in **`vim.pack`** plugin manager (no NvChad, no lazy.nvim), native LSP/diagnostics/treesitter, and a fast `mini.nvim`-based UI. See [AGENTS.md](./AGENTS.md) for architecture and the `just nvim *` diagnostics commands.
+This is a personalized Neovim configuration for development with a focus on debugging and a smooth user experience. It targets **Neovim 0.12+**, uses the built-in **`vim.pack`** plugin manager (no NvChad, no lazy.nvim), native LSP/diagnostics/treesitter, and a fast `mini.nvim`-based UI. See [AGENTS.md](./AGENTS.md) for architecture and this directory's own `Justfile`.
 
 ## 🔌 Plugins & Keybindings
 
@@ -83,7 +83,7 @@ These plugins provide essential functionality but do not have custom keybindings
 ```
 
 ```sh
-just nvim startuptime
+just startuptime
 ```
 
 - Check LSP status:

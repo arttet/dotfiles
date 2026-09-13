@@ -1,6 +1,6 @@
 -- Treesitter (nvim-treesitter `main` rewrite). Eager: highlighting is wanted at
 -- first draw. Parsers are compiled locally (needs `cc` + `tree-sitter` CLI on
--- PATH -- see `just nvim-doctor`).
+-- PATH -- see `just doctor`).
 --
 -- The `master` branch is frozen/archived; `main` has no `configs.setup()`:
 -- parsers are installed via `require('nvim-treesitter').install()` and features
@@ -48,7 +48,7 @@ local function ensure_parsers()
     -- Defer so the first redraw is not blocked by network/compile work, and do
     -- NOT `:wait()` here -- that would block the UI thread for the whole compile.
     -- Keep a reference to the future so it is not garbage-collected before the
-    -- async install finishes (the headless `just nvim ts-install` does its own
+    -- async install finishes (the headless `just ts-install` does its own
     -- `:wait()`).
     vim.defer_fn(function()
       _ts_install_future = ts.install(targets)
