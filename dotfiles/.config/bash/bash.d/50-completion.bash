@@ -1,32 +1,11 @@
-# ~/.config/bash/bash.d/50-completion.sh
-# ==============================================
-# Bash Completion Configuration
-# ==============================================
+# Readline behavior; generated FZF and Carapace completion is loaded by 90-tools.
 
-# Completion Cache Directory
-BASH_COMPLETION_CACHE="${XDG_CACHE_HOME:-$HOME/.cache}/bash/completion"
-[[ -d "$BASH_COMPLETION_CACHE" ]] || mkdir -p "$BASH_COMPLETION_CACHE"
-
-# -------------------------------------------------------------------
-# Readline Settings (Interactive)
-# -------------------------------------------------------------------
 if [[ $- == *i* ]]; then
-  bind "set completion-ignore-case on"       # Case-insensitive completion
-  bind "set show-all-if-ambiguous on"        # Show options immediately (don't wait for 2nd Tab)
-  bind "set colored-stats on"                # Color the common prefix
-  bind "set visible-stats on"                # Show extra file info (like ls -F)
-  bind "set mark-symlinked-directories on"   # Add slash to symlinked directories
-  bind "set colored-completion-prefix on"    # Highlight the part you typed
-  bind "set menu-complete-display-prefix on" # Better menu display
-fi
-
-# -------------------------------------------------------------------
-# Load System Completion
-# -------------------------------------------------------------------
-if [[ -f /usr/share/bash-completion/bash_completion ]]; then
-  # shellcheck source=/dev/null
-  source /usr/share/bash-completion/bash_completion
-elif [[ -f /etc/bash_completion ]]; then
-  # shellcheck source=/dev/null
-  source /etc/bash_completion
+  bind 'set completion-ignore-case on'
+  bind 'set show-all-if-ambiguous on'
+  bind 'set colored-stats on'
+  bind 'set visible-stats on'
+  bind 'set mark-symlinked-directories on'
+  bind 'set colored-completion-prefix on'
+  bind 'set menu-complete-display-prefix on'
 fi

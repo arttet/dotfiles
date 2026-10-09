@@ -232,8 +232,6 @@ Prefix: `Ctrl + B` (upstream defaults; not customized in these dotfiles yet)
 | `gg`  | `lazygit`              |
 | `n`   | `nvim`                 |
 | `j`   | `just`                 |
-| `jf`  | `just fmt`             |
-| `jl`  | `just lint`            |
 
 ### Yazi
 

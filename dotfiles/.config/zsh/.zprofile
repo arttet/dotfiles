@@ -1,12 +1,7 @@
-# Path: ~/.config/zsh/.zprofile
-# ==============================================
-# Zsh Login Configuration Entry Point
-# ==============================================
-#
-# Loads login shell profile scripts (XDG Base Directory compliant).
-# Executed at login to set up environment and path variables.
+# Zsh login environment.
 
-SHELL_DIR="${XDG_CONFIG_HOME:-$HOME/.config}/shell/profile.d"
-for file in "$SHELL_DIR"/*.sh(N); do
-  source "$file"
+_dotfiles_shell_dir="${XDG_CONFIG_HOME:-$HOME/.config}/shell/profile.d"
+for _dotfiles_file in "$_dotfiles_shell_dir"/*.sh(N); do
+  source "$_dotfiles_file"
 done
+unset _dotfiles_shell_dir _dotfiles_file

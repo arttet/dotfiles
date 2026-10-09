@@ -68,5 +68,3 @@ Run `g?` in Nushell for the full interactive git cheat sheet.
 | `gg`  | `lazygit`              |
 | `n`   | `nvim`                 |
 | `j`   | `just`                 |
-| `jf`  | `just fmt`             |
-| `jl`  | `just lint`            |

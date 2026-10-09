@@ -155,6 +155,9 @@ jobs:
       - name: Lint checks
         run: mise run lint:all
 
+      - name: Shell behavior contracts
+        run: mise run test:shell
+
   # ==============================================================================
   # Stage 1: Security Gate
   # ==============================================================================
@@ -460,6 +463,12 @@ jobs:
       - name: Sync vendored dependencies
         run: mise run deploy:sync:config
 
+      - name: Prepare shell integrations
+        run: mise run setup:shell
+
+      - name: Validate generated shell integrations
+        run: mise run test:shell:generated
+
       - name: Validate dotfiles configurations
         run: mise run validate:all
 
@@ -516,6 +525,11 @@ jobs:
 
       - name: Install benchmark dependencies via mise
         run: mise install hyperfine jq nushell powershell tmux vendir
+
+      - name: Install configured shell integrations
+        env:
+          MISE_CONFIG_DIR: ${{ github.workspace }}/dotfiles/.config/mise
+        run: mise install starship zoxide fzf carapace
 
       - name: Sync vendored components
         run: mise run deploy:sync:config

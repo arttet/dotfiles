@@ -15,7 +15,7 @@ mise run deploy:sync:config
 mise run deploy:check    # Preview what will be linked
 mise run deploy:apply
 mise install             # Install the deployed global toolchain
-mise run setup           # GitHub extensions, telemetry, and agent skills
+mise run setup           # Shell caches, GitHub extensions, telemetry, and agent skills
 ```
 
 ## Quick Start (release)
