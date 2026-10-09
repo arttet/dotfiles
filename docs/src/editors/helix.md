@@ -1,6 +1,8 @@
 # Helix Editor
 
-A post-modern modal text editor with built-in LSP support and a focus on terminal multiplexer integration.
+This repository's Helix configuration centers on `Space` as a leader key and on multiplexer integration:
+yazi, lazygit, and a Nushell terminal open as floating panes (or splits) in Zellij or tmux without leaving
+the editor.
 
 ## Configuration Paths
 

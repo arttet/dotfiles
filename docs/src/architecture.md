@@ -22,10 +22,13 @@ The repository supports two deployment strategies, each with different trade-off
 ```toml
 # .dotter/global.toml (excerpt)
 [default]
-depends = ["agent", "editor", "shell", "terminal"]
+depends = ["agent", "dev", "editor", "shell", "terminal"]
 
 [agent]
 depends = ["claude", "codex", "kimi", "opencode"]
+
+[dev]
+depends = ["mise"]
 
 [editor]
 depends = ["helix", "zed"]
@@ -207,7 +210,18 @@ OpenCode denies dangerous bash patterns and asks for edits:
 }
 ```
 
-Claude Code's global settings define its command and sensitive-file permissions.
+Claude Code's global settings carry an explicit allow list of read-only commands:
+
+```jsonc
+// dotfiles/.config/claude/settings.json (excerpt)
+"permissions": {
+  "allow": [
+    "Bash(git status:*)",
+    "Bash(git diff:*)",
+    "Bash(mise run fmt:*)"
+  ]
+}
+```
 
 Kimi Code uses ordered rules so sensitive-file denies are evaluated before the broad Read allow:
 
@@ -236,7 +250,7 @@ Codex uses workspace sandboxing with explicit filesystem globs:
 
 - **Ask** is used for state-mutating operations (writes, shell execution, network). This keeps the agent helpful while preventing silent changes.
 - **Deny** is reserved for irreversible or high-risk actions (deleting files, force pushes, privilege escalation) and for reading sensitive material (keys, credentials, history).
-- **Allow** is limited to read-only inspection commands that are safe to run repeatedly, such as `git status`, `git diff`, and `mise run fmt`.
+- **Allow** is limited to read-only inspection commands that are safe to run repeatedly, such as `git status`, `git diff`, and `mise run fmt:all`.
 
 ## CI/CD Pipeline
 
@@ -246,16 +260,14 @@ GitHub Actions (`.github/workflows/ci.yml`) runs in three stages.
 
 All jobs run in parallel and must pass before Stage 2.
 
-| Job                 | Purpose                                                                       |
-| :------------------ | :---------------------------------------------------------------------------- |
-| `guard`             | Classify the run as trusted or fork; every other job depends on it            |
-| `fmt`               | Check dprint, stylua, shfmt, and Justfile formatting                          |
-| `lint`              | Run yamllint, actionlint, shellcheck, selene, markdownlint, etc.              |
-| `security`          | Secrets, SAST, HTML/SVG rules, Trivy, OSV, Grype, Grant, OPA policies, zizmor |
-| `codeql`            | Semantic analysis of GitHub Actions workflows and TypeScript sources          |
-| `dependency-review` | Block dependency changes with known high-severity advisories (pull requests)  |
-| `antivirus`         | ClamAV malware scan                                                           |
-| `docs`              | aube install/audit, VitePress build, Lychee link check, site hardening checks |
+| Job         | Purpose                                                                                                                         |
+| :---------- | :------------------------------------------------------------------------------------------------------------------------------ |
+| `guard`     | Classify the run as trusted or fork; every other job depends on it                                                              |
+| `fmt`       | Check dprint, stylua, shfmt, and Justfile formatting                                                                            |
+| `lint`      | Run yamllint, actionlint, shellcheck, selene, markdownlint, etc.                                                                |
+| `security`  | Scan for secrets, vulnerabilities, licenses, and policy violations — TruffleHog, Semgrep, Trivy, OSV, Grype, Grant, OPA, zizmor |
+| `antivirus` | ClamAV malware scan                                                                                                             |
+| `docs`      | aube install/audit, VitePress build, Lychee link check, site hardening checks                                                   |
 
 `guard` publishes a `trusted` output that gates every privileged step. A fork runs all of the above and
 none of the steps that write to the repository — no SARIF upload, no pull-request comment, no deploy.
@@ -286,19 +298,25 @@ the usual hardening headers, `misc/semgrep/web.yaml` rejects executable markup i
 and `mise run docs:security` proves the headers reached `docs/dist` and that no bundled JavaScript
 carries a known advisory.
 
-### Stage 2: Validation, Performance and Release
+### Stage 2: Validation and Performance
 
-All three jobs run only after Stage 1 succeeds and use tools pinned by mise — no Nix, no stow.
+Both jobs run only after Stage 1 succeeds and use tools pinned by mise. The one exception is the
+performance job's shell interpreters: `bash`, `zsh` and `retry` have no mise registry entry, so that job
+installs them with `nix profile add` — the only use of Nix in CI.
 
 | Job           | Purpose                                                                                                                     |
 | :------------ | :-------------------------------------------------------------------------------------------------------------------------- |
 | `validate`    | `mise run deploy:apply` (dotter), install the global toolchain, then `mise run validate:all`                                |
 | `performance` | `mise run deploy:sync:config`, then `retry --times=3 -- mise run bench:ci`; compares shell startup ratios with the baseline |
-| `artifact`    | `mise run artifact:all`; packs, describes, scans and verifies the release set                                               |
 
-#### Release artifact
+`validate:all` covers AI agents, MCP servers, editors, shells, multiplexers, and CLI tools; for example
+`hx --health all` for Helix, `zellij setup --check` for Zellij, and `ya env` for Yazi.
 
-`dotfiles/` is published as something you can check rather than trust:
+### Stage 3: Release Artifact and Deploy
+
+The `artifact` job runs `mise run artifact:dotfiles:all` — it packs, describes, scans and verifies the
+dotfiles release set (the wallpapers set builds only on pushes to `main`). `dotfiles/` is published as
+something you can check rather than trust:
 
 | File               | Answers                                             |
 | :----------------- | :-------------------------------------------------- |
@@ -338,10 +356,7 @@ expire after 90 days and carry no provenance.
 The license inventory reports rather than blocks. Some vendored components are GPL-3.0 or AGPL-3.0
 while this repository is MIT; they are used deliberately, so the point is that you can see them.
 
-`validate:all` covers AI agents, MCP servers, editors, shells, multiplexers, and CLI tools; for example
-`hx --health all` for Helix, `zellij setup --check` for Zellij, and `yazi --debug` for Yazi.
-
-### Stage 3: Deploy
+#### Deploy
 
 Pull requests get a Cloudflare Pages preview (`mise run deploy:cloudflare:preview`). On pushes to `main`
 (not scheduled), the docs go to Cloudflare Pages production and to GitHub Pages.

@@ -9,7 +9,7 @@ status line, and plugins pinned and deployed by `vendir`. TPM is not used.
 - Vendored plugins: `dotfiles/.config/tmux/plugins/`
 - Primary terminal font: a patched Nerd Font, for example IosevkaTerm Nerd Font
 
-Run `just sync` after checkout or after a plugin lock update. Plugin executables are used directly from the vendored
+Run `mise run deploy:sync:config` after checkout or after a plugin lock update. Plugin executables are used directly from the vendored
 directory; dotfiles do not install global binaries. `tmux2k` also requires Bash 5.2 or newer for its colors to render
 correctly.
 
@@ -104,30 +104,3 @@ the populated status format instead of replacing it with the empty spacer.
 
 `tmux-fzf` is bound directly to its vendored `main.sh` launcher. The script runs in the background only after pressing
 `Ctrl + A`, then `F`, so tmux startup does not execute FZF or wait for plugin initialization. This does not rely on TPM.
-
-## Smug project session
-
-Smug is an external session manager, not a tmux plugin. Install tmux, Smug 0.3.18 or newer, Helix (`hx`), and
-Lazygit using the system package manager. Start the deployable project layout from the repository root:
-
-```sh
-smug start dotfiles dotfiles_root="$PWD"
-```
-
-On PowerShell, use:
-
-```powershell
-smug start dotfiles "dotfiles_root=$($PWD.Path)"
-```
-
-Smug 0.3.18 has a Windows panic when `-f` is used without a positional session name. Prefer `smug start dotfiles`
-against the deployed config in `~/.config/smug/dotfiles.yml`. If a custom file is unavoidable, use a placeholder
-name:
-
-```powershell
-smug start placeholder -f .\dotfiles.yml "dotfiles_root=$($PWD.Path)"
-```
-
-The session attaches automatically and creates `editor`, `shell`, and `git` windows in that order. `editor` is
-selected and runs `hx .`; `git` runs `lazygit`; `shell` starts no services. Stop it with `smug stop dotfiles`. Manual
-tmux sessions remain available and are independent of this declarative project layout.

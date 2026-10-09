@@ -14,7 +14,7 @@ This repository is a personal, cross-platform dotfiles configuration for Artyom 
 - **Deployment model**: Symlink-based dotfiles deployed with **dotter** (`mise run deploy:apply`)
 - **External assets**: Plugins and themes are vendored with **vendir** (`vendir.yml`); wallpapers live in a separate `vendir.wallpapers.yml` and land in `dotfiles/.local/share/backgrounds/`. Each config has its own lock file, plus a `*.windows.yml` variant for Windows path handling
 - **Task runner for agents**: `mise` (`mise.toml`) installs pinned tools and runs all validation and deployment tasks.
-- **Documentation site**: VitePress under `docs/`, served via aube (`mise run docs:dev`)
+- **Documentation site**: VitePress under `docs/`, served via aube (`cd docs && aube run docs:dev`)
 - **NixOS integration**: `nixos/home.nix` links selected dotfiles into a Home Manager generation
 
 ## Repository Layout
@@ -28,7 +28,7 @@ This repository is a personal, cross-platform dotfiles configuration for Artyom 
 │   └── workflows/ci.yml  # validation, security, docs, deployment
 ├── docs/                 # VitePress documentation site
 │   ├── package.json      # aube-managed dev dependencies
-│   ├── .vitepress/config.ts
+│   ├── .vitepress/config.mts
 │   └── src/              # markdown content
 ├── dotfiles/             # actual dotfile contents (deployed to $HOME)
 │   ├── .bash_profile
@@ -53,7 +53,7 @@ This repository is a personal, cross-platform dotfiles configuration for Artyom 
 │   │   │   ├── profile.d/00-profile.sh
 │   │   │   └── shell.d/  # aliases, functions, git helpers, theme, OS tweaks
 │   │   ├── starship/     # prompt configs (main, tmux, zellij)
-│   │   ├── tmux/         # tmux.conf + vendored TPM
+│   │   ├── tmux/         # tmux.conf + vendored plugins
 │   │   ├── wezterm/
 │   │   ├── yazi/         # file manager config + vendored plugins/flavors
 │   │   ├── zed/
@@ -118,7 +118,7 @@ All terminal emulators default to **Nushell** (`nu --login --interactive`) on su
 ### Multiplexers & Window Management
 
 - **Zellij** (`dotfiles/.config/zellij/config.kdl`) — default shell `nu`
-- **Tmux** (`dotfiles/.config/tmux/tmux.conf`) — TPM plugins vendored under `dotfiles/.config/tmux/plugins/tpm`
+- **Tmux** (`dotfiles/.config/tmux/tmux.conf`) — plugins vendored under `dotfiles/.config/tmux/plugins/`; TPM is not used
 - **Hyprland** — Lua-configured Wayland compositor (`dotfiles/.config/hypr/hyprland.lua`)
 
 ### Prompt & Navigation
@@ -149,8 +149,8 @@ the agent workflow.
 ```sh
 # Development
 mise install             # install pinned CI/dev tools
-mise run fmt             # format the repository
-mise run lint            # run linters
+mise run fmt:write       # format the repository
+mise run lint:all        # run linters
 mise run check           # fast validation gate
 mise run check:all       # required before pushing
 mise run ci              # run GitHub Actions locally via act
@@ -164,9 +164,9 @@ mise run deploy:apply               # dotter deploy --verbose --force
 mise run deploy:undeploy            # dotter undeploy
 
 # Docs
-mise run docs:dev      # VitePress dev server (port 5173)
-mise run docs:build    # VitePress production build
-mise run docs:preview  # preview production build
+(cd docs && aube run docs:dev)     # VitePress dev server (port 5173)
+mise run docs:build                 # VitePress production build
+(cd docs && aube run docs:preview) # preview production build
 
 # Performance
 mise run bench:all           # every benchmark available on the platform
@@ -179,7 +179,7 @@ mise run bench:profile:zsh   # same for zsh
 mise install       # install all pinned tools from mise.toml
 mise run check     # all Stage-1 gates: fmt, lint, security, antivirus, docs
 mise tasks         # list individual gate tasks (fmt:all, lint:all, security:all, ...)
-mise run deps:outdated  # Renovate local report of available dependency updates
+mise run deps:renovate  # Renovate local report of available dependency updates
 mise run ci:list   # list GitHub Actions jobs runnable locally via act
 mise run ci        # run the CI workflow locally via act (requires Docker)
 
@@ -344,7 +344,7 @@ Rules when adding a tool:
 
 - A language file is self-contained: compiler, package manager, formatter, debugger and the language's own
   server live together, so dropping the language means dropping one file.
-- `62-lsp.toml` and `60-fmt.toml` hold servers and formatters that are not tied to a toolchain file —
+- `63-lsp.toml` and `60-fmt.toml` hold servers and formatters that are not tied to a toolchain file —
   either because no such file exists (`bash-language-server`, `marksman`, `shfmt`, `taplo`) or because the
   server is a separate project from the toolchain (`typescript-language-server`, `cmake-language-server`).
 - `94–99` is a contiguous, reserved block (zig, go, cpp, rust, javascript, shell) — do not insert files
@@ -356,12 +356,12 @@ Rules when adding a tool:
 
 ### Formatters
 
-| Language / File type                   | Tool        | Config                                                                                                               |
-| -------------------------------------- | ----------- | -------------------------------------------------------------------------------------------------------------------- |
-| JSON, YAML, TOML, Markdown, TypeScript | `dprint`    | `dprint.json` (line width 120, LF, 2 spaces)                                                                         |
-| Lua (Neovim/Nushell/Yazi)              | `stylua`    | `.stylua.toml` (120 cols, Unix LF, 2 spaces, auto-prefer double quotes)                                              |
-| Shell (bash/zsh)                       | `shfmt`     | run through `mise run fmt` on `dotfiles/.bashrc`, `.bash_profile`, `dotfiles/.config/bash`, `dotfiles/.config/shell` |
-| CSS                                    | `stylelint` | `.stylelintrc.json` (currently no rules)                                                                             |
+| Language / File type                   | Tool        | Config                                                                                                                     |
+| -------------------------------------- | ----------- | -------------------------------------------------------------------------------------------------------------------------- |
+| JSON, YAML, TOML, Markdown, TypeScript | `dprint`    | `dprint.json` (line width 120, LF, 2 spaces)                                                                               |
+| Lua (Neovim/Nushell/Yazi)              | `stylua`    | `.stylua.toml` (120 cols, Unix LF, 2 spaces, auto-prefer double quotes)                                                    |
+| Shell (bash/zsh)                       | `shfmt`     | run through `mise run fmt:shfmt` on `dotfiles/.bashrc`, `.bash_profile`, `dotfiles/.config/bash`, `dotfiles/.config/shell` |
+| CSS                                    | `stylelint` | `.stylelintrc.json` (currently no rules)                                                                                   |
 
 `.github/workflows/ci.yml` is excluded from dprint (see `excludes` in `dprint.json`) because its section
 headers use zero-indent `# ===...` separators, which pretty_yaml would re-indent.
@@ -388,10 +388,10 @@ Local validation mirrors the CI pipeline:
 
 ```sh
 # Format check
-mise run fmt
+mise run fmt:all
 
 # Lint
-mise run lint
+mise run lint:all
 
 # Validate vendored deps are present
 mise run deploy:sync
@@ -463,8 +463,8 @@ release gets rehearsed before a tag is cut — the CI check applies to rehearsal
 
 `.dotter/global.toml` defines profile groups and per-tool file mappings:
 
-- `default` → `agent`, `editor`, `shell`, `terminal`
-- `agent` → `agents`, `opencode`, `claude`, `codex`, `kimi`
+- `default` → `agent`, `dev`, `editor`, `shell`, `terminal`
+- `agent` → `claude`, `codex`, `kimi`, `opencode`
 - `editor` → `helix`, `zed`
 - `shell` → `bash`, `powershell`, `zsh`
 - `terminal` → `alacritty`, `windows-terminal`
@@ -556,7 +556,7 @@ When modifying configs:
   - `.github/workflows/ci.yml` (validation job)
 - Run `mise run check:all` before pushing.
 - If adding an external plugin/theme, declare it in `vendir.yml`, run `mise run deploy:sync`, and commit `vendir.yml`, `vendir.lock.yml`, and `vendir.lock.windows.yml`.
-- The `dotfiles/.config/nvim` configuration is currently noted as broken in `TODO.md`; treat it as a known issue requiring a dedicated fix session.
+- The `dotfiles/.config/nvim` configuration is treated as a known issue requiring a dedicated fix session.
 
 ## Useful Links
 

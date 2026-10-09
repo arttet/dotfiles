@@ -1,6 +1,7 @@
 # Zellij
 
-A workspace manager and terminal multiplexer that is designed to be user-friendly with discoverable keybindings.
+This repository replaces Zellij's entire default keymap (`keybinds clear-defaults=true`) with a curated
+one, sets Nushell as the default shell, and uses gruvbox themes that follow the terminal's light/dark mode.
 
 ## Configuration Paths
 
@@ -56,21 +57,21 @@ Zellij uses modal input. Each mode is entered via a prefix and has its own keyma
 
 ### Locked Mode (`Ctrl + G`)
 
-| Action                | Shortcut   |
-| :-------------------- | :--------- |
-| Switch focus / normal | `Space`    |
-| Rename tab            | `,` or `.` |
-| New pane (down)       | `-`        |
-| New pane (right)      | `\\` or `  |
-| Previous tab          | `B`        |
-| About plugin          | `?`        |
-| Layout manager        | `L`        |
-| Go to tab 1-9         | `1`–`9`    |
-| New tab               | `C`        |
-| Plugin manager        | `I` or `U` |
-| Toggle fullscreen     | `M` or `Z` |
-| Detach session        | `D`        |
-| Close focus           | `X`        |
+| Action                | Shortcut    |
+| :-------------------- | :---------- |
+| Switch focus / normal | `Space`     |
+| Rename tab            | `,` or `.`  |
+| New pane (down)       | `-`         |
+| New pane (right)      | `\` or `\|` |
+| Previous tab          | `B`         |
+| About plugin          | `?`         |
+| Layout manager        | `L`         |
+| Go to tab 1-9         | `1`–`9`     |
+| New tab               | `C`         |
+| Plugin manager        | `I` or `U`  |
+| Toggle fullscreen     | `M` or `Z`  |
+| Detach session        | `D`         |
+| Close focus           | `X`         |
 
 ### Pane Mode (`Ctrl + P`)
 
@@ -158,7 +159,7 @@ Zellij uses modal input. Each mode is entered via a prefix and has its own keyma
 | Action                     | Shortcut            |
 | :------------------------- | :------------------ |
 | Move focus (HJKL / arrows) | `H/J/K/L` or arrows |
-| New pane (right)           | `                   |
+| New pane (right)           | `\|` or `\` or `%`  |
 | New pane (down)            | `-` or `_` or `"`   |
 | Next/previous tab          | `N` / `P`           |
 | Focus next pane            | `O`                 |
