@@ -6,33 +6,55 @@
 
 Cross-platform shell, terminal, editor, and AI-agent configuration deployed with dotter.
 
+## Project Resources
+
+| Resource      | URL                           |
+| ------------- | ----------------------------- |
+| Documentation | <https://dotfiles.arttet.dev> |
+
 ## Requirements
 
-| Tool                                           | Purpose                             |
-| ---------------------------------------------- | ----------------------------------- |
-| [mise](https://mise.jdx.dev/)                  | Installs the pinned toolchain.      |
-| [dotter](https://github.com/SuperCuber/dotter) | Deploys the configuration symlinks. |
-| [GitHub CLI](https://cli.github.com/)          | Installs GitHub Dash during setup.  |
+| Tool                                           | Purpose                                                                             | Required |
+| ---------------------------------------------- | ----------------------------------------------------------------------------------- | -------- |
+| [mise](https://mise.jdx.dev/)                  | Installs the pinned toolchain and runs every task.                                  | Yes      |
+| [dotter](https://github.com/SuperCuber/dotter) | Deploys the configuration symlinks.                                                 | Yes      |
+| [GitHub CLI](https://cli.github.com/)          | Installs [GitHub Dash](https://github.com/dlvhdr/gh-dash) in the post-deploy setup. | Optional |
 
-## Quick Start
+## Deploy
 
 Install [mise](https://mise.jdx.dev/getting-started.html), then run:
 
 ```sh
 git clone https://github.com/arttet/dotfiles.git
 cd dotfiles
-mise install
-mise run deploy:sync:config
-mise run deploy:check
-mise run deploy:apply
-mise install
+
+mise install                 # repository toolchain, including dotter
+mise run deploy:sync:config  # vendor the pinned plugins and themes
+mise run deploy:check        # dry run: review every symlink before it is written
+mise run deploy:apply        # the deployment itself
+mise install                 # global toolchain, now that ~/.config/mise is linked
+```
+
+`deploy:apply` is the only step that touches the home directory; everything before it is preparation,
+and `deploy:check` prints the same plan without writing anything. The second `mise install` picks up the
+global tool list that dotter has just linked into `~/.config/mise`. For release archives and the complete
+setup, use the documentation.
+
+## Post-deploy
+
+The complete idempotent setup installs the GitHub Dash extension, opts Go out of telemetry and installs the
+managed agent skills.
+
+```sh
 mise run setup
 ```
 
-The second `mise install` installs the global toolchain after dotter has deployed it. Review the dry-run
-output before applying. For release archives and complete setup instructions, use the documentation.
+Run a single optional step such as `mise run setup:skills` when the complete setup is not needed.
 
 ## Development
+
+Install the toolchain, wire the [hk](https://hk.jdx.dev/) pre-commit hooks into the clone, then run the
+same gates CI runs:
 
 ```sh
 mise install
@@ -40,9 +62,6 @@ mise run hooks:install
 mise run check:all
 ```
 
-## 📚 Project Resources
-
-| Resource      | URL                                  |
-| ------------- | ------------------------------------ |
-| Documentation | <https://dotfiles.arttet.dev>        |
-| Source        | <https://github.com/arttet/dotfiles> |
+`check:all` covers format, lint, security, antivirus, documentation, validation, benchmarks and the
+release artifacts. Use `mise run check` for the everyday subset, which drops the antivirus, benchmark and
+artifact gates, or run a single gate with `mise run fmt:all`, `mise run lint:all` and friends.

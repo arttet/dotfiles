@@ -6,10 +6,94 @@ This dotfiles repository configures four AI coding agents. This page covers the 
 
 | Tool            | Configuration                                                                       |
 | :-------------- | :---------------------------------------------------------------------------------- |
-| **OpenCode**    | `dotfiles/.config/opencode/opencode.jsonc`, `dotfiles/.config/opencode/tui.json`    |
 | **Claude Code** | `dotfiles/.config/claude/keybindings.json`, `dotfiles/.config/claude/settings.json` |
 | **Codex**       | `dotfiles/.config/codex/config.toml`                                                |
 | **Kimi Code**   | `dotfiles/.config/kimi-code/config.toml`, `dotfiles/.config/kimi-code/tui.toml`     |
+| **OpenCode**    | `dotfiles/.config/opencode/opencode.jsonc`, `dotfiles/.config/opencode/tui.json`    |
+
+## Claude Code
+
+Claude Code is configured with a strict permission model and minimal custom keybindings.
+
+### Keybindings
+
+| Action          | Shortcut   |
+| :-------------- | :--------- |
+| External editor | `Ctrl + E` |
+
+### Common Commands
+
+Type these in the Claude Code prompt:
+
+| Command    | Purpose                      |
+| :--------- | :--------------------------- |
+| `/help`    | Show help                    |
+| `/compact` | Compact conversation context |
+| `/cost`    | Show token / cost usage      |
+| `/exit`    | Exit Claude Code             |
+
+### Session Controls
+
+| Action            | Shortcut   |
+| :---------------- | :--------- |
+| Cancel generation | `Ctrl + C` |
+| Accept suggestion | `Tab`      |
+
+## Codex
+
+Codex is configured for workspace-level access with explicit approval. Its keybindings come from the upstream Codex TUI.
+
+### CLI
+
+The CLI defaults to the configured `gpt-5.6-sol` model; the usual entry points:
+
+| Command                     | Purpose                        |
+| :-------------------------- | :----------------------------- |
+| `codex`                     | Start Codex in the current dir |
+| `codex --model gpt-5.6-sol` | Use a specific model           |
+| `codex --approval-policy`   | Set approval policy            |
+
+### Common TUI Shortcuts
+
+Inside a running session, the controls you reach for most:
+
+| Action            | Shortcut   |
+| :---------------- | :--------- |
+| Cancel generation | `Ctrl + C` |
+| Exit              | `Ctrl + D` |
+
+### Common Commands
+
+Slash commands inside a session:
+
+| Command    | Purpose                 |
+| :--------- | :---------------------- |
+| `/help`    | Show available commands |
+| `/clear`   | Clear the conversation  |
+| `/compact` | Compact context         |
+| `/model`   | Change model            |
+
+## Kimi Code
+
+Kimi Code is configured to run in plan mode by default with manual permissions.
+
+### CLI
+
+The CLI binary is `kimi` (`kimi-code` is only the npm package name):
+
+| Command      | Purpose                            |
+| :----------- | :--------------------------------- |
+| `kimi`       | Start Kimi Code in the current dir |
+| `kimi /path` | Open a specific project            |
+
+### TUI
+
+Kimi Code uses the upstream TUI keybindings. See the official Kimi Code documentation for the latest list.
+
+| Action            | Shortcut   |
+| :---------------- | :--------- |
+| Cancel generation | `Ctrl + C` |
+| Exit              | `Ctrl + D` |
 
 ## OpenCode
 
@@ -68,82 +152,6 @@ OpenCode is configured to start in **Plan** mode by default. The TUI uses a lead
 | Undo / redo           | `Ctrl + -` / `Ctrl + .` |
 
 > **Tip:** The full OpenCode keymap is defined in `dotfiles/.config/opencode/tui.json`.
-
-## Claude Code
-
-Claude Code is configured with a strict permission model and minimal custom keybindings.
-
-### Keybindings
-
-| Action          | Shortcut   |
-| :-------------- | :--------- |
-| External editor | `Ctrl + E` |
-
-### Common Commands
-
-Type these in the Claude Code prompt:
-
-| Command    | Purpose                      |
-| :--------- | :--------------------------- |
-| `/help`    | Show help                    |
-| `/compact` | Compact conversation context |
-| `/cost`    | Show token / cost usage      |
-| `/exit`    | Exit Claude Code             |
-
-### Session Controls
-
-| Action            | Shortcut   |
-| :---------------- | :--------- |
-| Cancel generation | `Ctrl + C` |
-| Accept suggestion | `Tab`      |
-
-## Codex
-
-Codex is configured for workspace-level access with explicit approval. Its keybindings come from the upstream Codex TUI.
-
-### CLI
-
-| Command                   | Purpose                        |
-| :------------------------ | :----------------------------- |
-| `codex`                   | Start Codex in the current dir |
-| `codex --model gpt-5.5`   | Use a specific model           |
-| `codex --approval-policy` | Set approval policy            |
-
-### Common TUI Shortcuts
-
-| Action            | Shortcut   |
-| :---------------- | :--------- |
-| Cancel generation | `Ctrl + C` |
-| Exit              | `Ctrl + D` |
-
-### Common Commands
-
-| Command    | Purpose                 |
-| :--------- | :---------------------- |
-| `/help`    | Show available commands |
-| `/clear`   | Clear the conversation  |
-| `/compact` | Compact context         |
-| `/model`   | Change model            |
-
-## Kimi Code
-
-Kimi Code is configured to run in plan mode by default with manual permissions.
-
-### CLI
-
-| Command           | Purpose                            |
-| :---------------- | :--------------------------------- |
-| `kimi-code`       | Start Kimi Code in the current dir |
-| `kimi-code /path` | Open a specific project            |
-
-### TUI
-
-Kimi Code uses the upstream TUI keybindings. See the official Kimi Code documentation for the latest list.
-
-| Action            | Shortcut   |
-| :---------------- | :--------- |
-| Cancel generation | `Ctrl + C` |
-| Exit              | `Ctrl + D` |
 
 ## Permission Summary
 

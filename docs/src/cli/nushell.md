@@ -70,7 +70,3 @@ Run `g?` in Nushell for the full interactive git cheat sheet.
 | `j`   | `just`                 |
 | `jf`  | `just fmt`             |
 | `jl`  | `just lint`            |
-
-## Quick Access
-
-Use `just hotkeys` (or the Nushell alias `hk`) to fuzzy-search this documentation's hotkey cheatsheet directly from the terminal.

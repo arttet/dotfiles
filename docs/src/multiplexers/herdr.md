@@ -5,25 +5,25 @@ A mouse-native, agent-aware terminal multiplexer written in Rust. Herdr behaves 
 others — as first-class objects: panes can be scanned for agent state (idle, working, blocked) and jumped to
 directly.
 
-> **Note:** Herdr is not yet wired into this repository's dotfiles. There is no vendored config under
-> `dotfiles/.config/herdr/`; it currently only appears as a system package (`unstablePkgs.herdr`) in the
-> companion NixOS configuration. The keybindings and config path below are Herdr's upstream defaults, not a
-> customization maintained here.
+> **Note:** This repository vendors `dotfiles/.config/herdr/config.toml` (deployed to
+> `~/.config/herdr/config.toml`): the catppuccin theme with `catppuccin-latte` for light mode and
+> first-run onboarding disabled. The keybindings below are Herdr's upstream defaults — the vendored
+> config does not rebind them.
 
 ## Installation
 
-- Nix: `nix run github:ogulcancelik/herdr` (not yet in nixpkgs proper)
+- Nix: `nix run github:herdrdev/herdr` (not yet in nixpkgs proper)
 - Homebrew: `brew install herdr`
 - Mise: `mise use -g herdr`
-- GitHub releases: [download a binary](https://github.com/ogulcancelik/herdr/releases)
+- GitHub releases: [download a binary](https://github.com/herdrdev/herdr/releases)
 - Cargo: build from source with `cargo build --release`
 
 ## Configuration
 
-- Config: `~/.config/herdr/config.toml` (TOML, optional — Herdr runs with sane defaults if absent)
+- Config: `dotfiles/.config/herdr/config.toml` (TOML, deployed to `~/.config/herdr/config.toml`)
 
 Configuration topics covered upstream include keybindings, themes, sidebar/dashboard layout, notifications, and
-scrollback buffer size (10 MB default). See [Herdr documentation](https://github.com/ogulcancelik/herdr#readme) for the full reference.
+scrollback buffer size (10 MB default). See [Herdr documentation](https://github.com/herdrdev/herdr#readme) for the full reference.
 
 ## Keybindings
 

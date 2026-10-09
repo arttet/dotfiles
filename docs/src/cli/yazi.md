@@ -1,6 +1,7 @@
 # Yazi
 
-A blazing fast terminal file manager written in Rust, based on async I/O.
+This repository configures yazi with ten plugins vendored and pinned by `vendir` (chmod, ouch, git,
+starship, and friends) plus a handful of custom keybindings on top of the upstream defaults.
 
 ## Configuration Paths
 

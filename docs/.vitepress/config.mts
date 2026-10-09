@@ -65,13 +65,12 @@ export default defineConfig({
       { text: "Home", link: "/" },
       { text: "Guide", link: "/guide/" },
       { text: "Cheatsheet", link: "/cheatsheet" },
-      { text: "Architecture", link: "/architecture" },
       {
         text: "Tools",
         items: [
           { text: "Terminals", link: "/terminals/overview" },
           { text: "Editors", link: "/editors/neovim" },
-          { text: "Multiplexers", link: "/multiplexers/zellij" },
+          { text: "Multiplexers", link: "/multiplexers/herdr" },
           { text: "CLI", link: "/cli/yazi" },
           { text: "AI Agents", link: "/ai/" },
           { text: "WM", link: "/wm/hyprland" },
@@ -81,11 +80,14 @@ export default defineConfig({
 
     sidebar: [
       {
-        text: "Reference",
+        text: "Introduction",
         collapsed: false,
         items: [
+          { text: "Getting Started", link: "/guide/" },
           { text: "Hotkey Cheatsheet", link: "/cheatsheet" },
-          { text: "Terminal Stack", link: "/terminals/overview" },
+          { text: "Architecture", link: "/architecture" },
+          { text: "Performance", link: "/performance" },
+          { text: "Terminals", link: "/terminals/overview" },
         ],
       },
       {
@@ -94,15 +96,6 @@ export default defineConfig({
         items: [
           { text: "Overview", link: "/ai/" },
           { text: "Skills", link: "/ai/skills" },
-        ],
-      },
-      {
-        text: "Introduction",
-        collapsed: false,
-        items: [
-          { text: "Getting Started", link: "/guide/" },
-          { text: "Architecture", link: "/architecture" },
-          { text: "Performance", link: "/performance" },
         ],
       },
       {
@@ -117,9 +110,9 @@ export default defineConfig({
         text: "Multiplexers",
         collapsed: false,
         items: [
-          { text: "Zellij", link: "/multiplexers/zellij" },
-          { text: "Tmux", link: "/multiplexers/tmux" },
           { text: "Herdr", link: "/multiplexers/herdr" },
+          { text: "Tmux", link: "/multiplexers/tmux" },
+          { text: "Zellij", link: "/multiplexers/zellij" },
         ],
       },
       {
@@ -132,7 +125,7 @@ export default defineConfig({
       },
       {
         text: "Window Management",
-        collapsed: false,
+        collapsed: true,
         items: [{ text: "Hyprland", link: "/wm/hyprland" }],
       },
     ],

@@ -3,7 +3,7 @@
   "version": "0.0.1",
   "private": true,
   "type": "module",
-  "packageManager": "aube@2.2.0",
+  "packageManager": "aube@2.2.14",
   "files": [
     "dist"
   ],
@@ -14,13 +14,17 @@
   },
   "devDependencies": {
     "@catppuccin/vitepress": "^0.1.4",
-    "@types/node": "^26.5.1",
-    "oxc-minify": "^0.143.0",
+    "@types/node": "^26.6.4",
+    "oxc-minify": "^0.152.0",
     "vitepress": "^2.0.0-alpha.20",
     "vitepress-plugin-llms": "^1.14.0"
   },
   "overrides": {
+    "brace-expansion": "^5.0.12",
     "js-yaml": "^4.3.2",
-    "typescript": "^7.0.2"
+    "markdown-it": "^14.3.1",
+    "source-map-js": "^1.2.2",
+    "typescript": "^7.0.2",
+    "vue": "^3.5.42"
   }
 }

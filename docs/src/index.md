@@ -4,28 +4,28 @@ layout: home
 hero:
   name: "Dotfiles"
   text: "Secure. Fast. Modern."
-  tagline: "A battle-tested, cross-platform development environment powered by cutting-edge tools and modular configuration."
+  tagline: "One repository for a shell, terminal, editor, and AI-agent setup — symlinked into place with dotter and validated in CI on every change."
   actions:
     - theme: brand
       text: Get Started
       link: /guide/
 features:
   - icon: 🚀
-    title: Blazing Fast
-    details: Optimized for milliseconds. Features lazy-loading, eval-caching, and ultra-efficient CLI tools like <code>ripgrep</code>, <code>fd</code>, and <code>eza</code>.
+    title: Benchmarked Startup
+    details: Shell startup is measured with hyperfine on every change and compared against a committed baseline — a regression past the threshold fails CI.
   - icon: ⚡
     title: Cross-Platform Native
-    details: Seamless experience across <strong>Windows</strong>, <strong>macOS</strong>, and <strong>Linux</strong>. Unified logic for PowerShell, Bash, Zsh, and Nushell ensures your workflow travels with you.
+    details: The same configuration deploys on <strong>Windows</strong>, <strong>macOS</strong>, and <strong>Linux</strong>. PowerShell, Bash, Zsh, and Nushell share one set of aliases and functions, so your workflow travels with you.
   - icon: 🛠
-    title: Cutting-Edge Toolchain
-    details: Built on a modern stack featuring <strong>Neovim (vim.pack)</strong>, <strong>WezTerm</strong>, <strong>Starship</strong>, <strong>Zoxide</strong>, <strong>Yazi</strong>, and other next-generation productivity tools.
+    title: One Toolchain
+    details: Every tool is pinned and installed by <strong>mise</strong> — <strong>Neovim (vim.pack)</strong>, <strong>WezTerm</strong>, <strong>Starship</strong>, <strong>Zoxide</strong>, <strong>Yazi</strong> — and the same pinned versions run locally and in CI.
   - icon: 🔐
     title: Security First
-    details: Hardened by default. Strict permission auditing, XDG Base Directory compliance, and proactive secret detection patterns.
+    details: Every push runs TruffleHog secret scanning, Trivy, and ClamAV. Agent tools follow default-deny permission rules that keep credentials, SSH keys, and kubeconfigs unreadable.
   - icon: 🧩
     title: Modular Architecture
-    details: Atomic configuration files split by topic and responsibility. Easy to extend, debug, and maintain without monolithic "dotfile debt".
+    details: Configuration is split into small per-topic files — shell logic lives in <code>shell.d</code> fragments, one directory per tool — so a change touches exactly one file.
   - icon: 🎨
     title: Aesthetic Consistency
-    details: Unified theming (Catppuccin/Gruvbox) synchronized across shell, editor, terminal, and system tools for a distraction-free, modern visual experience.
+    details: One theme family (Catppuccin/Gruvbox) is applied across the shell, editor, terminal, and multiplexer, with light and dark variants kept in sync.
 ---

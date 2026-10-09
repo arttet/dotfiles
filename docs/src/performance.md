@@ -26,7 +26,7 @@ mise run bench:pwsh
 ```
 
 Every target runs on every platform; a shell that is not installed is simply skipped. The Linux CI gate
-covers Bash, Zsh, Nushell, and Tmux — the four targets tracked in `misc/baseline.json`.
+covers Bash, Zsh, Nushell, PowerShell, and Tmux — the five targets tracked in `misc/baseline.json`.
 
 Compare the current checkout with the committed baseline:
 

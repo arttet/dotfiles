@@ -1,6 +1,6 @@
 # Hotkey Cheatsheet
 
-This page is the single source of truth for every hotkey configured in these dotfiles. Use the site search (`Ctrl + K` / `Cmd + K`) or run `just hotkeys` from the terminal to fuzzy-find any shortcut without opening a browser.
+This page is the single source of truth for every hotkey configured in these dotfiles. Use the site search (`Ctrl + K` / `Cmd + K`) to fuzzy-find any shortcut.
 
 ## Table of Contents
 
@@ -133,21 +133,21 @@ Leader key: `Space`
 
 #### Locked Mode (`Ctrl + G`, then ...)
 
-| Action            | Shortcut   |
-| :---------------- | :--------- |
-| Switch focus      | `Space`    |
-| Rename tab        | `,` or `.` |
-| New pane (down)   | `-`        |
-| New pane (right)  | `\\` or `  |
-| Previous tab      | `B`        |
-| About plugin      | `?`        |
-| Layout manager    | `L`        |
-| Go to tab 1-9     | `1`–`9`    |
-| New tab           | `C`        |
-| Plugin manager    | `I` / `U`  |
-| Toggle fullscreen | `M` / `Z`  |
-| Detach            | `D`        |
-| Close focus       | `X`        |
+| Action            | Shortcut    |
+| :---------------- | :---------- |
+| Switch focus      | `Space`     |
+| Rename tab        | `,` or `.`  |
+| New pane (down)   | `-`         |
+| New pane (right)  | `\` or `\|` |
+| Previous tab      | `B`         |
+| About plugin      | `?`         |
+| Layout manager    | `L`         |
+| Go to tab 1-9     | `1`–`9`     |
+| New tab           | `C`         |
+| Plugin manager    | `I` / `U`   |
+| Toggle fullscreen | `M` / `Z`   |
+| Detach            | `D`         |
+| Close focus       | `X`         |
 
 #### Pane / Tab / Tmux Essentials
 
@@ -161,7 +161,7 @@ Leader key: `Space`
 | Close tab              | `Ctrl + T`, then `X`       |
 | Next/previous tab      | `Ctrl + T`, then `L` / `H` |
 | Rename tab             | `Ctrl + T`, then `R`       |
-| Tmux new pane right    | `Ctrl + B`, then `         |
+| Tmux new pane right    | `Ctrl + B`, then `\|`      |
 | Tmux new pane down     | `Ctrl + B`, then `-`       |
 | Tmux next/previous tab | `Ctrl + B`, then `N` / `P` |
 | Tmux session manager   | `Ctrl + B`, then `S`       |
@@ -178,7 +178,7 @@ Prefix: `Ctrl + A`
 | Last active window    | `Ctrl + A`, then `Space`   |
 | Toggle zoom           | `Ctrl + A`, then `M`       |
 | New window            | `Ctrl + A`, then `C`       |
-| Split horizontal      | `Ctrl + A`, then `         |
+| Split horizontal      | `Ctrl + A`, then `\|`      |
 | Split horizontal full | `Ctrl + A`, then `\\`      |
 | Split vertical        | `Ctrl + A`, then `-`       |
 | Split vertical full   | `Ctrl + A`, then `_`       |
@@ -234,7 +234,6 @@ Prefix: `Ctrl + B` (upstream defaults; not customized in these dotfiles yet)
 | `j`   | `just`                 |
 | `jf`  | `just fmt`             |
 | `jl`  | `just lint`            |
-| `hk`  | `just hotkeys`         |
 
 ### Yazi
 
@@ -371,5 +370,3 @@ Known collisions to watch for:
 | Herdr    | Press `Ctrl + B`, then `?` for a key list         |
 | Yazi     | Press `?` inside Yazi for the full keymap         |
 | OpenCode | Press `Ctrl + X` and wait for the leader menu     |
-
-Use `just hotkeys` (or `hk` in Nushell) to fuzzy-search this cheatsheet from anywhere in the terminal.

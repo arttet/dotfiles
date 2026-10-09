@@ -44,7 +44,7 @@ archive with the offline deployment instructions.
 - [just](https://github.com/casey/just) (optional, for convenience commands)
 - [vendir](https://github.com/vmware-tanzu/carvel-vendir) (to sync external plugins)
 
-> **Note:** The tools configured in these dotfiles (Yazi, Eza, Zellij, etc.) are assumed to be installed separately via your package manager.
+> **Note:** The tools configured in these dotfiles (yazi, eza, Zellij, etc.) are assumed to be installed separately via your package manager.
 
 ## Deployment
 
@@ -55,27 +55,28 @@ archive with the offline deployment instructions.
 mise run deploy:check
 
 # Deploy dotfiles
-just apply
+mise run deploy:apply
 
 # Remove deployed links
-just undeploy
+mise run deploy:undeploy
 ```
 
-Each recipe is a shim over the matching mise task (`mise run deploy:apply`, `deploy:undeploy`), which
-is exactly what CI runs. GNU Stow is not used and the tree is not laid out for it.
+The `just` recipes of the same name are convenience shims over these mise tasks — the mise tasks are
+what CI runs. GNU Stow is not used and the tree is not laid out for it.
 
-Available profiles (configured in `.dotter/global.toml`):
+What gets deployed is selected in `.dotter/local.toml` by listing packages. A fresh clone ships:
 
-| Profile   | Description                                |
-| --------- | ------------------------------------------ |
-| `default` | Core configs (`~/.config/`)                |
-| `bash`    | Bash RC files (`.bashrc`, `.bash_profile`) |
-| `zsh`     | Zsh environment (`.zshenv`)                |
+```toml
+packages = ["default"]
+```
 
-Activate a profile:
+`default` is a group (configured in `.dotter/global.toml`) that pulls in `agent` (Claude Code, Codex,
+Kimi Code, OpenCode), `dev` (mise), `editor` (Helix, Zed), `shell` (Bash, PowerShell, Zsh), and
+`terminal` (Alacritty, Windows Terminal). The `wallpapers` package is deliberately outside `default` —
+add it to opt into the ~1.1 GB background collections:
 
-```bash
-dotter deploy -p bash
+```toml
+packages = ["default", "wallpapers"]
 ```
 
 ## Sync External Dependencies
@@ -83,7 +84,7 @@ dotter deploy -p bash
 Some configs rely on vendored plugins and themes:
 
 ```bash
-just sync                       # plugins and wallpapers (~1.1 GB)
+mise run deploy:sync            # plugins and wallpapers (~1.1 GB)
 mise run deploy:sync:config     # plugins only, which is what CI runs
 ```
 
@@ -110,12 +111,12 @@ misc/                 # Supplementary files and justfile modules
 ## Useful Commands
 
 ```bash
-just help            # List all available commands
-just fmt             # Format all code
-just lint            # Run all linters
-just docs dev        # Start documentation dev server
-mise run bench:all   # Benchmark shell startup times
-mise run artifact:dotfiles:all   # Build a release set locally
+mise tasks                     # List all available tasks
+mise run fmt:write             # Format all code
+mise run lint:all              # Run all linters
+(cd docs && aube run docs:dev) # Start documentation dev server
+mise run bench:all             # Benchmark shell startup times
+mise run artifact:dotfiles:all # Build a release set locally
 ```
 
 ## Next Steps
