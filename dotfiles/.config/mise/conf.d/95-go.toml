@@ -9,5 +9,5 @@ gopls = "go:golang.org/x/tools/gopls"
 go = "1.27.1"
 
 delve = "1.27.2"
-goimports = "0.50.0"
+goimports = "0.51.0"
 gopls = "0.23.0"

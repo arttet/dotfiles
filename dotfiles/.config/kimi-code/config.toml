@@ -2,7 +2,6 @@
 # Managed by dotfiles.
 
 default_model = "kimi-code/kimi-for-coding"
-default_thinking = true
 default_permission_mode = "manual"
 default_plan_mode = true
 merge_all_available_skills = true
@@ -25,6 +24,12 @@ max_context_size = 262144
 capabilities = ["thinking", "always_thinking", "image_in", "video_in", "tool_use"]
 display_name = "K2.7 Code"
 
+[models."kimi-code/kimi-for-coding-highspeed"]
+provider = "managed:kimi-code"
+model = "kimi-for-coding-highspeed"
+max_context_size = 262144
+capabilities = ["thinking", "always_thinking", "image_in", "video_in", "tool_use"]
+
 [services.moonshot_search]
 base_url = "https://api.kimi.com/coding/v1/search"
 api_key = ""
@@ -41,13 +46,23 @@ api_key = ""
 storage = "file"
 key = "oauth/kimi-code"
 
+# Subagent model pool. Sections deliberately not set (defaults already match the
+# desired behavior): [token_counting], [read], [image], [database], [subagent],
+# [swarm], [mcp], [identity], [tools], and the tui.toml keys render_latex,
+# disable_paste_burst, cache_expiry_hint, disable_feedback_survey, [status_line].
+[secondary_model]
+default_model = "kimi-code/kimi-for-coding"
+[secondary_model.models]
+"kimi-code/kimi-for-coding" = "Balanced coding workhorse. Default for most subtasks."
+"kimi-code/kimi-for-coding-highspeed" = "Faster but priced higher. Latency-sensitive subtasks: small edits, summaries."
+
 [thinking]
-mode = "on"
+enabled = true
 effort = "high"
 
 [loop_control]
 max_steps_per_turn = 80
-max_retries_per_step = 3
+max_attempts_per_step = 3
 reserved_context_size = 50000
 
 [background]

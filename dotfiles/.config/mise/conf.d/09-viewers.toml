@@ -6,4 +6,4 @@ leaf = "github:RivoLink/leaf"
 [tools]
 bat = "0.26.1"
 hexyl = "0.17.0"
-leaf = "1.28.1"
+leaf = "1.28.3"
