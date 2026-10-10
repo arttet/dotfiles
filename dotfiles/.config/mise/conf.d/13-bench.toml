@@ -1,4 +1,4 @@
 # Tier: benchmarking.
 
 [tools]
-hyperfine = "1.20.0"
+hyperfine = "2.0.0"

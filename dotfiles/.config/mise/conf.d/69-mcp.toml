@@ -2,10 +2,10 @@
 
 [tools]
 # NOTE: https://context7.com/
-"npm:@upstash/context7-mcp" = "4.1.0"
+"npm:@upstash/context7-mcp" = "4.2.0"
 
 # NOTE: https://playwright.dev
-"npm:@playwright/mcp" = "0.0.79"
+"npm:@playwright/mcp" = "0.0.83"
 
 "npm:@eargollo/vikunja-mcp" = { version = "1.2.3", allow_low_downloads = "true" }
 
@@ -13,4 +13,4 @@
 "pipx:serena-agent" = "1.7.0"
 
 # NOTE: https://graphify.com/
-"pipx:graphifyy" = { version = "0.9.58", uvx_args = "--with mcp" }
+"pipx:graphifyy" = { version = "0.9.80", uvx_args = "--with mcp" }
