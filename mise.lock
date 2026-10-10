@@ -86,37 +86,37 @@ url_api = "https://api.github.com/repos/rhysd/actionlint/releases/assets/3849249
 provenance = "github-attestations"
 
 [[tools.aube]]
-version = "2.2.13"
+version = "2.2.15"
 backend = "aqua:jdx/aube"
 
 [tools.aube."platforms.linux-arm64"]
-checksum = "sha256:561a16c933188ef14955989cf99bb368748df5a3903c4cf12d2b05c31d8f4ec8"
-url = "https://github.com/aubepkg/aube/releases/download/v2.2.13/aube-v2.2.13-aarch64-unknown-linux-gnu.tar.gz"
+checksum = "sha256:c275bb6f40b55b94b279c1057acf736a6327275a26dbacbc452b8573a2b2908d"
+url = "https://github.com/aubepkg/aube/releases/download/v2.2.15/aube-v2.2.15-aarch64-unknown-linux-gnu.tar.gz"
 signer = "sigstore-oidc:https://github.com/aubepkg/aube/.github/workflows/release-plz.yml"
 
 [tools.aube."platforms.linux-arm64-musl"]
-checksum = "sha256:ad9fb86ad219ada9abc1c7907952505c540c41b5c8e0ffca828e8a2cd2017b11"
-url = "https://github.com/aubepkg/aube/releases/download/v2.2.13/aube-v2.2.13-aarch64-unknown-linux-musl.tar.gz"
+checksum = "sha256:29fae07540be661e624b8959571dee2a65dc1dac1b9d12b65843287703b8449e"
+url = "https://github.com/aubepkg/aube/releases/download/v2.2.15/aube-v2.2.15-aarch64-unknown-linux-musl.tar.gz"
 signer = "sigstore-oidc:https://github.com/aubepkg/aube/.github/workflows/release-plz.yml"
 
 [tools.aube."platforms.linux-x64"]
-checksum = "sha256:0b0e734d5fe6e90a286229136d1e97e217b1836e297408cbf9d07cd020cfb4c2"
-url = "https://github.com/aubepkg/aube/releases/download/v2.2.13/aube-v2.2.13-x86_64-unknown-linux-gnu.tar.gz"
+checksum = "sha256:42ef7b2c25cac36aa50bcacb8a31a1019b466adf3f5fbad416f410299ee5e99d"
+url = "https://github.com/aubepkg/aube/releases/download/v2.2.15/aube-v2.2.15-x86_64-unknown-linux-gnu.tar.gz"
 signer = "sigstore-oidc:https://github.com/aubepkg/aube/.github/workflows/release-plz.yml"
 
 [tools.aube."platforms.linux-x64-musl"]
-checksum = "sha256:894bb4991b2cb8054b562dd85682d7e7f21e4479ace26c8f13d4aa362dec0b63"
-url = "https://github.com/aubepkg/aube/releases/download/v2.2.13/aube-v2.2.13-x86_64-unknown-linux-musl.tar.gz"
+checksum = "sha256:682142239e0f37f2c28df10e718de2e9db0dc97d6e88aa03386021b250e752ac"
+url = "https://github.com/aubepkg/aube/releases/download/v2.2.15/aube-v2.2.15-x86_64-unknown-linux-musl.tar.gz"
 signer = "sigstore-oidc:https://github.com/aubepkg/aube/.github/workflows/release-plz.yml"
 
 [tools.aube."platforms.macos-arm64"]
-checksum = "sha256:f999226cddee14afc8d0d2d461191888b65064262e66e83ce1fc8e9069792c1e"
-url = "https://github.com/aubepkg/aube/releases/download/v2.2.13/aube-v2.2.13-aarch64-apple-darwin.tar.gz"
+checksum = "sha256:5ea85bf3ab6eb5d645c2c75d08da1aed1a05d26288ee7d3088b8dbd8b51ea424"
+url = "https://github.com/aubepkg/aube/releases/download/v2.2.15/aube-v2.2.15-aarch64-apple-darwin.tar.gz"
 signer = "sigstore-oidc:https://github.com/aubepkg/aube/.github/workflows/release-plz.yml"
 
 [tools.aube."platforms.windows-x64"]
-checksum = "sha256:84b052e0233b37b875af71487a342f6c170da7827ea57ab36ff29102801d56ac"
-url = "https://github.com/aubepkg/aube/releases/download/v2.2.13/aube-v2.2.13-x86_64-pc-windows-msvc.zip"
+checksum = "sha256:763917327512b8f6de5ced0b914bdc2f76379fb40cf186de337d4e1d1f53b8a9"
+url = "https://github.com/aubepkg/aube/releases/download/v2.2.15/aube-v2.2.15-x86_64-pc-windows-msvc.zip"
 signer = "sigstore-oidc:https://github.com/aubepkg/aube/.github/workflows/release-plz.yml"
 
 [[tools.codeql]]
@@ -187,43 +187,43 @@ url_api = "https://api.github.com/repos/github/codeql-cli-binaries/releases/asse
 provenance = "github-attestations"
 
 [[tools.conftest]]
-version = "0.69.0"
+version = "0.70.0"
 backend = "aqua:open-policy-agent/conftest"
 
 [tools.conftest."platforms.linux-arm64"]
-checksum = "sha256:3b9c35223fe35f9988e153cdffb0144f911201306c746758b73be82831c543d9"
-url = "https://github.com/open-policy-agent/conftest/releases/download/v0.69.0/conftest_0.69.0_Linux_arm64.tar.gz"
-url_api = "https://api.github.com/repos/open-policy-agent/conftest/releases/assets/499923585"
+checksum = "sha256:1702395299bfff81e66c417e9ca0e17714f2082db3550f857efde962e9a17b26"
+url = "https://github.com/open-policy-agent/conftest/releases/download/v0.70.0/conftest_0.70.0_Linux_arm64.tar.gz"
+url_api = "https://api.github.com/repos/open-policy-agent/conftest/releases/assets/559787326"
 
 [tools.conftest."platforms.linux-arm64-musl"]
-checksum = "sha256:3b9c35223fe35f9988e153cdffb0144f911201306c746758b73be82831c543d9"
-url = "https://github.com/open-policy-agent/conftest/releases/download/v0.69.0/conftest_0.69.0_Linux_arm64.tar.gz"
-url_api = "https://api.github.com/repos/open-policy-agent/conftest/releases/assets/499923585"
+checksum = "sha256:1702395299bfff81e66c417e9ca0e17714f2082db3550f857efde962e9a17b26"
+url = "https://github.com/open-policy-agent/conftest/releases/download/v0.70.0/conftest_0.70.0_Linux_arm64.tar.gz"
+url_api = "https://api.github.com/repos/open-policy-agent/conftest/releases/assets/559787326"
 
 [tools.conftest."platforms.linux-x64"]
-checksum = "sha256:96fc2fbf11f0afde51256647127e6f00a64ce839a4d9a0a1aef2426c0e6f4b3f"
-url = "https://github.com/open-policy-agent/conftest/releases/download/v0.69.0/conftest_0.69.0_Linux_x86_64.tar.gz"
-url_api = "https://api.github.com/repos/open-policy-agent/conftest/releases/assets/499923547"
+checksum = "sha256:e738506fd808f7dc9794ce8e325f89b14932891a4841fe45f1f24c4a9bb3ed96"
+url = "https://github.com/open-policy-agent/conftest/releases/download/v0.70.0/conftest_0.70.0_Linux_x86_64.tar.gz"
+url_api = "https://api.github.com/repos/open-policy-agent/conftest/releases/assets/559787332"
 
 [tools.conftest."platforms.linux-x64-musl"]
-checksum = "sha256:96fc2fbf11f0afde51256647127e6f00a64ce839a4d9a0a1aef2426c0e6f4b3f"
-url = "https://github.com/open-policy-agent/conftest/releases/download/v0.69.0/conftest_0.69.0_Linux_x86_64.tar.gz"
-url_api = "https://api.github.com/repos/open-policy-agent/conftest/releases/assets/499923547"
+checksum = "sha256:e738506fd808f7dc9794ce8e325f89b14932891a4841fe45f1f24c4a9bb3ed96"
+url = "https://github.com/open-policy-agent/conftest/releases/download/v0.70.0/conftest_0.70.0_Linux_x86_64.tar.gz"
+url_api = "https://api.github.com/repos/open-policy-agent/conftest/releases/assets/559787332"
 
 [tools.conftest."platforms.macos-arm64"]
-checksum = "sha256:78302d045f0ec52e9786a06c6c621ac4516b4c5dd1e54efc8050c86c29b964d9"
-url = "https://github.com/open-policy-agent/conftest/releases/download/v0.69.0/conftest_0.69.0_Darwin_arm64.tar.gz"
-url_api = "https://api.github.com/repos/open-policy-agent/conftest/releases/assets/499923548"
+checksum = "sha256:e24e6784547f3b9c720b4b49ee5d9111559b25b399640eca531560ca4ea17682"
+url = "https://github.com/open-policy-agent/conftest/releases/download/v0.70.0/conftest_0.70.0_Darwin_arm64.tar.gz"
+url_api = "https://api.github.com/repos/open-policy-agent/conftest/releases/assets/559787391"
 
 [tools.conftest."platforms.macos-x64"]
-checksum = "sha256:74fc9073fc7a5f11ffe00db7599d2b155d179acc70e83ffc7ab4a8750e6ee24e"
-url = "https://github.com/open-policy-agent/conftest/releases/download/v0.69.0/conftest_0.69.0_Darwin_x86_64.tar.gz"
-url_api = "https://api.github.com/repos/open-policy-agent/conftest/releases/assets/499923549"
+checksum = "sha256:fc2971cebaa7adfd1e7636005be200ac04b607a8a8815d72ccf7faaddb850905"
+url = "https://github.com/open-policy-agent/conftest/releases/download/v0.70.0/conftest_0.70.0_Darwin_x86_64.tar.gz"
+url_api = "https://api.github.com/repos/open-policy-agent/conftest/releases/assets/559787393"
 
 [tools.conftest."platforms.windows-x64"]
-checksum = "sha256:be95f90cd22d00e709a7ad37bdac357c103b4f81d92dc51ca75a60e5f3905cf5"
-url = "https://github.com/open-policy-agent/conftest/releases/download/v0.69.0/conftest_0.69.0_Windows_x86_64.zip"
-url_api = "https://api.github.com/repos/open-policy-agent/conftest/releases/assets/499923545"
+checksum = "sha256:e067213cdcc17bd8c614508af3dada70eba2af81b5f54288d8a705a73d18180c"
+url = "https://github.com/open-policy-agent/conftest/releases/download/v0.70.0/conftest_0.70.0_Windows_x86_64.zip"
+url_api = "https://api.github.com/repos/open-policy-agent/conftest/releases/assets/559787331"
 
 [[tools.dotter]]
 version = "0.13.5"
@@ -657,7 +657,7 @@ version = "17.15.0"
 backend = "npm:stylelint"
 
 [[tools."npm:wrangler"]]
-version = "4.131.0"
+version = "4.131.1"
 backend = "npm:wrangler"
 
 [[tools.nushell]]

@@ -7,9 +7,9 @@ selene = "aqua:Kampfkarren/selene"
 [tools]
 act = "0.2.89"
 actionlint = "1.7.12"
-aube = "2.2.13"
+aube = "2.2.15"
 codeql = { version = "2.27.0", bin_path = "codeql", platforms = { linux-x64 = { asset_pattern = "codeql-linux64.zip" }, macos-arm64 = { asset_pattern = "codeql-osx64.zip" }, macos-x64 = { asset_pattern = "codeql-osx64.zip" }, windows-x64 = { asset_pattern = "codeql-win64.zip" } } }
-conftest = "0.69.0"
+conftest = "0.70.0"
 dotter = "0.13.5"
 dprint = "0.57.4"
 editorconfig-checker = "4.0.1"
@@ -44,7 +44,7 @@ zizmor = "1.30.1"
 "npm:markdownlint-cli2" = "0.23.2"
 "npm:retire" = "5.7.0"
 "npm:stylelint" = "17.15.0"
-"npm:wrangler" = "4.131.0"
+"npm:wrangler" = "4.131.1"
 
 [env]
 AUBE_FETCH_RETRIES = "10"
@@ -57,7 +57,7 @@ DPRINT_CACHE_DIR = "{{config_root}}/.tools/dprint"
 [vars]
 # NOTE: Development Gate
 # NOTE: https://github.com/renovatebot/renovate/pkgs/container/renovate
-renovate_image = "ghcr.io/renovatebot/renovate:44.39.2@sha256:e6b93e709ca64495ab9307350b260064276ee02d15c6886387fd2d42c926623b"
+renovate_image = "ghcr.io/renovatebot/renovate:44.83.0@sha256:5ea2ff93f0e58be23ec59a426fcc5f4d71db5ac6cc2eaec059099fe82b1e0730"
 
 # NOTE: vendir on Windows normalizes lock paths to backslashes, hence a lock file per platform.
 vendir_lock = "{% if os() == 'windows' %}vendir.lock.windows.yml{% else %}vendir.lock.yml{% endif %}"
