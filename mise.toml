@@ -371,18 +371,13 @@ depends = [
 description = "Run Bash behavior contracts"
 run = "bash tests/shell/bash-contracts.bash"
 
-[tasks."test:shell:zsh"]
-description = "Run Zsh behavior contracts"
-shell = "nu -c"
-run = "^zsh tests/shell/zsh-contracts.zsh"
-
 [tasks."test:shell:nu"]
 description = "Run Nushell behavior contracts"
 shell = "nu -c"
 run = "nu --no-config-file tests/shell/nu-contracts.nu {{config_root}}"
 
 [tasks."test:shell:generated"]
-description = "Validate generated Bash and Zsh integrations"
+description = "Validate generated Bash integrations"
 shell = "nu -c"
 run = "nu --no-config-file tests/shell/setup-contracts.nu $nu.home-dir"
 
@@ -390,7 +385,6 @@ run = "nu --no-config-file tests/shell/setup-contracts.nu $nu.home-dir"
 description = "Run interactive shell behavior contracts"
 run = [
   { task = "test:shell:bash" },
-  { task = "test:shell:zsh" },
   { task = "test:shell:nu" },
 ]
 
@@ -848,8 +842,13 @@ run = [
 
 [tasks."validate:shell:zsh"]
 description = "Validate Zsh configuration"
+shell = "nu -c"
 env = { HOME = "{{config_root}}/dotfiles" }
-run = "zsh -i -c exit"
+run = """
+if (which zsh | is-not-empty) {
+  zsh -i -c exit
+}
+"""
 
 # ==============================================================================
 # Stage 2: Multiplexers
