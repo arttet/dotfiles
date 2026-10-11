@@ -1,6 +1,7 @@
 # Targets come from the collected results, so a partial run reports on exactly what it measured.
+# Hyperfine's export schema 2 keeps `--command-name` in `.name` and the timings under `.summary`.
 def targets($results):
-  $results | map(.command | split(".")[0]) | unique;
+  $results | map(.name | split(".")[0]) | unique;
 
 def round3:
   (. * 1000 | round) / 1000;
@@ -10,8 +11,8 @@ def round2:
 
 def measurements($results):
   reduce targets($results)[] as $target ({};
-    ($results | map(select(.command == ($target + ".raw")) | .median) | first) as $raw
-    | ($results | map(select(.command == ($target + ".configured")) | .median) | first) as $configured
+    ($results | map(select(.name == ($target + ".raw")) | .summary.time_wall_clock.median) | first) as $raw
+    | ($results | map(select(.name == ($target + ".configured")) | .summary.time_wall_clock.median) | first) as $configured
     | if ($raw | type) != "number" or ($configured | type) != "number" or $raw <= 0 or $configured <= 0 then
         error("missing or invalid benchmark results for " + $target)
       else

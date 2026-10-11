@@ -92,7 +92,12 @@ def main [
     error make { msg: $"hyperfine could not measure ($shell); its output above says why" }
   }
 
-  let results = (open $export | get results)
+  # Hyperfine's export schema 2 keeps `--command-name` in `name` and the timings under `summary`.
+  let results = (
+    open $export
+    | get results
+    | each { |r| { name: $r.name, median: $r.summary.time_wall_clock.median, stddev: $r.summary.time_wall_clock.stddev } }
+  )
   rm --force $export
 
   # `noise_ms` is the two measurements' deviations added in quadrature. A cost smaller than it is not
@@ -108,7 +113,7 @@ def main [
         let noise = ((($it.item.stddev * $it.item.stddev) + ($previous.stddev * $previous.stddev)) | math sqrt) * 1000
 
         {
-          fragment: $it.item.command,
+          fragment: $it.item.name,
           cost_ms: ($cost | math round --precision 1),
           noise_ms: ($noise | math round --precision 1),
           reliable: (($cost | math abs) > $noise),
