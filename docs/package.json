@@ -3,7 +3,7 @@
   "version": "0.0.1",
   "private": true,
   "type": "module",
-  "packageManager": "aube@2.2.14",
+  "packageManager": "aube@2.7.0",
   "files": [
     "dist"
   ],
