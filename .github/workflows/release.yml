@@ -45,6 +45,7 @@ env:
     jdx.dev:443
     *.jdx.dev:443
     *.sigstore.dev:443
+    raw.githubusercontent.com:443
 
 jobs:
   # Two things have to hold before anything is built: the tag sits on `main`, and CI went green for that

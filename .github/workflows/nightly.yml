@@ -44,6 +44,7 @@ jobs:
             *.jdx.dev:443
             tuf-repo-cdn.sigstore.dev:443
             *.sigstore.dev:443
+            raw.githubusercontent.com:443
 
       - name: Checkout
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -82,6 +83,7 @@ jobs:
             *.github.com:443
             *.jdx.dev:443
             *.sigstore.dev:443
+            raw.githubusercontent.com:443
             api.osv.dev:443
             auth.docker.io:443
             crates.io:443
@@ -135,6 +137,7 @@ jobs:
             *.github.com:443
             *.jdx.dev:443
             *.sigstore.dev:443
+            raw.githubusercontent.com:443
             auth.docker.io:443
             ghcr.io:443
             github.com:443
@@ -186,6 +189,7 @@ jobs:
           egress-policy: block
           allowed-endpoints: >-
             *.sigstore.dev:443
+            raw.githubusercontent.com:443
             api.deps.dev:443
             api.github.com:443
             api.osv.dev:443

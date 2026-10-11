@@ -42,6 +42,7 @@ env:
     jdx.dev:443
     *.jdx.dev:443
     *.sigstore.dev:443
+    raw.githubusercontent.com:443
   VALIDATE_MISE_INSTALL_ALLOWED_ENDPOINTS: >-
     crates.io:443
     dl.google.com:443

@@ -1,7 +1,7 @@
 # Tier: Python toolchain.
 
 [tools]
-python = "3.15.0"
+python = "3.14.8"
 
 ruff = "0.17.0"
 uv = "0.13.0"
