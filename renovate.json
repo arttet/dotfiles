@@ -3,7 +3,17 @@
   "minimumReleaseAge": "7 days",
   "internalChecksFilter": "strict",
   "dependencyDashboard": false,
-  "enabledManagers": ["github-actions", "mise", "npm", "vendir"],
+  "enabledManagers": ["custom.regex", "github-actions", "mise", "npm", "vendir"],
+  "customManagers": [
+    {
+      "customType": "regex",
+      "description": "Track the mise CLI pinned in workflows; the mise manager only reads tool configs",
+      "managerFilePatterns": ["/(^|/)\\.github/workflows/[^/]+\\.ya?ml$/"],
+      "matchStrings": ["MISE_VERSION:\\s*(?<currentValue>v\\d+\\.\\d+\\.\\d+)"],
+      "depNameTemplate": "jdx/mise",
+      "datasourceTemplate": "github-releases"
+    }
+  ],
   "ignorePaths": [
     ".serena/**",
     ".tools/**",
@@ -28,6 +38,11 @@
     {
       "groupName": "mise tools",
       "matchManagers": ["mise"]
+    },
+    {
+      "description": "Bump the mise CLI together with the tools so CI can read the lockfile format it writes",
+      "groupName": "mise tools",
+      "matchDepNames": ["jdx/mise"]
     },
     {
       "groupName": "docs dependencies",
