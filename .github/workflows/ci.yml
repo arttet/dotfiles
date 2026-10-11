@@ -21,7 +21,7 @@ defaults:
     shell: bash
 
 env:
-  MISE_VERSION: v2026.9.5
+  MISE_VERSION: v2026.9.18
   MISE_DATA_DIR: ${{ github.workspace }}/.tools/mise
   DPRINT_CACHE_DIR: ${{ github.workspace }}/.tools/dprint
   AUBE_TRUST_POLICY_EXCLUDE: pino@9.14.0,fastq@1.20.2
@@ -42,6 +42,7 @@ env:
     jdx.dev:443
     *.jdx.dev:443
     *.sigstore.dev:443
+    raw.githubusercontent.com:443
   VALIDATE_MISE_INSTALL_ALLOWED_ENDPOINTS: >-
     crates.io:443
     dl.google.com:443

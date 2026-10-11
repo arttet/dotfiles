@@ -26,7 +26,7 @@ defaults:
     shell: bash
 
 env:
-  MISE_VERSION: v2026.9.5
+  MISE_VERSION: v2026.9.18
   MISE_DATA_DIR: ${{ github.workspace }}/.tools/mise
   MISE_LOCAL_ALLOWED_ENDPOINTS: >-
     *.blob.core.windows.net:443
@@ -45,6 +45,7 @@ env:
     jdx.dev:443
     *.jdx.dev:443
     *.sigstore.dev:443
+    raw.githubusercontent.com:443
 
 jobs:
   # Two things have to hold before anything is built: the tag sits on `main`, and CI went green for that

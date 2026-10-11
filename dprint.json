@@ -12,6 +12,7 @@
     "**/node_modules",
     ".dotter",
     ".github/workflows/ci.yml",
+    ".mise/locks",
     ".serena",
     ".tools",
     "docs/.vitepress/cache",
