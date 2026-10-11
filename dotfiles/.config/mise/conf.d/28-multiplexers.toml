@@ -1,10 +1,6 @@
 # Tier: terminal multiplexers.
 
-[tool_alias]
-herdrw = "github:ogulcancelik/herdr"
-
 [tools]
-herdr = { version = "0.7.5", os = ["linux", "macos"] }
-herdrw = { version = "preview-2026-07-21-0f10e1453a7f", os = ["windows"] }
+herdr = "0.9.3"
 tmux = { version = "3.7b", os = ["linux", "macos"] }
 zellij = "0.45.1"
