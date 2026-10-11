@@ -37,3 +37,4 @@ export WAKATIME_HOME="${WAKATIME_HOME:-${XDG_CONFIG_HOME:-$HOME/.config}/wakatim
 export CLAUDE_CONFIG_DIR="${CLAUDE_CONFIG_DIR:-${XDG_CONFIG_HOME:-$HOME/.config}/claude}"
 export CODEX_HOME="${CODEX_HOME:-${XDG_CONFIG_HOME:-$HOME/.config}/codex}"
 export KIMI_CODE_HOME="${KIMI_CODE_HOME:-${XDG_CONFIG_HOME:-$HOME/.config}/kimi-code}"
+export ZDOTDIR="${ZDOTDIR:-${XDG_CONFIG_HOME:-$HOME/.config}/zsh}"

@@ -57,6 +57,8 @@ $env.WAKATIME_HOME = ($env.WAKATIME_HOME? | default ($env.XDG_CONFIG_HOME | path
 $env.CLAUDE_CONFIG_DIR = ($env.CLAUDE_CONFIG_DIR? | default ($env.XDG_CONFIG_HOME | path join "claude"))
 $env.CODEX_HOME = ($env.CODEX_HOME? | default ($env.XDG_CONFIG_HOME | path join "codex"))
 $env.KIMI_CODE_HOME = ($env.KIMI_CODE_HOME? | default ($env.XDG_CONFIG_HOME | path join "kimi-code"))
+# Forward slashes so MSYS zsh and mise templates read it as one path.
+$env.ZDOTDIR = ($env.ZDOTDIR? | default ($env.XDG_CONFIG_HOME | path join "zsh" | str replace --all '\' '/'))
 $env.EZA_COLORS = ($env.EZA_COLORS? | default "da=36:di=34:ln=35:so=32:pi=33:ex=31:bd=34:cd=34:su=31:sg=31:tw=34:ow=34")
 
 if $nu.os-info.name == "windows" {
