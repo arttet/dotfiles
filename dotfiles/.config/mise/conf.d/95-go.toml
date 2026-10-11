@@ -6,7 +6,7 @@ goimports = "go:golang.org/x/tools/cmd/goimports"
 gopls = "go:golang.org/x/tools/gopls"
 
 [tools]
-go = "1.27.1"
+go = "1.27.2"
 
 delve = "1.27.2"
 goimports = "0.51.0"

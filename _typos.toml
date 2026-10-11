@@ -2,6 +2,7 @@
 
 [files]
 extend-exclude = [
+  ".mise/locks/",
   "docs/aube-lock.yaml",
   "vendir.lock.yml",
   "vendir.lock.windows.yml",

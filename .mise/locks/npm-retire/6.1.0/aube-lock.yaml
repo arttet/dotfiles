@@ -1,0 +1,59 @@
+lockfileVersion: '9.0'
+
+settings:
+  autoInstallPeers: true
+  excludeLinksFromLockfile: false
+
+importers:
+
+  .:
+    dependencies:
+      retire:
+        specifier: 6.1.0
+        version: 6.1.0
+
+packages:
+
+  astronomical@3.2.0:
+    resolution: {integrity: sha512-nRKPza8f1nYpAyymI5edTgWwo4+BRgeqFtyVrKgN0tBwi9eIlVL4UpSyAOYhUSoSTln7IEHtShGSYUPgnHzveg==}
+
+  commander@14.0.3:
+    resolution: {integrity: sha512-H+y0Jo/T1RZ9qPP4Eh1pkcQcLRglraJaSLoyOtHxu6AapkjWVCy2Sit1QQ4x3Dng8qDlSsZEet7g5Pq06MvTgw==}
+    engines: {node: '>=20'}
+
+  meriyah@7.4.0:
+    resolution: {integrity: sha512-4npg8C/aeb+kOZo8/6XZrwzo+neA+NQU7U6BHP3KxqTzprtYQb+Fs752GRuvsJLREvblRjQng4F76DEe2QKblQ==}
+    engines: {node: '>=20.0.0'}
+
+  retire@6.1.0:
+    resolution: {integrity: sha512-K5UdbTugJ7a793F+NA096aW0WOauZC8yRDHJZ5FthGbsyYEOQrc/oCk7+KmEQ4bnqO14dAH4S6lSM8rr66OVhA==}
+    engines: {node: ^20.19.0 || >=22.12.0}
+    hasBin: true
+
+  walkdir@0.4.1:
+    resolution: {integrity: sha512-3eBwRyEln6E1MSzcxcVpQIhRG8Q1jLvEqRmCZqS3dsfXEDR/AhOF4d+jHg1qvDCpYaVRZjENPQyrVxAkQqxPgQ==}
+    engines: {node: '>=6.0.0'}
+
+  zod@4.6.5:
+    resolution: {integrity: sha512-v5l/aFXZQeai4awLbOpSoHecE9UiMrnfx75tEXLjNonXVARxQ5mOeipTjROUchszUNCqnE+hqAMujRsRHsut2Q==}
+
+snapshots:
+
+  astronomical@3.2.0:
+    dependencies:
+      meriyah: 7.4.0
+
+  commander@14.0.3: {}
+
+  meriyah@7.4.0: {}
+
+  retire@6.1.0:
+    dependencies:
+      astronomical: 3.2.0
+      commander: 14.0.3
+      walkdir: 0.4.1
+      zod: 4.6.5
+
+  walkdir@0.4.1: {}
+
+  zod@4.6.5: {}
