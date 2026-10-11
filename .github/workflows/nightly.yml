@@ -17,7 +17,7 @@ defaults:
     shell: bash
 
 env:
-  MISE_VERSION: v2026.9.18
+  MISE_VERSION: v2026.10.8
   MISE_DATA_DIR: ${{ github.workspace }}/.tools/mise
 
 jobs:
@@ -139,13 +139,11 @@ jobs:
             *.sigstore.dev:443
             raw.githubusercontent.com:443
             auth.docker.io:443
-            ghcr.io:443
             github.com:443
             grype.anchore.io:443
             jdx.dev:443
             mise-versions.jdx.dev:443
             objects.githubusercontent.com:443
-            pkg-containers.githubusercontent.com:443
             production.cloudflare.docker.com:443
             registry-1.docker.io:443
             release-assets.githubusercontent.com:443

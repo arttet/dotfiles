@@ -189,7 +189,7 @@ mise run security:codeql:actions  # CodeQL over the workflows (~1 GB on first ru
 mise run security:conftest  # OPA/Rego policies over workflows, mise.toml and the VEX document
 mise run security:trivy:license # licenses of the deployed tree (needs deploy:sync:config)
 mise run security:grant     # license policy over the deployed tree (Linux/macOS only)
-mise run security:grype:images  # scan the digest-pinned ClamAV and Renovate images (nightly in CI)
+mise run security:grype:images  # scan the digest-pinned ClamAV image (nightly in CI)
 mise run docs:security      # hardening checks over the built site (needs docs:build first)
 
 # Release artifact (Stage 3)
