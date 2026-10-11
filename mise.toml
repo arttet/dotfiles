@@ -44,6 +44,7 @@ zizmor = "1.30.1"
 
 "npm:@modelcontextprotocol/inspector" = "2.10.1"
 "npm:markdownlint-cli2" = "0.23.3"
+"npm:renovate" = "44.83.0"
 "npm:retire" = "6.1.0"
 "npm:stylelint" = "17.16.0"
 "npm:wrangler" = "4.149.0"
@@ -53,14 +54,11 @@ AUBE_FETCH_RETRIES = "10"
 AUBE_FETCH_RETRY_FACTOR = "2"
 AUBE_FETCH_RETRY_MAXTIMEOUT = "180000"
 AUBE_FETCH_RETRY_MINTIMEOUT = "20000"
-AUBE_TRUST_POLICY_EXCLUDE = "pino@9.14.0,fastq@1.20.2"
+# NOTE: @yarnpkg/libzip 3.2.2 (Renovate) is yarnpkg/berry release commit 2eb9830, published by hand without provenance.
+AUBE_TRUST_POLICY_EXCLUDE = "pino@9.14.0,fastq@1.20.2,@yarnpkg/libzip@3.2.2"
 DPRINT_CACHE_DIR = "{{config_root}}/.tools/dprint"
 
 [vars]
-# NOTE: Development Gate
-# NOTE: https://github.com/renovatebot/renovate/pkgs/container/renovate
-renovate_image = "ghcr.io/renovatebot/renovate:44.83.0@sha256:5ea2ff93f0e58be23ec59a426fcc5f4d71db5ac6cc2eaec059099fe82b1e0730"
-
 # NOTE: vendir on Windows normalizes lock paths to backslashes, hence a lock file per platform.
 vendir_lock = "{% if os() == 'windows' %}vendir.lock.windows.yml{% else %}vendir.lock.yml{% endif %}"
 vendir_wallpapers_lock = "{% if os() == 'windows' %}vendir.lock.wallpapers.windows.yml{% else %}vendir.lock.wallpapers.yml{% endif %}"
@@ -124,20 +122,15 @@ run = "mkdir -p .tools/renovate/cache"
 [tasks."deps:renovate"]
 description = "Show available dependency updates with Renovate local report"
 depends = ["deps:renovate:setup"]
-env = { LOG_LEVEL = "info", RENOVATE_GITHUB_COM_TOKEN = "{{ exec(command='gh auth token') }}", MSYS_NO_PATHCONV = "1" }
+env = { LOG_LEVEL = "info", RENOVATE_GITHUB_COM_TOKEN = "{{ exec(command='gh auth token') }}" }
 run = """
-podman run --rm \
-  -e LOG_LEVEL \
-  -e RENOVATE_GITHUB_COM_TOKEN \
-  -v "$PWD:/usr/src/app:Z" \
-  -v "$PWD/.tools/renovate:/tmp/renovate:Z" \
-  "{{vars.renovate_image}}" \
+renovate \
   --platform=local \
   --onboarding=false \
   --require-config=required \
   --report-type=file \
-  --report-path=/tmp/renovate/renovate-report.json \
-  --cache-dir=/tmp/renovate/cache
+  --report-path=.tools/renovate/renovate-report.json \
+  --cache-dir=.tools/renovate/cache
 """
 
 [tasks."deps:vendir:update:config"]
@@ -339,6 +332,10 @@ run = "markdownlint-cli2"
 description = "TOML lint"
 run = "taplo lint --no-schema"
 
+[tasks."lint:renovate"]
+description = "Validate the Renovate configuration"
+run = "renovate-config-validator --strict renovate.json"
+
 [tasks."lint:typos"]
 description = "Spell check"
 run = "typos"
@@ -357,6 +354,7 @@ depends = [
   "lint:lua:nvim",
   "lint:lua:wezterm",
   "lint:markdown",
+  "lint:renovate",
   "lint:toml",
   "lint:typos",
   "lint:yaml",
@@ -434,10 +432,7 @@ run = "grype dir:. --name dotfiles -c .grype.yaml --verbose"
 
 [tasks."security:grype:images"]
 description = "Grype scan of the container images pinned for CI"
-run = [
-  "grype {{vars.clamav_image}} -c .grype.yaml",
-  "grype {{vars.renovate_image}} -c .grype.yaml",
-]
+run = "grype {{vars.clamav_image}} -c .grype.yaml"
 
 [tasks."security:osv"]
 description = "OSV vulnerability scan of the source tree"
