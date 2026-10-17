@@ -157,6 +157,12 @@ if (-not $env:KIMI_CODE_HOME)
     $env:KIMI_CODE_HOME = Join-Path $env:XDG_CONFIG_HOME "kimi-code"
 }
 
+# Zsh (forward slashes so MSYS zsh and mise templates read it as one path)
+if (-not $env:ZDOTDIR)
+{
+    $env:ZDOTDIR = (Join-Path $env:XDG_CONFIG_HOME "zsh") -replace '\\', '/'
+}
+
 # Yazi
 if (Get-Command yazi -ErrorAction SilentlyContinue)
 {

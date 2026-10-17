@@ -63,7 +63,7 @@ def main [
     error make { msg: $"no ($shell) fragments found under ($CONFIG); run this from the repository root" }
   }
 
-  let export = (mktemp --tmpdir --suffix .json)
+  let export = ($env.PWD | path join ".tools" "bench" $"profile-($shell).json")
 
   # Prefix 0 is the bare shell, so the first fragment has something to be measured against.
   let commands = (

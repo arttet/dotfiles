@@ -1,52 +1,75 @@
-# ~/.config/shell/shell.d/44-system.sh
-# ==============================================
-# System Management & Maintenance Functions (POSIX-compliant)
-# Dependencies: fzf, procs (optional), package managers
-# ==============================================
+# Interactive process and cache maintenance helpers.
 
-# fkill
-# Description: Interactively select and kill a process using fzf.
-# Usage: fkill
-fkill() {
-  if command -v procs >/dev/null; then
-    pid=$(procs | fzf --header-lines=1 --no-preview --header "🔥 SELECT PROCESS TO KILL" | awk '{print $1}')
-  else
-    pid=$(ps aux | fzf --header-lines=1 --no-preview --header "🔥 SELECT PROCESS TO KILL" | awk '{print $2}')
-  fi
-  [ -n "$pid" ] && kill -9 "$pid" && printf "\033[0;31m💀 Killed PID: \033[1;31m%s\033[0m\n" "$pid"
+_dotfiles_confirm() {
+  [ "${1:-}" = --yes ] && return 0
+  [ -t 0 ] || return 1
+  printf '%s [y/N] ' "$2" >&2
+  IFS= read -r _dotfiles_answer
+  case "$_dotfiles_answer" in
+  y | Y | yes | YES)
+    unset _dotfiles_answer
+    return 0
+    ;;
+  *)
+    unset _dotfiles_answer
+    return 1
+    ;;
+  esac
 }
 
-# cleanup
-# Description: Performs system maintenance and cleanup for various package managers
-#              and tools (apt, brew, cargo, go, docker) if they are installed.
-# Usage: cleanup
+fkill() {
+  _dotfiles_signal=TERM
+  [ "${1:-}" = --kill ] && _dotfiles_signal=KILL
+  case "${OSTYPE:-}" in
+  # MSYS and Cygwin ps has no -o; its first column is the PID and the last one the command.
+  msys* | cygwin*) _dotfiles_processes=$(ps | awk 'NR > 1 { print $1, $NF }') ;;
+  *) _dotfiles_processes=$(ps -eo pid=,comm=) ;;
+  esac
+  _dotfiles_pid=$(printf '%s\n' "$_dotfiles_processes" | fzf --no-preview --header 'Select process' | awk '{print $1}')
+  unset _dotfiles_processes
+  case "$_dotfiles_pid" in
+  '' | *[!0-9]*)
+    unset _dotfiles_pid _dotfiles_signal
+    return 1
+    ;;
+  esac
+  if kill -s "$_dotfiles_signal" "$_dotfiles_pid"; then
+    unset _dotfiles_pid _dotfiles_signal
+    return 0
+  fi
+  unset _dotfiles_pid _dotfiles_signal
+  return 1
+}
+
 cleanup() {
-  printf "\033[0;33m🧹 Starting System Cleanup...\033[0m\n"
+  _dotfiles_yes=""
+  _dotfiles_volumes=""
+  while [ "$#" -gt 0 ]; do
+    case "$1" in
+    --yes) _dotfiles_yes=--yes ;;
+    --docker-volumes) _dotfiles_volumes=--volumes ;;
+    *)
+      printf 'usage: cleanup [--yes] [--docker-volumes]\n' >&2
+      return 2
+      ;;
+    esac
+    shift
+  done
 
-  if command -v apt >/dev/null; then
-    printf "  📦 \033[0;34mAPT:\033[0m Autoremove & Clean... "
-    sudo apt autoremove -y >/dev/null 2>&1 && sudo apt clean >/dev/null 2>&1 && echo "✅" || echo "❌"
+  _dotfiles_confirm "$_dotfiles_yes" 'Clean package and build caches?' || {
+    printf 'cleanup cancelled\n' >&2
+    return 1
+  }
+
+  if command -v apt >/dev/null 2>&1; then
+    sudo apt autoremove -y && sudo apt clean
+  elif command -v brew >/dev/null 2>&1; then
+    brew cleanup
   fi
-
-  if command -v brew >/dev/null; then
-    printf "  🍺 \033[0;34mHomebrew:\033[0m Cleanup... "
-    brew cleanup >/dev/null 2>&1 && echo "✅" || echo "❌"
+  command -v cargo-cache >/dev/null 2>&1 && cargo cache -a
+  command -v go >/dev/null 2>&1 && go clean -cache -testcache -fuzzcache
+  if command -v docker >/dev/null 2>&1; then
+    docker system prune -af ${_dotfiles_volumes:+--volumes}
   fi
-
-  if command -v cargo-cache >/dev/null; then
-    printf "  🦀 \033[0;34mCargo:\033[0m Cache Clean... "
-    cargo cache -a >/dev/null 2>&1 && echo "✅" || echo "❌"
-  fi
-
-  if command -v go >/dev/null; then
-    printf "  🐹 \033[0;34mGo:\033[0m Cleaning Cache... "
-    go clean -cache -testcache -fuzzcache >/dev/null 2>&1 && echo "✅" || echo "❌"
-  fi
-
-  if command -v docker >/dev/null; then
-    printf "  🐳 \033[0;34mDocker:\033[0m System Prune... "
-    docker system prune -af --volumes >/dev/null 2>&1 && echo "✅" || echo "❌"
-  fi
-
-  printf "\033[0;32m✨ Cleanup Completed!\033[0m\n"
+  unset _dotfiles_yes _dotfiles_volumes
 }

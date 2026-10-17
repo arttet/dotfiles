@@ -52,6 +52,10 @@ reduces variance between GitHub-hosted runners. Hyperfine uses two warm-up runs 
 The committed baseline is stored in `misc/baseline.json`. It records the schema version, Linux platform, allowed
 threshold, and one normalized ratio per monitored target.
 
+The shell benchmarks use a writable home under `.tools/bench` and run `setup:shell` before measuring. This keeps
+history and completion state out of the checkout while ensuring the configured commands include the same cached
+Starship, Zoxide, FZF and Carapace integrations as a deployed shell.
+
 ## Finding what is slow
 
 The gate says startup got worse. It never says which part of the configuration to look at, and the
@@ -99,6 +103,10 @@ never runs it. Two properties matter when reading the table:
   not a smaller conclusion.
 
 Use it to find the outlier, then measure that fragment on its own.
+
+The profiler receives the same `HOME` and XDG directories as the total benchmark. In particular, Zsh must see the
+prepared `zcompdump`; otherwise a missing cache turns every sample into a full `compinit` scan and the result is not
+a startup regression measurement.
 
 ## Updating the baseline
 

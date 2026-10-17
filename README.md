@@ -42,14 +42,22 @@ setup, use the documentation.
 
 ## Post-deploy
 
-The complete idempotent setup installs the GitHub Dash extension, opts Go out of telemetry and installs the
+Generate the cached prompt and completion integrations after installing the global toolchain. Shell startup only
+reads these files; it never runs the generators itself.
+
+```sh
+mise run setup:shell
+```
+
+The complete idempotent setup also installs the GitHub Dash extension, opts Go out of telemetry and installs the
 managed agent skills.
 
 ```sh
 mise run setup
 ```
 
-Run a single optional step such as `mise run setup:skills` when the complete setup is not needed.
+Run a single optional step such as `mise run setup:skills` when the complete setup is not needed. Use
+`mise run setup:shell:status` to verify the generated shell integrations.
 
 ## Development
 

@@ -1,22 +1,15 @@
-# Path: ~/.config/zsh/.zshrc
-# ==============================================
-# Zsh Interactive Configuration Entry Point
-# ==============================================
-#
-# Loads interactive shell settings (XDG Base Directory compliant).
-# Sources POSIX shell common configuration and Zsh-specific settings.
+# Zsh interactive configuration.
 
 # Exit early if not running interactively
 [[ -o interactive ]] || return 0
 
-# POSIX Shell-specific interactive configuration
-SHELL_DIR="${XDG_CONFIG_HOME:-$HOME/.config}/shell/shell.d"
-for file in "$SHELL_DIR"/*.sh(N); do
-  source "$file"
+_dotfiles_shell_dir="${XDG_CONFIG_HOME:-$HOME/.config}/shell/shell.d"
+for _dotfiles_file in "$_dotfiles_shell_dir"/*.sh(N); do
+  source "$_dotfiles_file"
 done
 
-# Zsh-specific interactive configuration
-ZSH_D_DIR="${ZDOTDIR}/zsh.d"
-for file in "$ZSH_D_DIR"/*.zsh(N); do
-  source "$file"
+_dotfiles_zsh_dir="${ZDOTDIR}/zsh.d"
+for _dotfiles_file in "$_dotfiles_zsh_dir"/*.zsh(N); do
+  source "$_dotfiles_file"
 done
+unset _dotfiles_shell_dir _dotfiles_zsh_dir _dotfiles_file

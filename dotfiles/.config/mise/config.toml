@@ -15,10 +15,19 @@ auto = false
 [tasks.setup]
 description = "Apply safe, idempotent global mise setup"
 depends = [
+  "setup:shell",
   "setup:gh:dash",
   "setup:go:telemetry",
   "setup:skills",
 ]
+
+[tasks."setup:shell"]
+description = "Generate cached shell integrations"
+run = "nu ~/.config/nushell/scripts/setup-shell.nu generate"
+
+[tasks."setup:shell:status"]
+description = "Check cached shell integrations"
+run = "nu ~/.config/nushell/scripts/setup-shell.nu status"
 
 [tasks."setup:gh:dash"]
 description = "Install Github Dash"
