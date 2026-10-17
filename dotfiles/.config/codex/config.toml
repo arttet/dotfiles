@@ -4,11 +4,11 @@
 # Model and response behavior
 ################################################################################
 
-model = "gpt-5.6-terra"
+model = "gpt-6.1-sol"
 model_provider = "openai"
 personality = "pragmatic"
 
-model_reasoning_effort = "medium"
+model_reasoning_effort = "low"
 plan_mode_reasoning_effort = "high"
 model_reasoning_summary = "auto"
 model_verbosity = "medium"
@@ -18,8 +18,7 @@ model_verbosity = "medium"
 ################################################################################
 
 approval_policy = "on-request"
-sandbox_mode = "workspace-write"
-default_permissions = "workspace"
+default_permissions = ":workspace"
 allow_login_shell = true
 web_search = "cached"
 
@@ -41,20 +40,6 @@ max_bytes = 52428800
 [shell_environment_policy]
 inherit = "core"
 ignore_default_excludes = false
-
-################################################################################
-# Workspace sandbox and sensitive-file policy
-################################################################################
-
-[sandbox_workspace_write]
-writable_roots = []
-network_access = false
-exclude_tmpdir_env_var = false
-exclude_slash_tmp = false
-
-[permissions.workspace.filesystem]
-glob_scan_max_depth = 8
-":workspace_roots" = { "." = "write", "**/.env" = "deny", "**/.env.*" = "deny", "**/*.key" = "deny", "**/*.pem" = "deny", "**/*.netrc" = "deny", "**/.netrc" = "deny", "**/.ssh/**" = "deny", "**/.gnupg/**" = "deny", "**/.kube/config" = "deny", "**/.aws/**" = "deny", "**/.azure/**" = "deny", "**/.config/gcloud/**" = "deny", "**/*credentials.json" = "deny", "**/.git-credentials" = "deny", "**/gh/hosts.yml" = "deny", "**/.npmrc" = "deny", "**/.cargo/credentials*" = "deny", "**/.docker/config.json" = "deny" }
 
 ################################################################################
 # Agent runtime and stable feature selection
@@ -99,9 +84,11 @@ status_line = [
 terminal_title = ["spinner", "project"]
 theme = "nord"
 status_line_use_colors = true
+screen_reader_detection_done = true
 
 [tui.model_availability_nux]
 "gpt-5.6-sol" = 3
+"gpt-6.1-sol" = 4
 
 [analytics]
 enabled = false

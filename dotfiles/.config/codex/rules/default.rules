@@ -665,3 +665,4 @@ prefix_rule(
     justification = "Deleting cloud resource groups is destructive remote mutation.",
     match = ["az group delete --name rg"],
 )
+prefix_rule(pattern=["git", "status", "--short"], decision="allow")

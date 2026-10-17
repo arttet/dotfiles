@@ -123,7 +123,7 @@
       "~/.agents"
     ]
   },
-  "model": "opus",
+  "model": "sonnet",
   "statusLine": {
     "type": "command",
     "command": "bash \"$CLAUDE_CONFIG_DIR/statusline.sh\"",
@@ -134,6 +134,9 @@
   "subagentStatusLine": {
     "type": "command",
     "command": "bash \"$CLAUDE_CONFIG_DIR/statusline.sh\""
+  },
+  "enabledPlugins": {
+    "pyright-lsp@claude-plugins-official": true
   },
   "theme": "dark",
   "mcpServers": {
@@ -179,8 +182,5 @@
       "startupTimeoutMs": 60000,
       "toolTimeoutMs": 120000
     }
-  },
-  "enabledPlugins": {
-    "pyright-lsp@claude-plugins-official": true
   }
 }
