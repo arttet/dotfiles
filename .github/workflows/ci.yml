@@ -442,6 +442,10 @@ jobs:
         with:
           persist-credentials: false
 
+      - name: Shorten mise install paths
+        if: runner.os == 'Windows'
+        run: echo 'MISE_INSTALLS_DIR=C:\m' >> "$GITHUB_ENV"
+
       - name: Setup mise
         uses: jdx/mise-action@2d8d4cafcbd33be2ea37d2b6f5ad595363d1f1ca # v5.1.1
         env:
