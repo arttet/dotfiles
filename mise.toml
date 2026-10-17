@@ -463,6 +463,7 @@ trivy fs \
   --scanners vuln,secret,misconfig \
   --include-dev-deps \
   --skip-dirs .tools \
+  --ignorefile misc/trivy/ignore.yaml \
   --format json \
   --output .tools/trivy/trivy.json \
   --exit-code 0 \

@@ -1,0 +1,8 @@
+vulnerabilities:
+  - id: CVE-2026-59951
+    paths:
+      - ".mise/locks/semgrep/**/uv.lock"
+    statement: >-
+      semgrep pins mcp==1.29.0 as a hard dependency. The flaw is in the MCP StreamableHTTP server transport, which is
+      never started here (only `semgrep scan` runs). Remove once semgrep ships mcp>=1.30.0.
+    expired_at: 2026-11-16
