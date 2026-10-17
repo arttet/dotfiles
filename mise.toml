@@ -66,7 +66,7 @@ vendir_lock = "{% if os() == 'windows' %}vendir.lock.windows.yml{% else %}vendir
 vendir_wallpapers_lock = "{% if os() == 'windows' %}vendir.lock.wallpapers.windows.yml{% else %}vendir.lock.wallpapers.yml{% endif %}"
 
 # NOTE: Format Quality Gate
-bash_targets = "dotfiles/.bashrc dotfiles/.bash_profile dotfiles/.config/bash dotfiles/.config/shell"
+bash_targets = "dotfiles/.bashrc dotfiles/.bash_profile dotfiles/.config/bash dotfiles/.config/shell tests/shell"
 
 # NOTE: Security Gate
 codeql_dir = ".tools/codeql"
@@ -95,7 +95,7 @@ hyperfine = "hyperfine --warmup 2 --runs 10 --shell=none"
 bench_bash_raw = "bash --noprofile --norc -c exit"
 bench_bash_configured = 'bash --noprofile --norc -i -c "source dotfiles/.config/bash/bash_profile; source dotfiles/.config/bash/bashrc; exit"'
 bench_zsh_raw = "zsh -f -c exit"
-bench_zsh_configured = 'zsh -f -i -c "source dotfiles/.zshenv; source $ZDOTDIR/.zprofile; source $ZDOTDIR/.zshrc; exit"'
+bench_zsh_configured = 'zsh -f -i -c "source dotfiles/.zshenv; source dotfiles/.config/zsh/.zprofile; source dotfiles/.config/zsh/.zshrc; exit"'
 bench_nu_raw = "nu --no-config-file --no-std-lib -c exit"
 bench_nu_configured = "nu --login --interactive -c exit"
 bench_pwsh_raw = "pwsh -NoLogo -NoProfile -Command exit"
@@ -377,9 +377,9 @@ shell = "nu -c"
 run = "nu --no-config-file tests/shell/nu-contracts.nu {{config_root}}"
 
 [tasks."test:shell:generated"]
-description = "Validate generated Bash integrations"
+description = "Validate generated shell integrations"
 shell = "nu -c"
-run = "nu --no-config-file tests/shell/setup-contracts.nu $nu.home-dir"
+run = "nu --no-config-file tests/shell/setup-contracts.nu"
 
 [tasks."test:shell"]
 description = "Run interactive shell behavior contracts"
@@ -1007,6 +1007,11 @@ depends = [
 # Stage 2: Performance Gate
 # ==============================================================================
 
+# Shell benchmarks share an isolated, writable home whose integrations come from bench:shell:setup.
+[task_templates."bench:shell"]
+shell = "nu -c"
+env = { HOME = "{{config_root}}/{{vars.bench_home}}", XDG_CONFIG_HOME = "{{config_root}}/dotfiles/.config", XDG_CACHE_HOME = "{{config_root}}/{{vars.bench_home}}/.cache", XDG_DATA_HOME = "{{config_root}}/{{vars.bench_home}}/.local/share", XDG_STATE_HOME = "{{config_root}}/{{vars.bench_home}}/.local/state" }
+
 [tasks."bench:setup"]
 description = "Create the benchmark output directory"
 run = "mkdir -p {{vars.bench_runs}} {{vars.bench_home}}/.config"
@@ -1014,15 +1019,13 @@ run = "mkdir -p {{vars.bench_runs}} {{vars.bench_home}}/.config"
 [tasks."bench:shell:setup"]
 description = "Prepare generated integrations for shell benchmarks"
 depends = ["bench:setup"]
-shell = "nu -c"
-env = { HOME = "{{config_root}}/{{vars.bench_home}}", XDG_CONFIG_HOME = "{{config_root}}/dotfiles/.config", XDG_CACHE_HOME = "{{config_root}}/{{vars.bench_home}}/.cache", XDG_DATA_HOME = "{{config_root}}/{{vars.bench_home}}/.local/share", XDG_STATE_HOME = "{{config_root}}/{{vars.bench_home}}/.local/state" }
+extends = "bench:shell"
 run = "nu --no-config-file dotfiles/.config/nushell/scripts/setup-shell.nu generate"
 
 [tasks."bench:bash"]
 description = "Benchmark Bash startup (raw vs configured)"
 depends = ["bench:shell:setup"]
-shell = "nu -c"
-env = { HOME = "{{config_root}}/{{vars.bench_home}}", XDG_CONFIG_HOME = "{{config_root}}/dotfiles/.config", XDG_CACHE_HOME = "{{config_root}}/{{vars.bench_home}}/.cache", XDG_DATA_HOME = "{{config_root}}/{{vars.bench_home}}/.local/share", XDG_STATE_HOME = "{{config_root}}/{{vars.bench_home}}/.local/state" }
+extends = "bench:shell"
 run = """
 (
   ^{{vars.hyperfine}}
@@ -1036,8 +1039,7 @@ run = """
 [tasks."bench:zsh"]
 description = "Benchmark Zsh startup (raw vs configured)"
 depends = ["bench:shell:setup"]
-shell = "nu -c"
-env = { HOME = "{{config_root}}/{{vars.bench_home}}", XDG_CONFIG_HOME = "{{config_root}}/dotfiles/.config", XDG_CACHE_HOME = "{{config_root}}/{{vars.bench_home}}/.cache", XDG_DATA_HOME = "{{config_root}}/{{vars.bench_home}}/.local/share", XDG_STATE_HOME = "{{config_root}}/{{vars.bench_home}}/.local/state" }
+extends = "bench:shell"
 run = """
 (
   ^{{vars.hyperfine}}
@@ -1051,8 +1053,7 @@ run = """
 [tasks."bench:nu"]
 description = "Benchmark Nushell startup (raw vs configured)"
 depends = ["bench:shell:setup"]
-shell = "nu -c"
-env = { HOME = "{{config_root}}/{{vars.bench_home}}", XDG_CONFIG_HOME = "{{config_root}}/dotfiles/.config", XDG_CACHE_HOME = "{{config_root}}/{{vars.bench_home}}/.cache", XDG_DATA_HOME = "{{config_root}}/{{vars.bench_home}}/.local/share", XDG_STATE_HOME = "{{config_root}}/{{vars.bench_home}}/.local/state" }
+extends = "bench:shell"
 run = """
 (
   ^{{vars.hyperfine}}
@@ -1112,16 +1113,14 @@ run = [
 # Run by nu rather than bash: mise hands a bash task a POSIX-style PATH, and nu cannot resolve the
 # hyperfine shim through it on Windows. The other bench:* tasks carry the same workaround.
 description = "Attribute Bash startup cost to individual configuration fragments"
-shell = "nu -c"
+extends = "bench:shell"
 depends = ["bench:shell:setup"]
-env = { HOME = "{{config_root}}/{{vars.bench_home}}", XDG_CONFIG_HOME = "{{config_root}}/dotfiles/.config", XDG_CACHE_HOME = "{{config_root}}/{{vars.bench_home}}/.cache", XDG_DATA_HOME = "{{config_root}}/{{vars.bench_home}}/.local/share", XDG_STATE_HOME = "{{config_root}}/{{vars.bench_home}}/.local/state" }
 run = "nu misc/nu/shell-profile.nu bash --hyperfine '{{vars.hyperfine}}'"
 
 [tasks."bench:profile:zsh"]
 description = "Attribute Zsh startup cost to individual configuration fragments"
-shell = "nu -c"
+extends = "bench:shell"
 depends = ["bench:shell:setup"]
-env = { HOME = "{{config_root}}/{{vars.bench_home}}", XDG_CONFIG_HOME = "{{config_root}}/dotfiles/.config", XDG_CACHE_HOME = "{{config_root}}/{{vars.bench_home}}/.cache", XDG_DATA_HOME = "{{config_root}}/{{vars.bench_home}}/.local/share", XDG_STATE_HOME = "{{config_root}}/{{vars.bench_home}}/.local/state" }
 run = "nu misc/nu/shell-profile.nu zsh --hyperfine '{{vars.hyperfine}}'"
 
 [tasks."bench:profile"]
