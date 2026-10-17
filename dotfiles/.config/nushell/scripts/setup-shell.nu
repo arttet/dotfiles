@@ -6,12 +6,66 @@ def ensure-tool [name: string] {
   }
 }
 
+# On Windows, System32\bash.exe and the WindowsApps alias launch WSL, which cannot read Windows paths.
+def native-bash [] {
+  let candidates = (
+    which --all bash
+    | get path
+    | where {|candidate|
+      let lower = ($candidate | str lowercase)
+      not (($lower | str ends-with 'system32\bash.exe') or ($lower | str contains '\windowsapps\'))
+    }
+  )
+  if ($candidates | is-empty) {
+    error make { msg: "required tool not found: a native bash (WSL's bash.exe cannot read Windows paths)" }
+  }
+  $candidates | first
+}
+
 def generate-output [name: string, ...args: string] {
   let result = (run-external $name ...$args | complete)
   if $result.exit_code != 0 {
     error make { msg: $"($name) generator failed: ($result.stderr | str trim)" }
   }
   $result.stdout
+}
+
+# Starship bakes the absolute path of its own versioned install into every init script.
+const starship_path_pattern = r#'(?<path>[^\s'"()^]+[\\/]starship(?:\.exe)?)'? (?:time|prompt)'#
+const starship_stale_hint = "starship moved; run: mise run setup:shell"
+
+def starship-path [content: string] {
+  let found = ($content | parse --regex $starship_path_pattern | get path)
+  if ($found | is-empty) {
+    error make { msg: "could not locate the starship binary in its init script" }
+  }
+  $found | first
+}
+
+# Bash and Zsh init scripts on Windows carry MSYS paths such as /c/...
+def native-path []: string -> string {
+  let value = $in
+  if $nu.os-info.name == "windows" and ($value | str starts-with "/") {
+    cygpath -w $value | str trim
+  } else {
+    $value
+  }
+}
+
+# Upgrading starship removes the baked install. Skip the prompt with one hint instead of failing on every line.
+def guard-starship [shell: string, content: string] {
+  let binary = (starship-path $content)
+  if $shell == "nu" {
+    let guarded = ($content | str replace "export-env { " (
+      "export-env { if not ('" + $binary + "' | path exists) { print --stderr '" + $starship_stale_hint + "'; return }; "
+    ))
+    if $guarded == $content {
+      error make { msg: "unexpected starship Nushell init layout; cannot add the path guard" }
+    }
+    $guarded
+  } else {
+    "[ -x '" + $binary + "' ] || {\n  printf '%s\\n' '" + $starship_stale_hint + "' >&2\n  return 0\n}\n" + $content
+  }
 }
 
 def write-atomic [target: path, content: string] {
@@ -25,7 +79,7 @@ def write-atomic [target: path, content: string] {
     $content | save --force $temporary
     let extension = ($target | path parse | get extension)
     let validation = match $extension {
-      "bash" => (bash -n $temporary | complete)
+      "bash" => (^(native-bash) -n $temporary | complete)
       "zsh" => (zsh -n $temporary | complete)
       _ => { exit_code: 0, stdout: "", stderr: "" }
     }
@@ -40,7 +94,8 @@ def write-atomic [target: path, content: string] {
 }
 
 def generate [] {
-  for tool in ["starship" "zoxide" "fzf" "carapace" "bash"] {
+  native-bash | ignore
+  for tool in ["starship" "zoxide" "fzf" "carapace"] {
     ensure-tool $tool
   }
   # Zsh is optional: CI runners and Windows hosts often lack it, and Bash/Nushell setup must not depend on it.
@@ -71,7 +126,7 @@ def generate [] {
     generate-output carapace _carapace bash | str replace --regex '^export PATH=.*\r?\n' ''
   }
   write-atomic ($bash_init | path join "carapace.bash") $carapace_bash
-  write-atomic ($bash_init | path join "starship.bash") (generate-output starship init bash "--print-full-init")
+  write-atomic ($bash_init | path join "starship.bash") (guard-starship bash (generate-output starship init bash "--print-full-init"))
 
   if $has_zsh {
     write-atomic ($zsh_init | path join "fzf.zsh") (generate-output fzf "--zsh")
@@ -80,10 +135,10 @@ def generate [] {
       generate-output carapace _carapace zsh | str replace --regex '^export PATH=.*\r?\n' ''
     }
     write-atomic ($zsh_init | path join "carapace.zsh") $carapace_zsh
-    write-atomic ($zsh_init | path join "starship.zsh") (generate-output starship init zsh)
+    write-atomic ($zsh_init | path join "starship.zsh") (guard-starship zsh (generate-output starship init zsh))
   }
 
-  write-atomic ($nu_init | path join "starship.nu") (generate-output starship init nu)
+  write-atomic ($nu_init | path join "starship.nu") (guard-starship nu (generate-output starship init nu))
   write-atomic ($nu_init | path join "zoxide.nu") (generate-output zoxide init nushell)
   let carapace_nu = with-env { CARAPACE_ENV: "0" } {
     generate-output carapace _carapace nushell
@@ -141,8 +196,14 @@ def status [] {
     $targets = ($targets | append ($nu_init | path join "mise.nu"))
   }
   let missing = ($targets | where {|target| not ($target | path exists) })
-  if not ($missing | is-empty) {
+  let stale = (
+    $targets
+    | where {|target| ($target | path exists) and (($target | path basename) | str starts-with "starship.") }
+    | where {|target| not (starship-path (open --raw $target) | native-path | path exists) }
+  )
+  if not ($missing | is-empty) or not ($stale | is-empty) {
     $missing | each {|target| print --stderr $"missing: ($target)" }
+    $stale | each {|target| print --stderr $"stale starship path: ($target)" }
     error make { msg: "shell setup is incomplete" }
   }
   print "shell setup complete"
