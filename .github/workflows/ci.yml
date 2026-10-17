@@ -421,14 +421,15 @@ jobs:
       matrix:
         os:
           - ubuntu-26.04
-          # - macos-26
-          # - windows-2025
+          - macos-26 # arm64
+          - windows-2025 # x64
 
     steps:
+      # Harden-Runner blocks egress only on Linux; GitHub-hosted macOS and Windows runners support audit mode alone.
       - name: Harden runner
         uses: step-security/harden-runner@ccd8616d44fd3846e67624a50d5aad6d37bf2d25 # v2.22.1
         with:
-          egress-policy: block
+          egress-policy: ${{ runner.os == 'Linux' && 'block' || 'audit' }}
           allowed-endpoints: >-
             ${{ env.MISE_LOCAL_ALLOWED_ENDPOINTS }}
             ${{ env.VALIDATE_MISE_INSTALL_ALLOWED_ENDPOINTS }}
