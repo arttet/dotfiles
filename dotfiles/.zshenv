@@ -3,7 +3,7 @@
 case "$OSTYPE" in
 msys* | cygwin*)
   case "$HOME" in
-  [A-Za-z]:\\*) export HOME="$(cygpath -u "$HOME")" ;;
+  [A-Za-z]:[\\/]*) export HOME="$(cygpath -u "$HOME")" ;;
   esac
   ;;
 esac

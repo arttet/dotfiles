@@ -8,7 +8,11 @@ autoload -Uz compinit
 if [[ -r "$ZCOMP_DUMP" ]]; then
   compinit -C -d "$ZCOMP_DUMP"
 else
-  print -u2 -- 'zsh completion cache missing; run: mise run setup:shell'
+  # Without compinit, compdef is undefined and the generated Carapace and FZF scripts fail. Run the slow full scan
+  # once; it writes the dump, so later sessions take the fast path.
+  print -u2 -- 'zsh completion cache missing; building it now (or run: mise run setup:shell)'
+  mkdir -p "$ZSH_CACHE_DIR"
+  compinit -d "$ZCOMP_DUMP"
 fi
 
 zstyle ':completion:*' use-cache on

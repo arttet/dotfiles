@@ -15,7 +15,6 @@ alias cbr='cargo build --release'
 alias cr='cargo run'
 alias crr='cargo run --release'
 alias ct='cargo test'
-alias cc='cargo check'
 alias cf='cargo fmt'
 alias ca='cargo add'
 alias caa='cargo add --dev'
@@ -31,5 +30,5 @@ alias pu='pip uninstall'
 alias pl='pip list'
 alias pf='pip install -e .'
 
-# Keep standard command semantics except for the explicitly chosen ls replacement.
-alias ls='eza --icons'
+# Keep standard command semantics except for the explicitly chosen ls replacement, and only when eza exists.
+command -v eza >/dev/null 2>&1 && alias ls='eza --icons'

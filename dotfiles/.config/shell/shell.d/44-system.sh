@@ -20,7 +20,13 @@ _dotfiles_confirm() {
 fkill() {
   _dotfiles_signal=TERM
   [ "${1:-}" = --kill ] && _dotfiles_signal=KILL
-  _dotfiles_pid=$(ps -eo pid=,comm= | fzf --no-preview --header 'Select process' | awk '{print $1}')
+  case "${OSTYPE:-}" in
+  # MSYS and Cygwin ps has no -o; its first column is the PID and the last one the command.
+  msys* | cygwin*) _dotfiles_processes=$(ps | awk 'NR > 1 { print $1, $NF }') ;;
+  *) _dotfiles_processes=$(ps -eo pid=,comm=) ;;
+  esac
+  _dotfiles_pid=$(printf '%s\n' "$_dotfiles_processes" | fzf --no-preview --header 'Select process' | awk '{print $1}')
+  unset _dotfiles_processes
   case "$_dotfiles_pid" in
   '' | *[!0-9]*)
     unset _dotfiles_pid _dotfiles_signal
