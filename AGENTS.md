@@ -346,7 +346,7 @@ Rules when adding a tool:
   server live together, so dropping the language means dropping one file.
 - `63-lsp.toml` and `60-fmt.toml` hold servers and formatters that are not tied to a toolchain file —
   either because no such file exists (`bash-language-server`, `marksman`, `shfmt`, `taplo`) or because the
-  server is a separate project from the toolchain (`typescript-language-server`, `cmake-language-server`).
+  server is a separate project from the toolchain (`typescript-language-server`).
 - `94–99` is a contiguous, reserved block (zig, go, cpp, rust, javascript, shell) — do not insert files
   inside it; new language toolchains go at `93` or below.
 - `97-rust.toml` also puts `~/.cargo/bin` near the top of `PATH`; if a tool resolves to an unexpected

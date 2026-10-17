@@ -411,7 +411,7 @@ jobs:
   validate:
     name: Validate (${{ matrix.os }})
     runs-on: ${{ matrix.os }}
-    timeout-minutes: 15
+    timeout-minutes: 20
     needs: [guard, fmt, lint]
     permissions:
       contents: read
@@ -421,14 +421,15 @@ jobs:
       matrix:
         os:
           - ubuntu-26.04
-          # - macos-26
-          # - windows-2025
+          - macos-26 # arm64
+          - windows-2025 # x64
 
     steps:
+      # Harden-Runner blocks egress only on Linux; GitHub-hosted macOS and Windows runners support audit mode alone.
       - name: Harden runner
         uses: step-security/harden-runner@ccd8616d44fd3846e67624a50d5aad6d37bf2d25 # v2.22.1
         with:
-          egress-policy: block
+          egress-policy: ${{ runner.os == 'Linux' && 'block' || 'audit' }}
           allowed-endpoints: >-
             ${{ env.MISE_LOCAL_ALLOWED_ENDPOINTS }}
             ${{ env.VALIDATE_MISE_INSTALL_ALLOWED_ENDPOINTS }}
@@ -441,8 +442,15 @@ jobs:
         with:
           persist-credentials: false
 
+      - name: Shorten mise install paths
+        if: runner.os == 'Windows'
+        run: echo 'MISE_INSTALLS_DIR=C:\m' >> "$GITHUB_ENV"
+
       - name: Setup mise
         uses: jdx/mise-action@2d8d4cafcbd33be2ea37d2b6f5ad595363d1f1ca # v5.1.1
+        env:
+          TEMP: ${{ runner.temp }}
+          TMP: ${{ runner.temp }}
         with:
           version: ${{ env.MISE_VERSION }}
           install: false
@@ -454,8 +462,7 @@ jobs:
           rm -rf "$HOME/.config"
           mise run deploy:apply
 
-      - name: Install global mise toolset
-        working-directory: ${{ runner.temp }}
+      - name: Install global and repository mise toolsets
         env:
           GITHUB_TOKEN: ${{ github.token }}
         run: time mise install
