@@ -1,5 +1,5 @@
 # Tier: JavaScript/TypeScript toolchain.
 
 [tools]
-aube = "2.2.16"
-node = "26.11.1"
+aube = "2.7.0"
+node = "26.12.0"

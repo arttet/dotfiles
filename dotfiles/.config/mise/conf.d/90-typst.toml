@@ -3,5 +3,5 @@
 [tools]
 typst = "0.15.1"
 
-typstyle = "0.15.1"
+typstyle = "0.15.2"
 tinymist = "0.15.8"

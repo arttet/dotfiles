@@ -3,7 +3,7 @@
 # Note: the `rust` tool also contributes ~/.cargo/bin to `PATH`.
 
 [tools]
-rust = "1.99.0"
+rust = "1.99.1"
 sccache = "0.18.0"
 
-rust-analyzer = "2026-10-05"
+rust-analyzer = "2026-10-12"
