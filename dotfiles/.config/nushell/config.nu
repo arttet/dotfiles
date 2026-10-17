@@ -39,11 +39,7 @@ $env.config.keybindings = (
 )
 
 let autoload_dir = ($nu.data-dir | path join "vendor" "autoload")
-let required = if $nu.os-info.name == "windows" {
-  ["starship.nu" "zoxide.nu" "carapace.nu"]
-} else {
-  ["mise.nu" "starship.nu" "zoxide.nu" "carapace.nu"]
-}
+let required = ["starship.nu" "zoxide.nu" "carapace.nu"]
 let missing = ($required | where {|name| not (($autoload_dir | path join $name) | path exists) })
 if not ($missing | is-empty) {
   print --stderr $"shell setup missing (($missing | str join ', ')); run: mise run setup:shell"

@@ -144,10 +144,9 @@ def generate [] {
     generate-output carapace _carapace nushell
   }
   write-atomic ($nu_init | path join "carapace.nu") $carapace_nu
-  if $nu.os-info.name != "windows" {
-    ensure-tool mise
-    write-atomic ($nu_init | path join "mise.nu") (generate-output mise activate nu)
-  }
+  # env.nu already puts the mise shims first. A cached `mise activate nu` would freeze the PATH of this run into
+  # every session, so remove one left by an earlier setup.
+  rm --force ($nu_init | path join "mise.nu")
 
   if $has_zsh {
     let zcompdump = ($cache | path join "zsh" "zcompdump")
@@ -191,9 +190,6 @@ def status [] {
       ...(["fzf" "zoxide" "carapace" "starship"] | each {|name| $zsh_init | path join $"($name).zsh" })
       ($cache | path join "zsh" "zcompdump")
     ])
-  }
-  if $nu.os-info.name != "windows" {
-    $targets = ($targets | append ($nu_init | path join "mise.nu"))
   }
   let missing = ($targets | where {|target| not ($target | path exists) })
   let stale = (
