@@ -7,6 +7,9 @@
 # Maintenance helpers for Nushell's SQLite command history
 # ($nu.history-path, file_format: "sqlite" in config.nu).
 #
+# Not loaded at startup. Load on demand:
+#   use ($nu.default-config-dir | path join "modules" "history.nu") *
+#
 # =============================================================================
 
 def history-db [] {
