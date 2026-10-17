@@ -1,8 +1,5 @@
 # Tier: file managers.
 
-[tool_alias]
-superfile = "github:yorukot/superfile"
-
 [tools]
 superfile = "1.6.0"
 yazi = "26.9.1"

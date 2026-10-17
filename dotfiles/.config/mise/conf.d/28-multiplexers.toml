@@ -1,6 +1,6 @@
 # Tier: terminal multiplexers.
 
 [tools]
-herdr = "0.9.3"
+herdr = "0.9.5"
 tmux = { version = "3.7b", os = ["linux", "macos"] }
 zellij = "0.45.1"
