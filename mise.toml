@@ -11,8 +11,9 @@ aube = "2.7.0"
 codeql = { version = "2.27.2", bin_path = "codeql", platforms = { linux-x64 = { asset_pattern = "codeql-linux64.zip" }, macos-arm64 = { asset_pattern = "codeql-osx64.zip" }, macos-x64 = { asset_pattern = "codeql-osx64.zip" }, windows-x64 = { asset_pattern = "codeql-win64.zip" } } }
 conftest = "0.71.1"
 dotter = "0.13.5"
-dprint = "0.61.1"
+dprint = "0.63.0"
 editorconfig-checker = "4.0.2"
+gh = "2.102.0"
 grant = { version = "0.6.8", os = ["linux", "macos"] }
 grype = "0.120.1"
 hk = "2.5.0"
@@ -20,7 +21,7 @@ hyperfine = "2.0.0"
 jq = "1.8.2"
 just = "1.58.0"
 lychee = "0.24.2"
-node = "26.11.1"
+node = ["26.11.1", "24.22.0"]
 nushell = "0.116.1"
 osv-scanner = "2.6.0"
 powershell = "7.6.6"
@@ -44,7 +45,7 @@ zizmor = "1.30.1"
 
 "npm:@modelcontextprotocol/inspector" = "2.10.1"
 "npm:markdownlint-cli2" = "0.23.3"
-"npm:renovate" = "44.83.0"
+"npm:renovate" = "44.149.1"
 "npm:retire" = "6.1.0"
 "npm:stylelint" = "17.16.0"
 "npm:wrangler" = "4.149.0"
@@ -54,8 +55,9 @@ AUBE_FETCH_RETRIES = "10"
 AUBE_FETCH_RETRY_FACTOR = "2"
 AUBE_FETCH_RETRY_MAXTIMEOUT = "180000"
 AUBE_FETCH_RETRY_MINTIMEOUT = "20000"
-# NOTE: @yarnpkg/libzip 3.2.2 (Renovate) is yarnpkg/berry release commit 2eb9830, published by hand without provenance.
-AUBE_TRUST_POLICY_EXCLUDE = "pino@9.14.0,fastq@1.20.2,@yarnpkg/libzip@3.2.2"
+# NOTE [npm:@modelcontextprotocol/inspector] pino@9.14.0
+# NOTE [npm:renovate]: @yarnpkg/libzip 3.2.2
+AUBE_TRUST_POLICY_EXCLUDE = "pino@9.14.0,@yarnpkg/libzip@3.2.2"
 DPRINT_CACHE_DIR = "{{config_root}}/.tools/dprint"
 
 [vars]
@@ -123,6 +125,7 @@ run = "mkdir -p .tools/renovate/cache"
 description = "Show available dependency updates with Renovate local report"
 depends = ["deps:renovate:setup"]
 env = { LOG_LEVEL = "info", RENOVATE_GITHUB_COM_TOKEN = "{{ exec(command='gh auth token') }}" }
+tools.node = "24.22.0"
 run = """
 renovate \
   --platform=local \
@@ -334,6 +337,7 @@ run = "taplo lint --no-schema"
 
 [tasks."lint:renovate"]
 description = "Validate the Renovate configuration"
+tools.node = "24.22.0"
 run = "renovate-config-validator --strict renovate.json"
 
 [tasks."lint:typos"]

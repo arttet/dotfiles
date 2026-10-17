@@ -14,11 +14,11 @@ Cross-platform shell, terminal, editor, and AI-agent configuration deployed with
 
 ## Requirements
 
-| Tool                                           | Purpose                                                                             | Required |
-| ---------------------------------------------- | ----------------------------------------------------------------------------------- | -------- |
-| [mise](https://mise.jdx.dev/)                  | Installs the pinned toolchain and runs every task.                                  | Yes      |
-| [dotter](https://github.com/SuperCuber/dotter) | Deploys the configuration symlinks.                                                 | Yes      |
-| [GitHub CLI](https://cli.github.com/)          | Installs [GitHub Dash](https://github.com/dlvhdr/gh-dash) in the post-deploy setup. | Optional |
+| Tool                                           | Purpose                                                                                                                                        | Required |
+| ---------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------- | -------- |
+| [mise](https://mise.jdx.dev/)                  | Installs the pinned toolchain and runs every task.                                                                                             | Yes      |
+| [dotter](https://github.com/SuperCuber/dotter) | Deploys the configuration symlinks.                                                                                                            | Yes      |
+| [GitHub CLI](https://cli.github.com/)          | Supplies the token for the Renovate, zizmor and act tasks; installs [GitHub Dash](https://github.com/dlvhdr/gh-dash) in the post-deploy setup. | Optional |
 
 ## Deploy
 
