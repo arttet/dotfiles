@@ -449,7 +449,7 @@ jobs:
           TMP: ${{ runner.temp }}
         with:
           version: ${{ env.MISE_VERSION }}
-          install: false
+          install_args: vendir
 
       - name: Deploy dotfiles
         shell: bash
