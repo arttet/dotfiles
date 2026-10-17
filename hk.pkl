@@ -1,21 +1,34 @@
 // Git hook manager: https://hk.jdx.dev
 //
-amends "package://github.com/jdx/hk/releases/download/v1.53.0/hk@1.53.0#/Config.pkl"
+amends "package://github.com/jdx/hk/releases/download/v2.7.0/hk@2.7.0#/Config.pkl"
 
-min_hk_version = "1.53.0"
+min_hk_version = "2.7.0"
 default_branch = "main"
 
+// Each step runs a repository-wide mise task once, not per file.
+local gates = new Mapping<String, Step> {
+  ["fmt"] {
+    check = "mise run fmt:all"
+    fix = "mise run fmt:write"
+    exclusive = true
+  }
+  ["lint"] {
+    check = "mise run lint:all"
+    exclusive = true
+  }
+}
+
 hooks {
+  // Check only: formatting is never rewritten during a commit.
   ["pre-commit"] {
-    steps {
-      ["fmt"] {
-        check = "mise run fmt:all"
-        exclusive = true
-      }
-      ["lint"] {
-        check = "mise run lint:all"
-        exclusive = true
-      }
-    }
+    fix = false
+    steps = gates
+  }
+  ["check"] {
+    steps = gates
+  }
+  ["fix"] {
+    fix = true
+    steps = gates
   }
 }
