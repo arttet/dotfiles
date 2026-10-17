@@ -12,7 +12,8 @@ def main [] {
 
   let zsh_init = ($cache | path join "zsh" "init")
   if (which zsh | is-not-empty) and ($zsh_init | path exists) {
-    for file in (ls $zsh_init | where type == file | get name) {
+    # Skip the .zwc files zcompile writes next to each script.
+    for file in (ls $zsh_init | where type == file and name ends-with ".zsh" | get name) {
       let result = (zsh -n $file | complete)
       assert equal $result.exit_code 0 $"invalid Zsh cache ($file): ($result.stderr)"
     }

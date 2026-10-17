@@ -64,7 +64,23 @@ def guard-starship [shell: string, content: string] {
     }
     $guarded
   } else {
-    "[ -x '" + $binary + "' ] || {\n  printf '%s\\n' '" + $starship_stale_hint + "' >&2\n  return 0\n}\n" + $content
+    # starship sets PS2/PROMPT2 with "$(starship prompt --continuation)", which runs starship on every startup.
+    # Single quotes defer it to when a continuation prompt is drawn; promptvars/promptsubst are already on.
+    let lazy = ($content | str replace --regex '(?m)^(PS2|PROMPT2)="\$\(([^"]+)\)"$' "${1}='$(${2})'")
+    "[ -x '" + $binary + "' ] || {\n  printf '%s\\n' '" + $starship_stale_hint + "' >&2\n  return 0\n}\n" + $lazy
+  }
+}
+
+# Compile Zsh scripts to .zwc; `source` and compinit load the compiled form when it is newer.
+def zcompile-all [...files: path] {
+  let targets = if $nu.os-info.name == "windows" {
+    $files | each {|file| cygpath -u $file | str trim }
+  } else {
+    $files
+  }
+  let result = (zsh -f -c 'for f; do zcompile -- "$f" || exit; done' zsh ...$targets | complete)
+  if $result.exit_code != 0 {
+    error make { msg: $"zcompile failed: ($result.stderr)" }
   }
 }
 
@@ -168,6 +184,7 @@ def generate [] {
       rm --force $zcompdump_temporary
       error make { msg: $error.msg }
     }
+    zcompile-all $zcompdump ...(["fzf" "zoxide" "carapace" "starship"] | each {|name| $zsh_init | path join $"($name).zsh" })
   } else {
     print "zsh not found; skipped zsh integrations"
   }
