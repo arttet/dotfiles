@@ -72,6 +72,13 @@ hardens_first(job) if {
 	job.steps[0].with["egress-policy"] == "block"
 }
 
+# GitHub-hosted macOS and Windows runners support audit mode only, so a cross-platform job may relax
+# egress there. Only this exact expression is accepted: anything else could stop blocking on Linux.
+hardens_first(job) if {
+	startswith(job.steps[0].uses, harden_runner)
+	job.steps[0].with["egress-policy"] == "${{ runner.os == 'Linux' && 'block' || 'audit' }}"
+}
+
 # --- Permissions ------------------------------------------------------------
 
 deny contains msg if {
