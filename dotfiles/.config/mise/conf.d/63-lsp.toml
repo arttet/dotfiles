@@ -7,14 +7,12 @@
 
 [tool_alias]
 dockerls = "github:docker/docker-language-server"
-just-lsp = "github:terror/just-lsp"
 sqls = "github:sqls-server/sqls"
 
 [tools]
 buf = "1.75.0"
 dockerls = "0.20.1"
 helm-ls = "0.5.4"
-just-lsp = "0.10.0"
 lua-language-server = "3.19.2"
 marksman = "2026-02-08"
 sqls = "0.2.48"
