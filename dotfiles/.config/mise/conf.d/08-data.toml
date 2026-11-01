@@ -1,7 +1,7 @@
 # Tier: structured data.
 
 [tools]
-fx = "40.0.0"
+fx = "40.0.1"
 jq = "1.8.2"
 sqlite = "3.54.1"
 yq = "4.54.1"

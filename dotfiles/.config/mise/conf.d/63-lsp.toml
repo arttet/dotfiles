@@ -11,7 +11,7 @@ just-lsp = "github:terror/just-lsp"
 sqls = "github:sqls-server/sqls"
 
 [tools]
-buf = "1.74.0"
+buf = "1.75.0"
 dockerls = "0.20.1"
 helm-ls = "0.5.4"
 just-lsp = "0.10.0"
