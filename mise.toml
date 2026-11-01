@@ -783,7 +783,12 @@ run = "kimi doctor"
 [tasks."validate:agent:opencode"]
 description = "Validate OpenCode configuration"
 env = { OPENCODE_CONFIG_DIR = "{{config_root}}/dotfiles/.config/opencode" }
-run = "opencode debug config --pure"
+# NOTE: `debug config` exits 0 on a broken file: a syntax error drops the document from the list and a schema
+# error leaves it with an empty `info`. Hence the assertion on the output rather than on the exit code.
+run = """
+opencode debug config --standalone \
+  | jq -e 'any(.[]; .type == "document" and (.path | endswith("opencode.jsonc")) and (.info | length > 0))' > /dev/null
+"""
 
 # ==============================================================================
 # Stage 2: Model Context Protocol server
