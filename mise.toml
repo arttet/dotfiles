@@ -7,7 +7,7 @@ selene = "aqua:Kampfkarren/selene"
 [tools]
 act = "0.2.92"
 actionlint = "1.7.12"
-aube = { version = "2.8.4", workflow = ["release-plz.yml@refs/heads/main", "release.yml@refs/heads/main"] }
+aube = { version = "2.8.5", workflow = ["release-plz.yml@refs/heads/main", "release.yml@refs/heads/main"] }
 codeql = { version = "2.27.3", bin_path = "codeql", platforms = { linux-x64 = { asset_pattern = "codeql-linux64.zip" }, macos-arm64 = { asset_pattern = "codeql-osx64.zip" }, macos-x64 = { asset_pattern = "codeql-osx64.zip" }, windows-x64 = { asset_pattern = "codeql-win64.zip" } } }
 conftest = "0.71.1"
 dotter = "0.13.5"
@@ -25,9 +25,9 @@ node = ["26.12.0", "24.22.0"]
 nushell = "0.116.1"
 osv-scanner = "2.7.0"
 powershell = "7.6.9"
-python = "3.14.8"
+python = "3.14.10"
 selene = "0.32.0"
-semgrep = "1.182.1"
+semgrep = { version = "1.183.0", python = "3.14" }
 shellcheck = "0.11.0"
 shfmt = "3.14.1"
 stylua = "2.6.0"
@@ -39,16 +39,16 @@ trufflehog = "3.99.7"
 typos = "1.51.1"
 uv = "0.13.6"
 vendir = "0.46.3"
-yamllint = "1.38.0"
+yamllint = { version = "1.38.0", python = "3.14" }
 yq = "4.54.1"
 zizmor = "1.31.1"
 
 "npm:@modelcontextprotocol/inspector" = "2.13.0"
 "npm:markdownlint-cli2" = "0.24.0"
-"npm:renovate" = "44.196.0"
+"npm:renovate" = "44.198.3"
 "npm:retire" = "6.1.0"
 "npm:stylelint" = "17.16.0"
-"npm:wrangler" = "4.155.0"
+"npm:wrangler" = "4.156.0"
 
 [env]
 AUBE_FETCH_RETRIES = "10"
