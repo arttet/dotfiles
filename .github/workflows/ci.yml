@@ -21,7 +21,7 @@ defaults:
     shell: bash
 
 env:
-  MISE_VERSION: v2026.10.8
+  MISE_VERSION: v2026.10.14
   MISE_DATA_DIR: ${{ github.workspace }}/.tools/mise
   DPRINT_CACHE_DIR: ${{ github.workspace }}/.tools/dprint
   AUBE_TRUST_POLICY_EXCLUDE: pino@9.14.0,@yarnpkg/libzip@3.2.2
@@ -113,7 +113,7 @@ jobs:
           persist-credentials: false
 
       - name: Setup mise
-        uses: jdx/mise-action@2d8d4cafcbd33be2ea37d2b6f5ad595363d1f1ca # v5.1.1
+        uses: jdx/mise-action@82a612c5ab8bcda7cc5db6b7e81a8e7584c3dc6e # v5.2.3
         with:
           version: ${{ env.MISE_VERSION }}
           reshim: true
@@ -147,7 +147,7 @@ jobs:
           persist-credentials: false
 
       - name: Setup mise
-        uses: jdx/mise-action@2d8d4cafcbd33be2ea37d2b6f5ad595363d1f1ca # v5.1.1
+        uses: jdx/mise-action@82a612c5ab8bcda7cc5db6b7e81a8e7584c3dc6e # v5.2.3
         with:
           version: ${{ env.MISE_VERSION }}
           reshim: true
@@ -197,7 +197,7 @@ jobs:
           persist-credentials: false
 
       - name: Setup mise
-        uses: jdx/mise-action@2d8d4cafcbd33be2ea37d2b6f5ad595363d1f1ca # v5.1.1
+        uses: jdx/mise-action@82a612c5ab8bcda7cc5db6b7e81a8e7584c3dc6e # v5.2.3
         with:
           version: ${{ env.MISE_VERSION }}
           reshim: true
@@ -238,20 +238,20 @@ jobs:
         run: mise run security:all
 
       - name: Upload Trivy SARIF
-        uses: github/codeql-action/upload-sarif@24c54180a607b1449ed407dd24f251e4e9147c8d # v4.38.3
+        uses: github/codeql-action/upload-sarif@9b3254085494b55a0f7c4c2b3d2d52cc712ce370 # v4.39.1
         if: ${{ needs.guard.outputs.trusted == 'true' && hashFiles('.tools/trivy/trivy-results.sarif') != '' }}
         with:
           sarif_file: .tools/trivy/trivy-results.sarif
 
       - name: Upload CodeQL SARIF (actions)
-        uses: github/codeql-action/upload-sarif@24c54180a607b1449ed407dd24f251e4e9147c8d # v4.38.3
+        uses: github/codeql-action/upload-sarif@9b3254085494b55a0f7c4c2b3d2d52cc712ce370 # v4.39.1
         if: ${{ needs.guard.outputs.trusted == 'true' && hashFiles('.tools/codeql/actions.sarif') != '' }}
         with:
           sarif_file: .tools/codeql/actions.sarif
           category: actions
 
       - name: Upload CodeQL SARIF (javascript)
-        uses: github/codeql-action/upload-sarif@24c54180a607b1449ed407dd24f251e4e9147c8d # v4.38.3
+        uses: github/codeql-action/upload-sarif@9b3254085494b55a0f7c4c2b3d2d52cc712ce370 # v4.39.1
         if: ${{ needs.guard.outputs.trusted == 'true' && hashFiles('.tools/codeql/javascript.sarif') != '' }}
         with:
           sarif_file: .tools/codeql/javascript.sarif
@@ -285,7 +285,7 @@ jobs:
           persist-credentials: false
 
       - name: Setup mise
-        uses: jdx/mise-action@2d8d4cafcbd33be2ea37d2b6f5ad595363d1f1ca # v5.1.1
+        uses: jdx/mise-action@82a612c5ab8bcda7cc5db6b7e81a8e7584c3dc6e # v5.2.3
         with:
           version: ${{ env.MISE_VERSION }}
           reshim: true
@@ -340,7 +340,7 @@ jobs:
           persist-credentials: false
 
       - name: Setup mise
-        uses: jdx/mise-action@2d8d4cafcbd33be2ea37d2b6f5ad595363d1f1ca # v5.1.1
+        uses: jdx/mise-action@82a612c5ab8bcda7cc5db6b7e81a8e7584c3dc6e # v5.2.3
         with:
           version: ${{ env.MISE_VERSION }}
           reshim: true
@@ -376,7 +376,7 @@ jobs:
         run: mise run docs:all
 
       - name: Upload CodeQL SARIF (javascript)
-        uses: github/codeql-action/upload-sarif@24c54180a607b1449ed407dd24f251e4e9147c8d # v4.38.3
+        uses: github/codeql-action/upload-sarif@9b3254085494b55a0f7c4c2b3d2d52cc712ce370 # v4.39.1
         if: ${{ always() && needs.guard.outputs.trusted == 'true' && hashFiles('.tools/codeql/javascript.sarif') != '' }}
         with:
           sarif_file: .tools/codeql/javascript.sarif
@@ -447,7 +447,7 @@ jobs:
         run: echo 'MISE_INSTALLS_DIR=C:\m' >> "$GITHUB_ENV"
 
       - name: Setup mise
-        uses: jdx/mise-action@2d8d4cafcbd33be2ea37d2b6f5ad595363d1f1ca # v5.1.1
+        uses: jdx/mise-action@82a612c5ab8bcda7cc5db6b7e81a8e7584c3dc6e # v5.2.3
         env:
           TEMP: ${{ runner.temp }}
           TMP: ${{ runner.temp }}
@@ -513,13 +513,13 @@ jobs:
           persist-credentials: false
 
       - name: Setup mise
-        uses: jdx/mise-action@2d8d4cafcbd33be2ea37d2b6f5ad595363d1f1ca # v5.1.1
+        uses: jdx/mise-action@82a612c5ab8bcda7cc5db6b7e81a8e7584c3dc6e # v5.2.3
         with:
           version: ${{ env.MISE_VERSION }}
           install: false
 
       - name: Install Nix
-        uses: cachix/install-nix-action@13d8dd58da0234aa297dedd986986ccb8e7f3e24 # v31.11.1
+        uses: cachix/install-nix-action@448cde739abec1eaf0646249e3d25bb8d9bc7702 # v31.11.2
         with:
           extra_nix_config: |
             experimental-features = nix-command flakes
@@ -629,7 +629,7 @@ jobs:
           persist-credentials: false
 
       - name: Setup mise
-        uses: jdx/mise-action@2d8d4cafcbd33be2ea37d2b6f5ad595363d1f1ca # v5.1.1
+        uses: jdx/mise-action@82a612c5ab8bcda7cc5db6b7e81a8e7584c3dc6e # v5.2.3
         with:
           version: ${{ env.MISE_VERSION }}
           reshim: true
@@ -755,7 +755,7 @@ jobs:
           persist-credentials: false
 
       - name: Setup mise
-        uses: jdx/mise-action@2d8d4cafcbd33be2ea37d2b6f5ad595363d1f1ca # v5.1.1
+        uses: jdx/mise-action@82a612c5ab8bcda7cc5db6b7e81a8e7584c3dc6e # v5.2.3
         with:
           version: ${{ env.MISE_VERSION }}
           reshim: true

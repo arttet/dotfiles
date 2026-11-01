@@ -26,7 +26,7 @@ defaults:
     shell: bash
 
 env:
-  MISE_VERSION: v2026.10.8
+  MISE_VERSION: v2026.10.14
   MISE_DATA_DIR: ${{ github.workspace }}/.tools/mise
   MISE_LOCAL_ALLOWED_ENDPOINTS: >-
     *.blob.core.windows.net:443
@@ -156,7 +156,7 @@ jobs:
       # this step produces, so a poisoned cache entry would end up inside a signed artifact. Paying for
       # a cold toolchain once per tag is the cheaper side of that trade.
       - name: Setup mise
-        uses: jdx/mise-action@2d8d4cafcbd33be2ea37d2b6f5ad595363d1f1ca # v5.1.1
+        uses: jdx/mise-action@82a612c5ab8bcda7cc5db6b7e81a8e7584c3dc6e # v5.2.3
         with:
           version: ${{ env.MISE_VERSION }}
           reshim: true
