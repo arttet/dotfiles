@@ -158,6 +158,7 @@ provenance = "github-attestations"
 [[tools.codeql]]
 version = "2.27.3"
 backend = "github:github/codeql-cli-binaries"
+specifiers = ["2.27.3"]
 
 [tools.codeql.options]
 asset_pattern = "codeql-linux64.zip"
@@ -177,6 +178,7 @@ provenance = "github-attestations"
 [[tools.codeql]]
 version = "2.27.3"
 backend = "github:github/codeql-cli-binaries"
+specifiers = ["2.27.3"]
 
 [tools.codeql.options]
 asset_pattern = "codeql-osx64.zip"
@@ -995,10 +997,10 @@ url_api = "https://api.github.com/repos/Kampfkarren/selene/releases/assets/60428
 version = "1.183.0"
 backend = "pypi:semgrep"
 specifiers = ["1.183.0"]
-uv = { path = ".mise/locks/semgrep/1.183.0~f3ce7f2c", digest = "sha256:dddf1026425a0dafa633188afa6292800dedefd44325badb3f536bd5584d46a5" }
+uv = { path = ".mise/locks/semgrep/1.183.0~48b0d19e", digest = "sha256:7783aa194c69f4b404681d2758836eaf27495cc6b2bad1db1ba151836343e911" }
 
 [tools.semgrep.options]
-python = "3.14"
+python = "3.14.10"
 
 [[tools.shellcheck]]
 version = "0.11.0"
@@ -1453,10 +1455,10 @@ url_api = "https://api.github.com/repos/carvel-dev/vendir/releases/assets/655447
 version = "1.38.0"
 backend = "pypi:yamllint"
 specifiers = ["1.38.0"]
-uv = { path = ".mise/locks/yamllint/1.38.0~647ee145", digest = "sha256:edde5d24b0d1fbda6a4cf41f4a91ee7e500b508de5522ed0fbaa7c9a90332a7e" }
+uv = { path = ".mise/locks/yamllint/1.38.0~6f7b3a20", digest = "sha256:af78ee244c8e434b899e83745ab31bed3308426cf457bde060e9c04b44143587" }
 
 [tools.yamllint.options]
-python = "3.14"
+python = "3.14.10"
 
 [[tools.yq]]
 version = "4.54.1"
