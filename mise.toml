@@ -33,7 +33,7 @@ shfmt = "3.14.1"
 stylua = "2.6.0"
 syft = "1.57.0"
 taplo = "0.10.0"
-tmux = { version = "3.7b", os = ["linux", "macos"] }
+tmux = { version = "3.7c", os = ["linux", "macos"] }
 trivy = "0.76.2"
 trufflehog = "3.99.8"
 typos = "1.52.0"
