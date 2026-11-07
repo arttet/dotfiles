@@ -17,7 +17,7 @@ defaults:
     shell: bash
 
 env:
-  MISE_VERSION: v2026.10.14
+  MISE_VERSION: v2026.11.2
   MISE_DATA_DIR: ${{ github.workspace }}/.tools/mise
 
 jobs:
@@ -52,7 +52,7 @@ jobs:
           persist-credentials: false
 
       - name: Setup mise
-        uses: jdx/mise-action@82a612c5ab8bcda7cc5db6b7e81a8e7584c3dc6e # v5.2.3
+        uses: jdx/mise-action@6612f0ef07ed2a736cd1e00a94a065522dd41195 # v5.2.5
         with:
           version: ${{ env.MISE_VERSION }}
           install: false
@@ -106,7 +106,7 @@ jobs:
           persist-credentials: false
 
       - name: Setup mise
-        uses: jdx/mise-action@82a612c5ab8bcda7cc5db6b7e81a8e7584c3dc6e # v5.2.3
+        uses: jdx/mise-action@6612f0ef07ed2a736cd1e00a94a065522dd41195 # v5.2.5
         with:
           version: ${{ env.MISE_VERSION }}
           install: false
@@ -155,7 +155,7 @@ jobs:
           persist-credentials: false
 
       - name: Setup mise
-        uses: jdx/mise-action@82a612c5ab8bcda7cc5db6b7e81a8e7584c3dc6e # v5.2.3
+        uses: jdx/mise-action@6612f0ef07ed2a736cd1e00a94a065522dd41195 # v5.2.5
         with:
           version: ${{ env.MISE_VERSION }}
           install: false
@@ -212,6 +212,6 @@ jobs:
           publish_results: true
 
       - name: Upload Scorecard SARIF
-        uses: github/codeql-action/upload-sarif@9b3254085494b55a0f7c4c2b3d2d52cc712ce370 # v4.39.1
+        uses: github/codeql-action/upload-sarif@33d7b85da1a04171e211befe2c739303b9a4c066 # v4.39.3
         with:
           sarif_file: scorecard-results.sarif
