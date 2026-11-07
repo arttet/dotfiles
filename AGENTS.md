@@ -14,7 +14,7 @@ This repository is a personal, cross-platform dotfiles configuration for Artyom 
 - **Deployment model**: Symlink-based dotfiles deployed with **dotter** (`mise run deploy:apply`)
 - **External assets**: Plugins and themes are vendored with **vendir** (`vendir.yml`); wallpapers live in a separate `vendir.wallpapers.yml` and land in `dotfiles/.local/share/backgrounds/`. Each config has its own lock file, plus a `*.windows.yml` variant for Windows path handling
 - **Task runner for agents**: `mise` (`mise.toml`) installs pinned tools and runs all validation and deployment tasks.
-- **Documentation site**: VitePress under `docs/`, served via aube (`cd docs && aube run docs:dev`)
+- **Documentation site**: VitePress under `docs/`, served via aube (`cd docs && aube run docs:dev`). The `packageManager` field in `docs/package.json` must carry the same aube version as `mise.toml`; bump both together
 - **NixOS integration**: `nixos/home.nix` links selected dotfiles into a Home Manager generation
 
 ## Repository Layout
