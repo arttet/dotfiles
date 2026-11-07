@@ -2,6 +2,6 @@
   "name": "mise-npm-install",
   "private": true,
   "dependencies": {
-    "@modelcontextprotocol/inspector": "2.13.0"
+    "@modelcontextprotocol/inspector": "2.14.0"
   }
 }

@@ -4,7 +4,7 @@
 kimi = "npm:@moonshot-ai/kimi-code"
 
 [tools]
-claude-code = "2.1.316"
-codex = "0.166.0"
-kimi = "2.4.1"
+claude-code = "2.1.318"
+codex = "0.167.0"
+kimi = "2.5.2"
 opencode = "2.2.5"

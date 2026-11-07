@@ -2,6 +2,6 @@
   "name": "mise-npm-install",
   "private": true,
   "dependencies": {
-    "stylelint": "17.16.0"
+    "wrangler": "4.158.0"
   }
 }

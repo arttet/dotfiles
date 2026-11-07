@@ -1,5 +1,5 @@
 # Tier: prompt and shell completions.
 
 [tools]
-carapace = "1.8.1"
+carapace = "1.8.2"
 starship = "1.27.0"
