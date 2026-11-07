@@ -13,7 +13,7 @@
 "npm:rea-agents" = "6.8.0"
 
 # NOTE: https://oraios.github.io/serena
-"pipx:serena-agent" = "2.1.0"
+"pipx:serena-agent" = { version = "2.1.0", python = "3.14.10" }
 
 # NOTE: https://graphify.com/
-"pipx:graphifyy" = { version = "0.9.103", uvx_args = "--with mcp" }
+"pipx:graphifyy" = { version = "0.9.103", python = "3.14.10", uvx_args = "--with mcp" }
