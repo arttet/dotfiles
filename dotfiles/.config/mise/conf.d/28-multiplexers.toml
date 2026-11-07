@@ -2,5 +2,5 @@
 
 [tools]
 herdr = "0.9.5"
-tmux = { version = "3.7b", os = ["linux", "macos"] }
+tmux = { version = "3.7c", os = ["linux", "macos"] }
 zellij = "0.45.1"
