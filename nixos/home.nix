@@ -13,6 +13,7 @@ let
 
     ".config/alacritty"
     ".config/bash"
+    ".config/bat"
 
     ".config/aube/config.toml"
     ".config/claude/CLAUDE.md"
@@ -36,14 +37,14 @@ let
 
     ".config/kimi-code/AGENTS.md"
     ".config/kimi-code/config.toml"
-    ".config/mise/config.toml"
-    ".config/mise/conf.d"
     ".config/kimi-code/mcp.json"
     ".config/kimi-code/themes/nord.json"
     ".config/kimi-code/tui.toml"
 
     ".config/lazygit"
     ".config/mako"
+    ".config/mise/config.toml"
+    ".config/mise/conf.d"
     ".config/nushell"
     ".config/nvim"
 
@@ -51,6 +52,7 @@ let
     ".config/opencode/opencode.jsonc"
     ".config/opencode/tui.json"
 
+    ".config/ripgrep"
     ".config/shell"
     ".config/starship"
     ".config/swayosd"
@@ -62,6 +64,8 @@ let
     ".config/zed/settings.json"
     ".config/zellij"
     ".config/zsh"
+
+    ".local/share/backgrounds"
 
     ".ssh/config"
   ];
