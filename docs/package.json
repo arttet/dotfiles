@@ -3,7 +3,7 @@
   "version": "0.0.1",
   "private": true,
   "type": "module",
-  "packageManager": "aube@2.8.4",
+  "packageManager": "aube@2.9.0",
   "files": [
     "dist"
   ],
@@ -15,14 +15,11 @@
   "devDependencies": {
     "@catppuccin/vitepress": "^0.1.4",
     "@types/node": "^26.6.6",
-    "oxc-minify": "^0.156.0",
+    "oxc-minify": "^0.157.0",
     "vitepress": "^2.0.0-alpha.21",
     "vitepress-plugin-llms": "^1.14.0"
   },
   "overrides": {
-    "@docsearch/css": "^5.0.0",
-    "@docsearch/js": "^5.0.0",
-    "@docsearch/sidepanel-js": "^5.0.0",
-    "minimatch": "^11.0.1"
+    "vitepress-plugin-llms>minimatch": "^11.0.1"
   }
 }
