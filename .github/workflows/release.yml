@@ -156,7 +156,7 @@ jobs:
       # this step produces, so a poisoned cache entry would end up inside a signed artifact. Paying for
       # a cold toolchain once per tag is the cheaper side of that trade.
       - name: Setup mise
-        uses: jdx/mise-action@6612f0ef07ed2a736cd1e00a94a065522dd41195 # v5.2.5
+        uses: jdx/mise-action@d5574b52816a478f9d4e6529a3f6ff17a8a36785 # v5.2.8
         with:
           version: ${{ env.MISE_VERSION }}
           reshim: true
